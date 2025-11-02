@@ -1,4 +1,4 @@
-import { Calendar, Camera, Clapperboard, Flame, Popcorn, Search, TvMinimalPlay } from "lucide-react";
+import { Calendar, Camera, Clapperboard, Flame, Search, TvMinimalPlay } from "lucide-react";
 import Link from "next/link";
 
 export default function MobileNav() {

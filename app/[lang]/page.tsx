@@ -23,6 +23,9 @@ export default function Page() {
       return;
     }
 
+    // Force reInit to recalculate dimensions on mount
+    api.reInit();
+    
     setCurrent(api.selectedScrollSnap());
 
     api.on("select", () => {
@@ -55,25 +58,26 @@ export default function Page() {
       </div>
       <br />
 
-      <div className="mx-auto max-w-sm overflow-visible py-8">
+      <div className="mx-auto w-full max-w-sm">
         <Carousel
           setApi={setApi}
-          className="w-full"
+          className="w-full overflow-visible"
           opts={{
             loop: true,
             align: "center",
-            containScroll: false
+            containScroll: false,
+            skipSnaps: false
           }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <CarouselContent className="-ml-6">
+          <CarouselContent className="-ml-6 items-center py-20">
             {Array.from({ length: 5 }).map((_, index) => (
-              <CarouselItem key={index} className="pl-6 basis-1/3">
+              <CarouselItem key={index} className="pl-6 basis-1/3 shrink-0">
                 <div className="p-2">
                   <Card
                     className={cn(
-                      "transition-all duration-300 ease-in-out",
+                      "transition-all duration-300 ease-in-out relative",
                       index === current
                         ? "scale-150 opacity-100 shadow-xl z-10"
                         : Math.abs(index - current) === 1
