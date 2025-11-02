@@ -16,7 +16,7 @@ export default function DesktopNav() {
           <a href="#" className="hover:text-foreground">Studios</a>
           <a href="#" className="hover:text-foreground">Creators</a>
           <a href="#" className="hover:text-foreground">Live</a>
-          <a href="#" className="hover:text-foreground">Match</a>
+          <a href="#" className="hover:text-foreground">Meet</a>
         </div>
 
         <div className="flex-1 max-xl:hidden"></div>

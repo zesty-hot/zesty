@@ -46,7 +46,7 @@ export default function MobileNav() {
           prefetch={false}
         >
           <Flame className="h-6 w-6" />
-          <span className="text-xs">Match</span>
+          <span className="text-xs">Meet</span>
         </Link>
       </nav>
   );
