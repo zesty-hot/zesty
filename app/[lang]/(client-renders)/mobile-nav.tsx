@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function MobileNav() {
   return (
     <nav
-      className="fixed lg:hidden bottom-0 left-0 right-0 z-50 flex h-16 pt-1 w-full items-center justify-around bg-muted"
+      className="fixed lg:hidden bottom-0 left-0 right-0 z-30 flex h-16 pt-1 w-full items-center justify-around bg-muted"
       style={{ 
         borderTopLeftRadius: "0.375rem", 
         borderTopRightRadius: "0.375rem",
