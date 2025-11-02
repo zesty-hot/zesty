@@ -13,9 +13,11 @@ export default function ThemeToggle() {
     if (theme === "dark") {
       setCookie("zesty-theme", "light", { path: '/' });
       document.documentElement.classList.remove("dark");
+      document.head.querySelector('meta[name="theme-color"]')?.setAttribute("content", "white");
     } else {
       setCookie("zesty-theme", "dark", { path: '/' });
       document.documentElement.classList.add("dark");
+      document.head.querySelector('meta[name="theme-color"]')?.setAttribute("content", "black");
     }
   };
 

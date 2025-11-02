@@ -30,7 +30,8 @@ export default async function RootLayout({
   return (
     <html lang="en" className={htmlClass}>
       <head>
-        <link rel="manifest" href="/site.webmanifest" /> 
+        <link rel="manifest" href="/site.webmanifest" />
+        <meta name="theme-color" content={cookieTheme === "dark" ? "black" : "white"} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
