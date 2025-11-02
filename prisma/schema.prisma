@@ -19,6 +19,7 @@ model User {
   accounts     Account[]
   
   name        String
+  bio         String? @db.VarChar(1000)
   email       String @unique
   slug        String?
   image       String?
@@ -27,6 +28,7 @@ model User {
   stripeId    String?
   verified    Boolean @default(false)
   mobile      String? @db.VarChar(15)
+  location    String? @db.VarChar(100) // Latitude, Longitude
 
   privateAds             PrivateAd[]
   privateOffersSent      PrivateOffer[] @relation("offersSent")
@@ -38,7 +40,8 @@ model User {
   reviewsGiven    Review[] @relation("reviewer")
   reviewsReceived Review[] @relation("reviewee")
 
-  createdAt   DateTime @default(now())
+  lastActive      DateTime?
+  createdAt       DateTime @default(now())
 }
 
 model Review {

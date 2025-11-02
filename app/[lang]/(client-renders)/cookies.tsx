@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/origin_ui_old/button";
 import { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { useParams } from "next/navigation";
@@ -28,16 +28,16 @@ export default function CookieBanner() {
     setMounted(true);
 
     if (typeof window !== "undefined") {
-      const accepted = localStorage.getItem("cookie-consent");
-      const expiraryDate = localStorage.getItem("cookieExpiryDateDate");
+      const accepted = localStorage.getItem("zesty-cookie-consent");
+      const expiraryDate = localStorage.getItem("zesty-cookieExpiryDate");
       const currentDate = new Date();
 
       if (accepted && expiraryDate) {
         const expiryDate = new Date(expiraryDate);
         if (currentDate > expiryDate) {
           setOpen(true);
-          localStorage.removeItem("cookie-consent");
-          localStorage.removeItem("cookieExpiryDateDate");
+          localStorage.removeItem("zesty-cookie-consent");
+          localStorage.removeItem("zesty-cookieExpiryDate");
         } else {
           setOpen(false);
         }
@@ -73,8 +73,8 @@ export default function CookieBanner() {
       if (typeof window !== "undefined") {
         const date = new Date();
         date.setDate(date.getDate() + 30);
-        localStorage.setItem("cookie-consent", "true");
-        localStorage.setItem("cookieExpiryDateDate", date.toISOString());
+        localStorage.setItem("zesty-cookie-consent", "true");
+        localStorage.setItem("zesty-cookieExpiryDate", date.toISOString());
       }
       window.location.reload();
     }, 300); // Match the transition duration
@@ -115,8 +115,8 @@ export default function CookieBanner() {
       if (typeof window !== "undefined") {
         const date = new Date();
         date.setDate(date.getDate() + 30);
-        localStorage.setItem("cookie-consent", "false");
-        localStorage.setItem("cookieExpiryDateDate", date.toISOString());
+        localStorage.setItem("zesty-cookie-consent", "false");
+        localStorage.setItem("zesty-cookieExpiryDate", date.toISOString());
       }
 
       window.location.reload();
