@@ -84,12 +84,13 @@ export default function CookieBanner() {
     setTimeout(() => {
       setOpen(false);
       setMounted(true);
-
+      
       if (typeof window !== "undefined") {
         const date = new Date();
         date.setDate(date.getDate() + 30);
         localStorage.setItem("zesty-cookie-consent", "true");
         localStorage.setItem("zesty-cookieExpiryDate", date.toISOString());
+        window.dispatchEvent(new Event("zesty-cookie-consent-changed"));
       }
     }, 300); // Match the transition duration
   };
@@ -132,6 +133,7 @@ export default function CookieBanner() {
         date.setDate(date.getDate() + 30);
         localStorage.setItem("zesty-cookie-consent", "false");
         localStorage.setItem("zesty-cookieExpiryDate", date.toISOString());
+        window.dispatchEvent(new Event("zesty-cookie-consent-changed"));
       }
     }, 300); // Match the transition duration
   };
