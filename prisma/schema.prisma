@@ -142,6 +142,16 @@ enum PrivateAdServiceCategory {
   OVERNIGHT
 }
 
+enum DaysAvailable {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
 model PrivateAdService {
   id          String @id @default(cuid())
 
@@ -152,6 +162,7 @@ model PrivateAdService {
   length     Int
   price      Int
   category   PrivateAdServiceCategory @default(IN_CALL)
+  days       DaysAvailable[]
 
   createdAt   DateTime @default(now())
 }

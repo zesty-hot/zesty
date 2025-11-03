@@ -79,9 +79,9 @@ export default function Page() {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <CarouselContent className="-ml-6 items-center py-28">
+          <CarouselContent className="-ml-6 items-center py-20">
             {images.map((img, index) => (
-              <CarouselItem key={index} className="pl-6 basis-2/5 shrink-0">
+              <CarouselItem key={index} className="pl-6 basis-2/6 shrink-0">
                 <div className="p-2">
                   <Card
                     className={cn(
