@@ -20,11 +20,14 @@ model Images {
   width     Int
   height    Int
   altText   String?
+  default   Boolean @default(false)
 
   user      User?    @relation(fields: [userId], references: [id])
   userId    String?
 
   createdAt DateTime @default(now())
+
+  @@unique([userId, default])
 }
 
 enum Race {
@@ -40,6 +43,12 @@ enum BodyType {
   SLIM
   AVERAGE
   PLUS_SIZE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  TRANS
 }
 
 model User {
@@ -61,14 +70,14 @@ model User {
   location    String? @db.VarChar(100) // Latitude, Longitude
   bodyType    BodyType?
   race        Race?
-  Images      Images[]
+  images      Images[]
+  gender      Gender?
 
   privateAds             PrivateAd[]
   privateOffersSent      PrivateOffer[] @relation("offersSent")
   privateOffersReceived  PrivateOffer[] @relation("offersReceived")
 
   messagesSent ChatMessage[] @relation("sender")
-  // chats        Chat[] @relation("chatUsers")
   activeChats  Chat[] @relation("activeChat")
   hiddenChats  Chat[] @relation("hiddenChat")
 
@@ -135,6 +144,14 @@ enum PrivateAdServiceType {
   BJ
 }
 
+enum PrivateAdCustomerCategory {
+  MEN
+  WOMEN
+  GROUPS
+  TRANSGENDER
+  DISABLED
+}
+
 enum PrivateAdServiceCategory {
   IN_CALL
   OUT_CALL
@@ -153,18 +170,18 @@ enum DaysAvailable {
 }
 
 model PrivateAdService {
-  id          String @id @default(cuid())
+  id            String @id @default(cuid())
 
-  privateAd   PrivateAd @relation(fields: [privateAdId], references: [id])
-  privateAdId String
+  privateAd     PrivateAd @relation(fields: [privateAdId], references: [id])
+  privateAdId   String
 
-  type       PrivateAdServiceType @default(GFE)
-  length     Int
-  price      Int
-  category   PrivateAdServiceCategory @default(IN_CALL)
-  days       DaysAvailable[]
+  type          PrivateAdServiceType @default(GFE)
+  length        Int
+  price         Int
+  category      PrivateAdServiceCategory @default(IN_CALL)
+  days          DaysAvailable[]
 
-  createdAt   DateTime @default(now())
+  createdAt     DateTime @default(now())
 }
 
 model PrivateAd {
@@ -173,7 +190,10 @@ model PrivateAd {
   title       String
   description String
 
-  services PrivateAdService[]
+  services      PrivateAdService[]
+  acceptsGender PrivateAdCustomerCategory[]
+  acceptsRace   Race[]
+  
 
   active      Boolean @default(true)
 
