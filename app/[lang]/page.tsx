@@ -81,13 +81,13 @@ export default function Page() {
         >
           <CarouselContent className="-ml-6 items-center py-20">
             {images.map((img, index) => (
-              <CarouselItem key={index} className="pl-6 basis-2/6 shrink-0">
+              <CarouselItem key={index} className="pl-6 basis-2/5 shrink-0">
                 <div className="p-2">
                   <Card
                     className={cn(
                       "transition-all duration-300 ease-in-out relative overflow-hidden p-0",
                       index === current
-                        ? "scale-150 opacity-100 shadow-md z-10"
+                        ? "scale-140 opacity-100 shadow-md z-10"
                         : Math.abs(index - current) === 1
                           ? "scale-75 opacity-50"
                           : "scale-50 opacity-0 invisible"
