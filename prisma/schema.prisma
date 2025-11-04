@@ -142,6 +142,7 @@ enum PrivateAdServiceType {
   MEET_AND_GREET
   GFE
   BJ
+  ANAL
 }
 
 enum PrivateAdCustomerCategory {
@@ -178,6 +179,7 @@ model PrivateAdService {
   type          PrivateAdServiceType @default(GFE)
   length        Int
   price         Int
+  isExtra       Boolean @default(false) 
   category      PrivateAdServiceCategory @default(IN_CALL)
   days          DaysAvailable[]
 
@@ -187,21 +189,19 @@ model PrivateAdService {
 model PrivateAd {
   id          String @id @default(cuid())
 
-  title       String
-  description String
+  title       String @db.VarChar(200)
+  description String @db.VarChar(3000)
 
   services      PrivateAdService[]
   acceptsGender PrivateAdCustomerCategory[]
   acceptsRace   Race[]
   
-
-  active      Boolean @default(true)
+  active        Boolean @default(true)
 
   worker        User @relation(fields: [workerId], references: [id])
   workerId      String
 
   createdAt   DateTime @default(now())
-
 }
 
 enum PrivateOfferStatus {

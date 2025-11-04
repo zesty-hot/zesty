@@ -1,15 +1,14 @@
 "use client";
 
 import { useId, useState, useEffect } from "react"
-import { ArrowRightIcon, Funnel, Mars, SearchIcon, Transgender, Venus } from "lucide-react"
+import { ArrowRightIcon, Funnel, SearchIcon } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import FilterComponent from '@/app/[lang]/escorts/(client-renders)/filter';
 
 interface Feature {
   name: string
@@ -63,7 +62,7 @@ export default function Page() {
 
   return (
     <article className="container mx-auto px-10 md:px-4">
-      {/* <section className="flex flex-row -mb-2">
+      <section className="flex flex-row -mb-2">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
           className="w-24 h-24 mx-auto text-neutral-600"
           viewBox="0 0 600 600">
@@ -77,7 +76,7 @@ export default function Page() {
           <path d="M0 0 C3.51460872 7.82046027 7.02355864 15.64340276 10.52301025 23.47065735 C12.15743489 27.1244756 13.80198217 30.7734527 15.45703125 34.41796875 C16.09663147 35.84102123 16.73598498 37.26418464 17.375 38.6875 C17.91898437 39.88761719 18.46296875 41.08773437 19.0234375 42.32421875 C19.34570312 43.20722656 19.66796875 44.09023438 20 45 C19 47 19 47 16.6875 48.1875 C13.88010429 49.03624754 12.698065 48.99928333 10 48 C10 47.34 10 46.68 10 46 C9.4225 45.7525 8.845 45.505 8.25 45.25 C5.67060021 43.81700012 3.93878408 42.21575324 2 40 C2 39.34 2 38.68 2 38 C0.515 37.505 0.515 37.505 -1 37 C-1 36.34 -1 35.68 -1 35 C-2.32 34.34 -3.64 33.68 -5 33 C-5 32.34 -5 31.68 -5 31 C-5.5887793 30.73719238 -6.17755859 30.47438477 -6.78417969 30.20361328 C-9.10339241 28.94383819 -10.60949403 27.61995979 -12.453125 25.7421875 C-13.071875 25.11699219 -13.690625 24.49179687 -14.328125 23.84765625 C-14.96234375 23.19667969 -15.5965625 22.54570312 -16.25 21.875 C-16.8996875 21.21628906 -17.549375 20.55757813 -18.21875 19.87890625 C-19.81711727 18.25703357 -21.41061897 16.6306719 -23 15 C-21.81006949 11.43020848 -20.95445113 11.04036929 -17.8515625 9.08203125 C-17.01109375 8.55029297 -16.170625 8.01855469 -15.3046875 7.47070312 C-14.42039063 6.92349609 -13.53609375 6.37628906 -12.625 5.8125 C-11.7484375 5.25369141 -10.871875 4.69488281 -9.96875 4.11914062 C-3.39019574 0 -3.39019574 0 0 0 Z " transform="translate(267,269)" />
           <path d="M0 0 C1.10102642 8.35600408 1.10094304 16.58807963 1 25 C-1.04224637 24.88485851 -3.08380159 24.75742674 -5.125 24.625 C-6.26195312 24.55539062 -7.39890625 24.48578125 -8.5703125 24.4140625 C-12.06989634 23.99156149 -14.80838655 23.50752806 -18 22 C-19.71484375 19.50390625 -19.71484375 19.50390625 -20.9375 16.5625 C-21.35902344 15.59441406 -21.78054688 14.62632812 -22.21484375 13.62890625 C-23 11 -23 11 -22 8 C-20.08227539 6.92504883 -20.08227539 6.92504883 -17.59765625 5.95703125 C-16.26250977 5.43012695 -16.26250977 5.43012695 -14.90039062 4.89257812 C-13.96388672 4.53615234 -13.02738281 4.17972656 -12.0625 3.8125 C-10.66354492 3.26045898 -10.66354492 3.26045898 -9.23632812 2.69726562 C-2.31551484 0 -2.31551484 0 0 0 Z " transform="translate(353,296)" />
         </svg>
-      </section> */}
+      </section>
 
       <section className="mb-4 flex flex-row w-full">
         <div className="relative flex w-full">
@@ -114,71 +113,14 @@ export default function Page() {
                 <TooltipContent side="bottom" className="max-sm:hidden">
                   <p>Advanced filtering</p>
                 </TooltipContent>
-                <DialogContent>
+                <DialogContent className="sm:min-w-xl rounded-2xl ">
                   <DialogHeader>
                     <DialogTitle>Filters</DialogTitle>
                     <DialogDescription>Refine your search results</DialogDescription>
                   </DialogHeader>
-                  <div className="grid gap-4 pt-4">
 
-                    <div className="grid grid-cols-3 gap-3">
-                      <div
-                        className="relative flex cursor-pointer flex-col gap-4 rounded-md border border-input p-4 shadow-xs outline-none has-data-[state=checked]:border-primary/50"
-                      >
-                        <div className="flex justify-between gap-2">
-                          <Checkbox
-                            id={`man-checkbox`}
-                            value={`man`}
-                            className="order-1 after:absolute after:inset-0"
-                            defaultChecked={false}
-                          />
-                          <Mars className="opacity-60" size={16} aria-hidden="true" />
-                        </div>
-                        <Label htmlFor={`man-checkbox`}>Men</Label>
-                      </div>
-                      <div
-                        className="relative flex cursor-pointer flex-col gap-4 rounded-md border border-input p-4 shadow-xs outline-none has-data-[state=checked]:border-primary/50"
-                      >
-                        <div className="flex justify-between gap-2">
-                          <Checkbox
-                            id={`woman-checkbox`}
-                            value={`woman`}
-                            className="order-2 after:absolute after:inset-0"
-                            defaultChecked={false}
-                          />
-                          <Venus className="opacity-60" size={16} aria-hidden="true" />
-                        </div>
-                        <Label htmlFor={`woman-checkbox`}>Women</Label>
-                      </div>
+                  <FilterComponent />
 
-                      <div
-                        className="relative flex cursor-pointer flex-col gap-4 rounded-md border border-input p-4 shadow-xs outline-none has-data-[state=checked]:border-primary/50"
-                      >
-                        <div className="flex justify-between gap-2">
-                          <Checkbox
-                            id={`trans-checkbox`}
-                            value={`trans`}
-                            className="order-3 after:absolute after:inset-0"
-                            defaultChecked={false}
-                          />
-                          <Transgender className="opacity-60" size={16} aria-hidden="true" />
-                        </div>
-                        <Label htmlFor={`trans-checkbox`}>Trans</Label>
-                      </div>
-                    </div>
-
-                    {/* Example filter: Location */}
-                    <div className="grid gap-2">
-                      <Label htmlFor="location">Location</Label>
-                      <Input id="location" placeholder="Enter location" />
-                    </div>
-                    {/* Example filter: Price Range */}
-                    <div className="grid gap-2">
-                      <Label htmlFor="price-range">Price Range</Label>
-                      <Input id="price-range" placeholder="e.g., $100 - $500" />
-                    </div>
-                    {/* Add more filters as needed */}
-                  </div>
                   <DialogFooter className="md:gap-6">
                     <Button type="submit" variant="destructive-outline">Reset Filters</Button>
                     <Button type="submit">Apply Filters</Button>
@@ -192,8 +134,8 @@ export default function Page() {
 
       {/* Show Featured section only when search is empty */}
       {!searchQuery && (
-        <section className="md:max-w-[60%] mx-auto mb-8">
-          <h2 className="text-2xl font-bold mb-4">Featured</h2>
+        <section className="md:max-w-[60%] mx-auto my-8">
+          <h2 className="text-2xl font-bold mb-4">Featured escort</h2>
           <Link href="#" className="block transition-transform hover:scale-[1.02]">
             <div className="grid gap-4">
               {/* Main featured image */}
@@ -234,7 +176,7 @@ export default function Page() {
           <p className="text-muted-foreground">No results found. Try a different search term.</p>
         </section>
       )}
-
+{/* 
       <div className="flex min-h-[calc(100vh*0.55)] items-center justify-center p-4 mb-5 mt-5">
         <div className="text-center space-y-6">
           <svg
@@ -270,7 +212,7 @@ export default function Page() {
             <p className="text-muted-foreground text-lg">This escort directory is currently being built. Check back soon!</p>
           </div>
         </div>
-      </div>
+      </div> */}
     </article>
   );
 }
