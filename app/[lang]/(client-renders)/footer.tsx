@@ -19,7 +19,7 @@ const LEGAL_LINKS = [
 export function Footer() {
   return (
     <footer
-      className="bg-background text-sm pb-6"
+      className="bg-background text-sm pb-6 mt-2"
       role="contentinfo"
       aria-label="Site footer"
     >

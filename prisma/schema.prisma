@@ -92,15 +92,16 @@ model User {
 
 model Review {
   id          String @id @default(cuid())
-
-  reviewerId  String
-  revieweeId  String
+  comment     String? @db.VarChar(1000)
   rating      Int @db.SmallInt
 
-  comment     String? @db.VarChar(1000)
-
   reviewer    User @relation("reviewer", fields: [reviewerId], references: [id])
+  reviewerId  String
   reviewee    User @relation("reviewee", fields: [revieweeId], references: [id])
+  revieweeId  String
+ 
+  offer       PrivateOffer? @relation(fields: [offerId], references: [id])
+  offerId     String?  // optional link to the transaction/offer
 
   createdAt   DateTime @default(now())  
 }
@@ -179,7 +180,7 @@ model PrivateAdService {
   privateAdId   String
 
   type          PrivateAdServiceType @default(GFE)
-  length        Int
+  length        Int?
   price         Int
   isExtra       Boolean @default(false) 
   category      PrivateAdServiceCategory @default(IN_CALL)
@@ -204,6 +205,8 @@ model PrivateAd {
   workerId      String
 
   createdAt   DateTime @default(now())
+
+  @@unique([workerId])
 }
 
 enum PrivateOfferStatus {
@@ -215,12 +218,10 @@ enum PrivateOfferStatus {
 
 model PrivateOffer {
   id            String @id @default(cuid())
-
   amount        Int
   adId          String
 
   status        PrivateOfferStatus @default(PENDING)
-
   expiresAt     DateTime?
 
   client        User @relation("offersSent", fields: [clientId], references: [id])
@@ -228,8 +229,15 @@ model PrivateOffer {
   worker        User @relation("offersReceived", fields: [workerId], references: [id])
   workerId      String
 
+  chat          Chat? @relation(fields: [chatId], references: [id])
+  chatId        String?
+
   createdAt     DateTime @default(now())
+
+  Review Review[]
 }
+
+
 
 model Chat {
   id        String @id @default(cuid())
@@ -239,6 +247,8 @@ model Chat {
 
   activeUsers User[] @relation("activeChat")
   hiddenUsers User[] @relation("hiddenChat")
+
+  PrivateOffer PrivateOffer[]
 }
 
 model ChatMessage {

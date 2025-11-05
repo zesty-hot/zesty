@@ -3,7 +3,9 @@
 import { Slider } from "@/components/ui/slider"
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Mars, Transgender, Venus } from "lucide-react";
+import { DollarSign, Map, Mars, Minimize2, Transgender, Trophy, Venus } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
 
 // Define the shape of our filter data
 export interface FilterData {
@@ -19,7 +21,9 @@ interface FilterProps {
   onFilterChange: (filters: FilterData) => void;
 }
 
-export default function Filter({ filterData, onFilterChange }: FilterProps) {
+export default function FilterComponent({ filterData, onFilterChange }: FilterProps) {
+  const [sortValue, setSortValue] = useState("distance");
+
   // Helper functions to update specific filter fields
   const updateGender = (gender: string, checked: boolean) => {
     const newGender = checked
@@ -47,11 +51,45 @@ export default function Filter({ filterData, onFilterChange }: FilterProps) {
   };
 
   return (
-    <section>
-      <div className="grid gap-4">
+    <section className="select-none">
+      <div className="grid gap-4 select-none">
+        <div className="grid gap-3">
+          <Label htmlFor={'sort-select'}>Sort</Label>
+          <Select value={sortValue} onValueChange={setSortValue} name="sort">
+            <SelectTrigger id='sort-select'>
+              <span className="flex items-center gap-2">
+                {sortValue === "distance" && <><Map size={16} aria-hidden="true" />Distance</>}
+                {sortValue === "lowest-price" && <><DollarSign size={16} aria-hidden="true" />Lowest price</>}
+                {sortValue === "highest-rating" && <><Trophy size={16} aria-hidden="true" />Highest rating</>}
+              </span>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="distance">
+                <span className="flex items-center gap-2">
+                  {/* <Route /> */}
+                  <Map size={16} aria-hidden="true" />
+                  Distance
+                </span>
+              </SelectItem>
+              <SelectItem value="lowest-price">
+                <span className="flex items-center gap-2">
+                  <DollarSign size={16} aria-hidden="true" />
+                  Lowest price
+                </span>
+              </SelectItem>
+              <SelectItem value="highest-rating">
+                <span className="flex items-center gap-2">
+                  <Trophy size={16} aria-hidden="true" />
+                  Highest rating
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <Label htmlFor="gender">Gender</Label>
         <div className="grid grid-cols-3 gap-3">
-          {[{gender: 'man', icon: Mars}, {gender: 'woman', icon: Venus}, {gender: 'trans', icon: Transgender}].map(({gender, icon: Icon}, index) => (
+          {[{ gender: 'man', icon: Mars }, { gender: 'woman', icon: Venus }, { gender: 'trans', icon: Transgender }].map(({ gender, icon: Icon }, index) => (
             <label
               key={index}
               className="relative flex cursor-pointer dark:bg-neutral-800 flex-col gap-4 rounded-md border border-input p-4 shadow-xs hover:border-primary/40 outline-none has-data-[state=checked]:border-primary/50"
@@ -73,7 +111,7 @@ export default function Filter({ filterData, onFilterChange }: FilterProps) {
           ))}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 select-none">
           <div className="flex items-center justify-between gap-2">
             <Label className="leading-6">Age</Label>
             <output className="text-sm font-medium tabular-nums">
@@ -93,7 +131,7 @@ export default function Filter({ filterData, onFilterChange }: FilterProps) {
               }
             }}
             aria-label="Age"
-            className="cursor-pointer"
+            className="cursor-pointer select-none"
           />
         </div>
 
@@ -127,7 +165,7 @@ export default function Filter({ filterData, onFilterChange }: FilterProps) {
             },
             {
               // SVGRect {x: 128.99037170410156, y: 8.117077827453613, width: 328.0350341796875, height: 499.8729553222656}
-              id: "athlete", label: "Athlete", icon: (
+              id: "athlete", label: "Athletic", icon: (
                 <svg xmlns="http://www.w3.org/2000/svg"
                   viewBox="128.99037170410156 8.117077827453613 328.0350341796875 499.8729553222656"
                   fill="currentColor"
@@ -140,12 +178,12 @@ export default function Filter({ filterData, onFilterChange }: FilterProps) {
           ].map(({ id, label, icon }) => (
             <Label key={id} htmlFor={`${id}-checkbox`} className="cursor-pointer">
               <div className="relative flex items-center dark:bg-neutral-800 gap-3 w-full rounded-md border border-input p-4 shadow-xs hover:border-primary/40 transition-colors has-data-[state=checked]:border-primary/50">
-                <Checkbox 
-                  id={`${id}-checkbox`} 
+                <Checkbox
+                  id={`${id}-checkbox`}
                   name="body-type"
                   checked={filterData.bodyType.includes(id)}
                   onCheckedChange={(checked) => updateBodyType(id, checked as boolean)}
-                  className="shrink-0" 
+                  className="shrink-0"
                 />
                 <div className="flex items-center gap-1 w-full justify-center md:justify-start">
                   {icon}
@@ -156,19 +194,19 @@ export default function Filter({ filterData, onFilterChange }: FilterProps) {
           ))}
         </div>
 
-        <div className="grid gap-2">
+        <div className="grid gap-3">
           <Label htmlFor="race">Race</Label>
           <ul className="items-center w-full text-sm font-medium dark:bg-neutral-800 border rounded-lg sm:flex">
-            {['white', 'asian', 'african', 'arabic', 'hispanic', 'desi'].map((race, index) => (
+            {['white', 'asian', 'african', 'arabic', 'desi', 'hispanic'].map((race, index) => (
               <li className={`w-full sm:border-b-0 ${index < 5 ? 'sm:border-r border-b' : ''}`} key={index}>
                 <label htmlFor={`${race}-checkbox`} className="flex items-center ps-3 py-3 w-full cursor-pointer hover:bg-muted/50 transition-colors">
-                  <Checkbox 
-                    id={`${race}-checkbox`} 
-                    name="race" 
+                  <Checkbox
+                    id={`${race}-checkbox`}
+                    name="race"
                     value={race}
                     checked={filterData.race.includes(race)}
                     onCheckedChange={(checked) => updateRace(race, checked as boolean)}
-                    className="shrink-0" 
+                    className="shrink-0"
                   />
                   <span className="ms-2 text-sm font-medium">{race.charAt(0).toUpperCase() + race.slice(1)}</span>
                 </label>

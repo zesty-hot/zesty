@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { calculateAge } from '@/lib/calculate-age';
 
 export async function GET() {
   try {
@@ -29,20 +30,21 @@ export async function GET() {
       select: {
         id: true,
         title: true,
-        services: {
-          select: {
-            price: true,
-            length: true,
-          }
-        },
+        services: true,
         worker: {
           select: {
             id: true,
             slug: true,
+            dob: true,
+            gender: true,
+            bodyType: true,
+            race: true,
+            name: false,
             suburb: true,
+            location: true,
             image: true,
             images: {
-              select: { url: true },
+              select: { url: true, default: true },
               take: 6 // Get up to 6 images for the featured section
             }
           }
@@ -70,19 +72,24 @@ export async function GET() {
         priceText = `$${minPrice} - $${maxPrice}`;
       }
     }
-    
+
     // Format the response
     const profile = {
       id: ad.worker.id,
       adId: ad.id,
-      name: ad.worker.slug || ad.title || 'Featured Profile',
+      slug: ad.worker.slug || ad.title || 'Featured Profile',
       location: ad.worker.suburb || 'Unknown location',
       price: priceText,
       images: ad.worker.images.length > 0 
-        ? ad.worker.images.map(img => img.url) 
+        ? ad.worker.images.map(img => ({ url: img.url, default: img.default })) 
         : ad.worker.image 
           ? [ad.worker.image] 
-          : ['/placeholder.jpg']
+          : ['/placeholder.jpg'],
+      services: ad.services,
+      age: ad.worker.dob ? calculateAge(ad.worker.dob) : 0,
+      gender: ad.worker.gender || 'FEMALE',
+      bodyType: ad.worker.bodyType || 'REGULAR',
+      race: ad.worker.race || 'WHITE',
     };
     
     return NextResponse.json(profile);

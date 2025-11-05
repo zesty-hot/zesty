@@ -4,6 +4,7 @@ import { useId, useState, useEffect, useCallback } from "react"
 import { ArrowRightIcon, Funnel, SearchIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -13,6 +14,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@
 import { cn } from "@/lib/utils";
 import FilterComponent, { type FilterData } from '@/app/[lang]/escorts/(client-renders)/filter';
 import { useParams } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface LocationSuggestion {
   value: string
@@ -24,10 +26,12 @@ interface LocationSuggestion {
 interface Feature {
   id: string
   adId: string
-  name: string
+  slug: string
+  age: number
+  gender: string
   location: string
   price: string
-  images: string[]
+  images: {url: string, default: boolean}[]
 }
 
 interface EscortProfile {
@@ -40,7 +44,7 @@ interface EscortProfile {
   gender: string
   bodyType: string
   race: string
-  images: string[]
+  images: {url: string, default: boolean}[]
 }
 
 // Fetch a random featured profile from the API
@@ -233,6 +237,7 @@ const defaultFilters: FilterData = {
 export default function Page() {
   const id = useId();
   const { lang } = useParams();
+  const router = useRouter();
   
   // Location search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -369,6 +374,14 @@ export default function Page() {
     filters.race.length + 
     ((filters.age[0] !== 18 || filters.age[1] !== 100) ? 1 : 0);
 
+  // Navigate to profile page with pre-loaded data
+  const handleProfileClick = (e: React.MouseEvent, profile: Feature | EscortProfile) => {
+    e.preventDefault();
+    // Store the profile data in sessionStorage for quick access
+    sessionStorage.setItem(`profile_${profile.slug}`, JSON.stringify(profile));
+    router.push(`/${lang}/escorts/${profile.slug}`);
+  };
+
   // Only compute rotated images if we have a featured profile
   const rotatedImages = featuredProfile ? [
     ...featuredProfile.images.slice(imageRotation),
@@ -468,7 +481,7 @@ export default function Page() {
                 <TooltipContent side="bottom" className="max-sm:hidden">
                   <p>Advanced filtering</p>
                 </TooltipContent>
-                <DialogContent className="sm:min-w-2xl rounded-2xl ">
+                <DialogContent className="sm:min-w-2xl rounded-2xl select-none cursor-default">
                   <DialogHeader>
                     <DialogTitle>Filters</DialogTitle>
                     <DialogDescription>Refine your search results</DialogDescription>
@@ -500,25 +513,37 @@ export default function Page() {
           <h2 className="text-2xl font-bold mb-4">Featured escort</h2>
           
           {isLoadingFeatured ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">Loading featured profile...</p>
+            <div className="grid gap-4">
+              {/* Main featured image skeleton */}
+              <Skeleton className="w-full aspect-16/10 rounded-lg" />
+              
+              {/* Thumbnail grid skeleton */}
+              <div className="grid grid-cols-5 gap-4">
+                {[...Array(5)].map((_, index) => (
+                  <Skeleton key={index} className="aspect-square rounded-lg" />
+                ))}
+              </div>
             </div>
           ) : !featuredProfile ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground text-lg">No featured profiles available.</p>
             </div>
           ) : (
-            <Link href={`/${lang}/escorts/${featuredProfile.id}`} className="block transition-transform hover:scale-[1.02]">
+            <Link 
+              href={`/${lang}/escorts/${featuredProfile.slug}`}  
+              className="block transition-transform hover:scale-[1.02]"
+              onClick={(e) => handleProfileClick(e, featuredProfile)}
+            >
               <div className="grid gap-4">
                 {/* Main featured image */}
                 <div className="relative w-full aspect-16/10 overflow-hidden rounded-lg bg-muted">
                   <img
                     className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
-                    src={rotatedImages[0]}
-                    alt={featuredProfile.name}
+                    src={rotatedImages[0].url}
+                    alt={featuredProfile.slug}
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-4 rounded-b-lg">
-                    <h3 className="text-white text-xl font-semibold">{featuredProfile.name}</h3>
+                    <h3 className="text-white text-xl font-semibold">{featuredProfile.slug}</h3>
                     <p className="text-white/90 text-sm">{featuredProfile.location}</p>
                     <p className="text-white font-bold mt-1">{featuredProfile.price}</p>
                   </div>
@@ -530,8 +555,8 @@ export default function Page() {
                     <div key={index} className="relative overflow-hidden rounded-lg aspect-square bg-muted">
                       <img
                         className="absolute inset-0 w-full h-full object-cover transition-all duration-500"
-                        src={image}
-                        alt={`${featuredProfile.name} - Image ${index + 2}`}
+                        src={image.url}
+                        alt={`${featuredProfile.slug} - Image ${index + 2}`}
                       />
                     </div>
                   ))}
@@ -575,14 +600,15 @@ export default function Page() {
                 {profiles.map((profile) => (
                   <Link 
                     key={profile.id} 
-                    href={`/${lang}/escorts/${profile.id}`}
+                    href={`/${lang}/escorts/${profile.slug}`}
                     className="block transition-transform hover:scale-[1.02]"
+                    onClick={(e) => handleProfileClick(e, profile)}
                   >
                     <div className="rounded-lg border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                       <div className="relative aspect-square overflow-hidden bg-muted">
                         <img
                           className="w-full h-full object-cover"
-                          src={profile.images[0]}
+                          src={profile.images[0].url}
                           alt={profile.slug}
                         />
                       </div>
