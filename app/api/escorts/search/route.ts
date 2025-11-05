@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { Gender, BodyType, Race, User, Images } from '@prisma/client';
+import { Gender, BodyType, Race, DaysAvailable } from '@prisma/client';
 import { calculateDistance } from '@/lib/calculate-distance';
 import { calculateAge } from '@/lib/calculate-age';
 
@@ -21,7 +21,7 @@ interface SearchRequest {
 
 type UserWithDistance = {
   id: string;
-  adId: string;
+  ad: any;
   slug: string | null;
   location: string | null;
   suburb: string | null;
@@ -29,21 +29,22 @@ type UserWithDistance = {
   gender: Gender | null;
   bodyType: BodyType | null;
   race: Race | null;
-  image: string | null;
-  images: { url: string }[];
+  images: { url: string, default: boolean, NSFW: boolean }[];
   minPrice: number | null;
   maxPrice: number | null;
   distance: number;
   age: number | null;
+  lastActive: Date | null;
+  daysAvailable: DaysAvailable[] | null;
+  averageRating: number;
 };
-
-// Calculate age from date of birth
-
 
 export async function POST(request: NextRequest) {
   try {
     const body: SearchRequest = await request.json();
     const { longitude, latitude, filters, page = 1, limit = 30 } = body;
+    const clientLatitude = latitude;
+    const clientLongitude = longitude;
 
     if (!longitude || !latitude) {
       return NextResponse.json(
@@ -97,14 +98,26 @@ export async function POST(request: NextRequest) {
       },
       select: {
         id: true,
+        title: true,
+        description: true,
+        acceptsGender: true,
+        acceptsRace: true,
+        acceptsBodyType: true,
+        acceptsAgeRange: true,
+        extras: true,
+        daysAvailable: true,
         services: {
-          select: {
-            price: true,
-            length: true,
+          include: {
+            options: {
+              orderBy: { price: 'asc' }
+            },
           }
         },
         worker: {
           select: {
+            name: false,
+            image: false,
+
             id: true,
             slug: true,
             location: true,
@@ -113,42 +126,66 @@ export async function POST(request: NextRequest) {
             gender: true,
             race: true,
             bodyType: true,
-            image: true,
+            lastActive: true,
             images: {
-              select: { url: true },
-              take: 5
+              select: { url: true, default: true, NSFW: true },
+              // TODO: select 6 random images but always take 1 default if exists
+              take: 6
             }
           }
         }
       }
     });
 
+    // Get average ratings for all workers in one query
+    const workerIds = ads.map(ad => ad.worker.id);
+    const ratingsData = await prisma.review.groupBy({
+      by: ['revieweeId'],
+      where: {
+        revieweeId: {
+          in: workerIds
+        }
+      },
+      _avg: {
+        rating: true
+      },
+      _count: {
+        rating: true
+      }
+    });
+
+    // Create a map for quick lookup
+    const ratingsMap = new Map(
+      ratingsData.map(r => [
+        r.revieweeId, 
+        { 
+          averageRating: r._avg.rating ?? 0,
+        }
+      ])
+    );
+
     // Calculate distance and age, then filter
     const profilesWithDistance: UserWithDistance[] = ads
-      .filter((ad) => {
-        // Skip if no worker or worker has no location/dob
-        if (!ad.worker || !ad.worker.location || !ad.worker.dob) return false;
-        return true;
-      })
       .map((ad) => {
         const user = ad.worker!;
         // Parse location "lat,lng"
-        const [userLat, userLon] = user.location!.split(',').map(parseFloat);
-        const distance = calculateDistance(latitude, longitude, userLat, userLon);
+        const [workerLat, workerLong] = user.location!.split(',').map(parseFloat);
+        const distance = calculateDistance(clientLatitude, clientLongitude, workerLat, workerLong);
         const age = user.dob ? calculateAge(user.dob) : null;
-        
+        const ratings = ratingsMap.get(user.id) ?? { averageRating: 0 };
+
         // Get price range from all services
         let minPrice = null;
         let maxPrice = null;
         if (ad.services.length > 0) {
-          const prices = ad.services.map(s => s.price);
+          const prices = ad.services.map(s => s.options.map((o) => o.price)).flat();
           minPrice = Math.min(...prices);
           maxPrice = Math.max(...prices);
         }
 
         return {
           id: user.id,
-          adId: ad.id,
+          ad: ad,
           slug: user.slug,
           location: user.location,
           suburb: user.suburb,
@@ -156,12 +193,14 @@ export async function POST(request: NextRequest) {
           gender: user.gender,
           bodyType: user.bodyType,
           race: user.race,
-          image: user.image,
           images: user.images,
           minPrice,
           maxPrice,
           distance,
-          age
+          age,
+          lastActive: user.lastActive,
+          daysAvailable: ad.daysAvailable,
+          averageRating: ratings.averageRating,
         };
       })
       .filter((user) => {
@@ -183,32 +222,49 @@ export async function POST(request: NextRequest) {
     const skip = (page - 1) * limit;
     const paginatedProfiles = profilesWithDistance.slice(skip, skip + limit);
 
+    const timeAgo = (date: Date) => {
+      const now = new Date();
+      const diff = Math.abs(now.getTime() - date.getTime());
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        return `${days} day${days > 1 ? 's' : ''} ago`;
+      }
+      if (hours <= 1) {
+        return 'Just now';
+      }
+      return `${hours} hr${hours > 1 ? 's' : ''} ago`;
+    };
+
     // Format response
     const profiles = paginatedProfiles.map((user) => {
       // Map database enums back to frontend values
       let genderLabel = 'unknown';
-      if (user.gender === Gender.FEMALE) genderLabel = 'woman';
-      else if (user.gender === Gender.MALE) genderLabel = 'man';
-      else if (user.gender === Gender.TRANS) genderLabel = 'trans';
+      if (user.gender === Gender.FEMALE) genderLabel = 'WOMAN';
+      else if (user.gender === Gender.MALE) genderLabel = 'MAN';
+      else if (user.gender === Gender.TRANS) genderLabel = 'TRANS';
 
-        return {
-          id: user.id,
-          adId: user.adId,
-          slug: user.slug,
-          location: user.suburb 
-            ? `${user.suburb} (${user.distance.toFixed(1)}km away)` 
-            : `${user.distance.toFixed(1)}km away`,
-          price: user.minPrice && user.maxPrice 
-            ? (user.minPrice === user.maxPrice 
-                ? `$${user.minPrice}` 
-                : `$${user.minPrice} - $${user.maxPrice}`)
-            : 'Contact for rates',
-          age: user.age,
-          gender: genderLabel,
-          bodyType: user.bodyType?.toLowerCase() || 'regular',
-          race: user.race?.toLowerCase() || 'unknown',
-          images: user.images.length > 0 ? user.images.map(img => img.url) : user.image ? [user.image] : ['/placeholder.jpg']
-        };
+      return {
+        id: user.id,
+        ad: user.ad,
+        slug: user.slug,
+        location: user.suburb,
+        distance: `${user.distance.toFixed(1)}km away`,
+        price: user.minPrice && user.maxPrice
+          ? (user.minPrice === user.maxPrice
+            ? `$${user.minPrice}`
+            : `$${user.minPrice} - $${user.maxPrice}`)
+          : 'Contact for rates',
+        age: user.age,
+        gender: genderLabel,
+        bodyType: user.bodyType || 'regular',
+        race: user.race || 'unknown',
+        images: user.images.map(img => ({ url: img.url, default: img.default, NSFW: img.NSFW })),
+        lastActive: user.lastActive ? timeAgo(user.lastActive) : 'Inactive',
+        daysAvailable: user.daysAvailable || [],
+        averageRating: user.averageRating,
+      };
     });
 
     return NextResponse.json({

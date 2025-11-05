@@ -56,7 +56,7 @@ model User {
   id          String @id @default(cuid())
   accounts     Account[]
   sessions     Session[]
-  
+
   name        String?
   bio         String? @db.VarChar(1000)
   email       String @unique
@@ -97,11 +97,12 @@ model Review {
 
   reviewer    User @relation("reviewer", fields: [reviewerId], references: [id])
   reviewerId  String
+
   reviewee    User @relation("reviewee", fields: [revieweeId], references: [id])
   revieweeId  String
  
   offer       PrivateOffer? @relation(fields: [offerId], references: [id])
-  offerId     String?  // optional link to the transaction/offer
+  offerId     String?
 
   createdAt   DateTime @default(now())  
 }
@@ -141,11 +142,19 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-enum PrivateAdServiceType {
-  MEET_AND_GREET
-  GFE
+enum PrivateAdExtraType {
+  FILMING
   BJ
   ANAL
+  BDSM
+  NATURAL
+  EXTRA_PERSON
+  OUTSIDE_LOCATION
+  COSTUME
+  ROLEPLAY
+  TOY_USE
+  CREAMPIE
+  GOLDEN_SHOWER
 }
 
 enum PrivateAdCustomerCategory {
@@ -157,10 +166,10 @@ enum PrivateAdCustomerCategory {
 }
 
 enum PrivateAdServiceCategory {
+  MASSAGE
   IN_CALL
   OUT_CALL
-  PUBLIC_LOCATION
-  OVERNIGHT
+  MEET_AND_GREET
 }
 
 enum DaysAvailable {
@@ -179,32 +188,52 @@ model PrivateAdService {
   privateAd     PrivateAd @relation(fields: [privateAdId], references: [id])
   privateAdId   String
 
-  type          PrivateAdServiceType @default(GFE)
-  length        Int?
-  price         Int
-  isExtra       Boolean @default(false) 
-  category      PrivateAdServiceCategory @default(IN_CALL)
-  days          DaysAvailable[]
+  category      PrivateAdServiceCategory // IN_CALL, OUT_CALL, NON_SEXUAL, OVERNIGHT
+  label         String? // optional display name, e.g. “Public meet-up”
+
+  options       ServiceOption[] // durations and prices
 
   createdAt     DateTime @default(now())
 }
 
-model PrivateAd {
-  id          String @id @default(cuid())
+model ServiceOption {
+  id            String @id @default(cuid())
+  service       PrivateAdService @relation(fields: [serviceId], references: [id])
+  serviceId     String
 
-  title       String @db.VarChar(200)
-  description String @db.VarChar(3000)
+  durationMin   Int      // 15, 30, 60
+  price         Int      // price in dollars
+}
 
-  services      PrivateAdService[]
-  acceptsGender PrivateAdCustomerCategory[]
-  acceptsRace   Race[]
-  
+model PrivateAdExtra {
+  id            String @id @default(cuid())
+  privateAd     PrivateAd @relation(fields: [privateAdId], references: [id])
+  privateAdId   String
+
+  name          PrivateAdExtraType // BJ, ANAL, BDSM, FILMING
+  price         Int
   active        Boolean @default(true)
+}
 
-  worker        User @relation(fields: [workerId], references: [id])
-  workerId      String
+model PrivateAd {
+  id              String @id @default(cuid())
 
-  createdAt   DateTime @default(now())
+  title           String @db.VarChar(200)
+  description     String @db.VarChar(3000)
+  active          Boolean @default(true)
+
+  services        PrivateAdService[]
+  acceptsGender   PrivateAdCustomerCategory[]
+  acceptsRace     Race[]
+  acceptsBodyType BodyType[]
+  acceptsAgeRange Int[]  // [minAge, maxAge]
+  extras          PrivateAdExtra[]
+  daysAvailable   DaysAvailable[]
+
+  worker          User @relation(fields: [workerId], references: [id])
+  workerId        String
+
+  createdAt       DateTime @default(now())
 
   @@unique([workerId])
 }
@@ -236,8 +265,6 @@ model PrivateOffer {
 
   Review Review[]
 }
-
-
 
 model Chat {
   id        String @id @default(cuid())

@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import FilterComponent, { type FilterData } from '@/app/[lang]/escorts/(client-renders)/filter';
 import { useParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BodyType, DaysAvailable, PrivateAdCustomerCategory, PrivateAdExtraType, PrivateAdServiceCategory, Race } from "@prisma/client";
 
 interface LocationSuggestion {
   value: string
@@ -23,41 +24,64 @@ interface LocationSuggestion {
   coordinates?: [number, number]
 }
 
-interface Feature {
-  id: string
-  adId: string
+export interface EscortProfileData {
+  ad: {
+    id: string;
+    title: string;
+    description: string;
+    acceptsGender: PrivateAdCustomerCategory[];
+    acceptsRace: Race[];
+    acceptsBodyType: BodyType[];
+    acceptsAgeRange: number[];
+    daysAvailable: DaysAvailable[];
+    services: ({
+        options: {
+            id: string;
+            serviceId: string;
+            durationMin: number;
+            price: number;
+        }[];
+    } & {
+        id: string;
+        label: string | null;
+        createdAt: Date;
+        privateAdId: string;
+        category: PrivateAdServiceCategory;
+    })[];
+    extras: {
+      active: boolean;
+      id: string;
+      price: number;
+      name: PrivateAdExtraType;
+      privateAdId: string;
+    }[];
+  }
   slug: string
+  location: string
+  distance: string
+  price: string
   age: number
   gender: string
-  location: string
-  price: string
-  images: {url: string, default: boolean}[]
-}
-
-interface EscortProfile {
-  id: string
-  adId: string
-  slug: string
-  location: string
-  price: string
-  age: number
-  gender: string
-  bodyType: string
-  race: string
-  images: {url: string, default: boolean}[]
+  bodyType?: BodyType
+  race?: Race
+  images: {
+    NSFW: boolean; url: string; default: boolean
+  }[]
+  averageRating: number
+  lastActive: string
 }
 
 // Fetch a random featured profile from the API
-async function fetchFeaturedProfile(): Promise<Feature | null> {
+async function fetchFeaturedProfile(): Promise<EscortProfileData | null> {
   try {
     const response = await fetch('/api/escorts/featured', {
       cache: 'no-store' // Always get a fresh random profile
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch featured profile');
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
@@ -72,7 +96,7 @@ async function fetchFeaturedProfile(): Promise<Feature | null> {
 // Usage policy: https://operations.osmfoundation.org/policies/nominatim/
 async function searchLocationsNominatim(query: string): Promise<LocationSuggestion[]> {
   if (!query || query.length < 2) return [];
-  
+
   try {
     const response = await fetch(
       `https://nominatim.openstreetmap.org/search?` +
@@ -87,11 +111,11 @@ async function searchLocationsNominatim(query: string): Promise<LocationSuggesti
         }
       }
     );
-    
+
     if (!response.ok) throw new Error('Failed to fetch locations');
-    
+
     const data = await response.json();
-    
+
     // Map and clean results
     const results = data.map((place: any) => {
       // Determine location type
@@ -100,7 +124,7 @@ async function searchLocationsNominatim(query: string): Promise<LocationSuggesti
       else if (place.type === 'suburb' || place.type === 'neighbourhood' || place.type === 'quarter') type = 'suburb';
       else if (place.type === 'state' || place.type === 'region') type = 'state';
       else if (place.type === 'country') type = 'country';
-      
+
       // Create a cleaner label - prefer shorter address formats
       let label = place.display_name;
       if (place.address) {
@@ -110,15 +134,15 @@ async function searchLocationsNominatim(query: string): Promise<LocationSuggesti
         else if (place.address.city) parts.push(place.address.city);
         else if (place.address.town) parts.push(place.address.town);
         else if (place.address.village) parts.push(place.address.village);
-        
+
         if (place.address.state) parts.push(place.address.state);
         else if (place.address.country) parts.push(place.address.country);
-        
+
         if (parts.length > 0) {
           label = parts.join(', ');
         }
       }
-      
+
       return {
         value: place.place_id.toString(),
         label,
@@ -126,11 +150,11 @@ async function searchLocationsNominatim(query: string): Promise<LocationSuggesti
         coordinates: [parseFloat(place.lon), parseFloat(place.lat)] as [number, number],
       };
     })
-    // Remove duplicates based on label
-    .filter((location: LocationSuggestion, index: number, self: LocationSuggestion[]) => 
-      index === self.findIndex((l) => l.label.toLowerCase() === location.label.toLowerCase())
-    );
-    
+      // Remove duplicates based on label
+      .filter((location: LocationSuggestion, index: number, self: LocationSuggestion[]) =>
+        index === self.findIndex((l) => l.label.toLowerCase() === location.label.toLowerCase())
+      );
+
     return results;
   } catch (error) {
     console.error('Error fetching locations:', error);
@@ -149,7 +173,7 @@ async function searchLocationsGeoapify(query: string): Promise<LocationSuggestio
     console.warn('Geoapify API key not set, falling back to Nominatim');
     return searchLocationsNominatim(query);
   }
-  
+
   try {
     const response = await fetch(
       `https://api.geoapify.com/v1/geocode/autocomplete?` +
@@ -157,21 +181,21 @@ async function searchLocationsGeoapify(query: string): Promise<LocationSuggestio
       `&apiKey=${GEOAPIFY_API_KEY}` +
       `&limit=10`
     );
-    
+
     if (!response.ok) throw new Error('Failed to fetch locations');
-    
+
     const data = await response.json();
-    
+
     return data.features.map((feature: any) => {
       const props = feature.properties;
-      
+
       // Determine location type
       let type = 'location';
       if (props.result_type === 'city') type = 'city';
       else if (props.result_type === 'suburb') type = 'suburb';
       else if (props.result_type === 'state') type = 'state';
       else if (props.result_type === 'country') type = 'country';
-      
+
       return {
         value: props.place_id || feature.properties.osm_id,
         label: props.formatted || props.name,
@@ -196,28 +220,28 @@ async function fetchProfiles(
   filters: FilterData,
   page: number,
   limit: number = 30
-): Promise<{ profiles: EscortProfile[], total: number, totalPages: number }> {
+): Promise<{ profiles: EscortProfileData[], total: number, totalPages: number }> {
   if (!location || !location.coordinates) {
     return { profiles: [], total: 0, totalPages: 0 };
   }
-  
+
   try {
     const response = await fetch('/api/escorts/search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         longitude: location.coordinates[0],
         latitude: location.coordinates[1],
         filters,
         page,
-        limit 
+        limit
       }),
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch profiles');
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
@@ -238,30 +262,30 @@ export default function Page() {
   const id = useId();
   const { lang } = useParams();
   const router = useRouter();
-  
+
   // Location search state
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState<LocationSuggestion | null>(null);
   const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoadingProfiles, setIsLoadingProfiles] = useState(false);
-  
+
   // Results state
-  const [profiles, setProfiles] = useState<EscortProfile[]>([]);
+  const [profiles, setProfiles] = useState<EscortProfileData[]>([]);
   const [totalResults, setTotalResults] = useState(0);
-  
+
   // Featured profile state
-  const [featuredProfile, setFeaturedProfile] = useState<Feature | null>(null);
+  const [featuredProfile, setFeaturedProfile] = useState<EscortProfileData | null>(null);
   const [isLoadingFeatured, setIsLoadingFeatured] = useState(true);
-  
+
   // Featured carousel state
   const [imageRotation, setImageRotation] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  
+
   // Filter state
   const [filters, setFilters] = useState<FilterData>(defaultFilters);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -274,7 +298,7 @@ export default function Page() {
       setFeaturedProfile(profile);
       setIsLoadingFeatured(false);
     };
-    
+
     loadFeaturedProfile();
   }, []);
 
@@ -298,7 +322,7 @@ export default function Page() {
   // Rotate images every 3 seconds with fade transition
   useEffect(() => {
     if (!featuredProfile || featuredProfile.images.length === 0) return;
-    
+
     const interval = setInterval(() => {
       setIsTransitioning(true);
 
@@ -337,7 +361,7 @@ export default function Page() {
   const performSearch = async (page: number = currentPage) => {
     // Only search if location is selected
     if (!selectedLocation) return;
-    
+
     setIsLoadingProfiles(true);
     const result = await fetchProfiles(selectedLocation, filters, page);
     setProfiles(result.profiles);
@@ -350,13 +374,13 @@ export default function Page() {
   // Handle location selection - automatically trigger search
   const handleLocationSelect = async (value: string | null) => {
     if (!value) return;
-    
+
     const location = locationSuggestions.find(l => l.value === value);
     if (location) {
       setSelectedLocation(location);
       setSearchQuery(location.label);
       setCurrentPage(1);
-      
+
       // Trigger search with current filters
       setIsLoadingProfiles(true);
       const result = await fetchProfiles(location, filters, 1);
@@ -368,14 +392,14 @@ export default function Page() {
   };
 
   // Calculate number of active filters
-  const activeFilterCount = 
-    filters.gender.length + 
-    filters.bodyType.length + 
-    filters.race.length + 
+  const activeFilterCount =
+    filters.gender.length +
+    filters.bodyType.length +
+    filters.race.length +
     ((filters.age[0] !== 18 || filters.age[1] !== 100) ? 1 : 0);
 
   // Navigate to profile page with pre-loaded data
-  const handleProfileClick = (e: React.MouseEvent, profile: Feature | EscortProfile) => {
+  const handleProfileClick = (e: React.MouseEvent, profile: EscortProfileData) => {
     e.preventDefault();
     // Store the profile data in sessionStorage for quick access
     sessionStorage.setItem(`profile_${profile.slug}`, JSON.stringify(profile));
@@ -433,7 +457,7 @@ export default function Page() {
                 <ArrowRightIcon size={16} aria-hidden="true" />
               </button>
             </div>
-            
+
             {/* Only show popup when actively searching (length > 1) */}
             {searchQuery.length > 1 && (
               <ComboboxPopup>
@@ -487,7 +511,7 @@ export default function Page() {
                     <DialogDescription>Refine your search results</DialogDescription>
                   </DialogHeader>
 
-                  <FilterComponent 
+                  <FilterComponent
                     filterData={filters}
                     onFilterChange={handleFilterChange}
                   />
@@ -510,13 +534,13 @@ export default function Page() {
       {/* Show Featured section only when no location selected */}
       {!selectedLocation && (
         <section className="md:max-w-[60%] mx-auto my-8">
-          <h2 className="text-2xl font-bold mb-4">Featured escort</h2>
-          
+          <h2 className="text-2xl font-bold mb-4">Featured profile</h2>
+
           {isLoadingFeatured ? (
             <div className="grid gap-4">
               {/* Main featured image skeleton */}
               <Skeleton className="w-full aspect-16/10 rounded-lg" />
-              
+
               {/* Thumbnail grid skeleton */}
               <div className="grid grid-cols-5 gap-4">
                 {[...Array(5)].map((_, index) => (
@@ -529,19 +553,30 @@ export default function Page() {
               <p className="text-muted-foreground text-lg">No featured profiles available.</p>
             </div>
           ) : (
-            <Link 
-              href={`/${lang}/escorts/${featuredProfile.slug}`}  
+                <Link
+                  href={`/${lang}/escorts/${featuredProfile.slug}`}
               className="block transition-transform hover:scale-[1.02]"
               onClick={(e) => handleProfileClick(e, featuredProfile)}
             >
               <div className="grid gap-4">
                 {/* Main featured image */}
-                <div className="relative w-full aspect-16/10 overflow-hidden rounded-lg bg-muted">
+                <div className="relative w-full aspect-16/10 overflow-hidden rounded-lg bg-muted group">
                   <img
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
+                    className={cn(
+                      "absolute inset-0 w-full h-full object-cover transition-all duration-500",
+                      isTransitioning ? 'opacity-0' : 'opacity-100',
+                      rotatedImages[0].NSFW === true ? 'blur-xl group-hover:blur-0' : ''
+                    )}
                     src={rotatedImages[0].url}
                     alt={featuredProfile.slug}
                   />
+                  {rotatedImages[0].NSFW === true && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity duration-300">
+                      <div className="bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
+                        <p className="text-sm font-medium">Hover to reveal</p>
+                      </div>
+                    </div>
+                  )}
                   <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-4 rounded-b-lg">
                     <h3 className="text-white text-xl font-semibold">{featuredProfile.slug}</h3>
                     <p className="text-white/90 text-sm">{featuredProfile.location}</p>
@@ -552,12 +587,22 @@ export default function Page() {
                 {/* Thumbnail grid */}
                 <div className="grid grid-cols-5 gap-4">
                   {rotatedImages.slice(1, 6).map((image, index) => (
-                    <div key={index} className="relative overflow-hidden rounded-lg aspect-square bg-muted">
+                    <div key={index} className="relative overflow-hidden rounded-lg aspect-square bg-muted group">
                       <img
-                        className="absolute inset-0 w-full h-full object-cover transition-all duration-500"
+                        className={cn(
+                          "absolute inset-0 w-full h-full object-cover transition-all duration-500",
+                          image.NSFW === true ? 'blur-xl group-hover:blur-0' : ''
+                        )}
                         src={image.url}
                         alt={`${featuredProfile.slug} - Image ${index + 2}`}
                       />
+                      {image.NSFW === true && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity duration-300">
+                          <div className="bg-black/60 text-white px-2 py-1 rounded-lg backdrop-blur-sm text-xs font-medium">
+                            NSFW
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -578,7 +623,7 @@ export default function Page() {
               {totalResults} {totalResults === 1 ? 'result' : 'results'} found
             </p>
           </div>
-          
+
           {isLoadingProfiles ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground text-lg">Loading...</p>
@@ -586,8 +631,8 @@ export default function Page() {
           ) : profiles.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground text-lg">No profiles match your criteria.</p>
-              <Button 
-                variant="outline" 
+                <Button
+                  variant="outline"
                 className="mt-4"
                 onClick={handleResetFilters}
               >
@@ -597,34 +642,47 @@ export default function Page() {
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {profiles.map((profile) => (
-                  <Link 
-                    key={profile.id} 
-                    href={`/${lang}/escorts/${profile.slug}`}
-                    className="block transition-transform hover:scale-[1.02]"
-                    onClick={(e) => handleProfileClick(e, profile)}
-                  >
-                    <div className="rounded-lg border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                      <div className="relative aspect-square overflow-hidden bg-muted">
-                        <img
-                          className="w-full h-full object-cover"
-                          src={profile.images[0].url}
-                          alt={profile.slug}
-                        />
-                      </div>
-                      <div className="p-4">
-                        <h3 className="text-lg font-semibold mb-1">{profile.slug}</h3>
-                        <p className="text-sm text-muted-foreground mb-2">{profile.location}</p>
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-muted-foreground">Age: {profile.age}</span>
-                          <span className="font-bold text-primary">{profile.price}</span>
+                {profiles.map((profile) => {
+                  const defaultImage = profile.images.find((img) => img.default);
+                  return (
+                    <Link
+                      key={profile.slug}
+                      href={`/${lang}/escorts/${profile.slug}`}
+                      className="block transition-transform hover:scale-[1.02]"
+                      onClick={(e) => handleProfileClick(e, profile)}
+                    >
+                      <div className="rounded-lg border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        <div className="relative aspect-square overflow-hidden bg-muted group">
+                          <img
+                            className={cn(
+                              "w-full h-full object-cover transition-all duration-300",
+                              defaultImage?.NSFW === true ? 'blur-xl group-hover:blur-0' : ''
+                            )}
+                            src={defaultImage?.url}
+                            alt={profile.slug}
+                          />
+                          {defaultImage?.NSFW === true && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity duration-300">
+                              <div className="bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
+                                <p className="text-sm font-medium">NSFW</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-4">
+                          <h3 className="text-lg font-semibold mb-1">{profile.slug}</h3>
+                          <p className="text-sm text-muted-foreground mb-2">{profile.location} ({profile.distance})</p>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-muted-foreground">Age: {profile.age}</span>
+                            <span className="font-bold text-primary">{profile.price}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
-              
+
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="mt-8 flex justify-center">
