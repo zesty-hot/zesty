@@ -227,6 +227,7 @@ export default function Page() {
             onUsernameSearch={handleUsernameSearch}
             onClearSearch={handleClearSearch}
             searchType="vip"
+            lang={lang as string}
           />
 
           {/* Search Results */}
@@ -323,13 +324,14 @@ export default function Page() {
             </p>
 
             {/* Unified Search Bar */}
-            <div className="max-w-xl mx-auto pt-4">
+            <div className="max-w-3xl mx-auto pt-4 relative z-10">
               <UnifiedSearch
                 defaultFilters={defaultFilters}
                 onLocationSearch={handleLocationSearch}
                 onUsernameSearch={handleUsernameSearch}
                 onClearSearch={handleClearSearch}
                 searchType="vip"
+                lang={lang as string}
               />
             </div>
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowRightIcon, Funnel, SearchIcon, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +33,7 @@ interface UnifiedSearchProps {
   onUsernameSearch: (username: string, filters: FilterData) => void;
   onClearSearch?: () => void;
   searchType?: 'escorts' | 'vip'; // Determines which API endpoints to use
+  lang: string; // Language/locale for navigation
 }
 
 // Nominatim geocoding
@@ -128,8 +130,10 @@ export default function UnifiedSearch({
   onLocationSearch,
   onUsernameSearch,
   onClearSearch,
-  searchType = 'escorts'
+  searchType = 'escorts',
+  lang
 }: UnifiedSearchProps) {
+  const router = useRouter();
   const id = useId();
   const [searchMode, setSearchMode] = useState<SearchMode>('location');
   const [searchQuery, setSearchQuery] = useState("");
@@ -216,9 +220,9 @@ export default function UnifiedSearch({
 
     const user = userSuggestions.find(u => u.value === value);
     if (user) {
-      setSelectedUsername(user.slug);
-      setSearchQuery(user.label);
-      onUsernameSearch(user.slug, filters);
+      // Navigate directly to the user's profile page
+      const basePath = searchType === 'escorts' ? 'escorts' : 'vip';
+      router.push(`/${lang}/${basePath}/${user.slug}`);
     }
   };
 

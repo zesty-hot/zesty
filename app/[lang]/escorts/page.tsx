@@ -454,6 +454,7 @@ export default function Page() {
         onUsernameSearch={handleUsernameSearch}
         onClearSearch={handleClearSearch}
         searchType="escorts"
+        lang={lang as string}
       />
 
       {/* Show Featured section only when no search has been performed */}
