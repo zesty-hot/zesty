@@ -20,12 +20,12 @@ export default function MobileNav() {
   const isClicked = (path: string) => clickedPath === path;
 
   const getLinkClassName = (path: string) => {
-    const base = "flex flex-col items-center justify-center gap-1 transition-colors duration-200";
+    const base = "flex flex-col items-center justify-center gap-1 transition-all duration-200";
     const active = isActive(path)
       ? "text-primary dark:text-primary"
       : "text-gray-500 dark:text-gray-400";
     const hover = "hover:text-gray-900 dark:hover:text-gray-50";
-    const clicked = isClicked(path) ? "opacity-70" : "";
+    const clicked = isClicked(path) ? "scale-100 opacity-70" : "scale-110";
     const activeScale = isActive(path) ? "font-semibold" : "";
     
     return `${base} ${active} ${hover} ${clicked} ${activeScale}`;
@@ -38,8 +38,8 @@ export default function MobileNav() {
         borderTopLeftRadius: "0.375rem", 
         borderTopRightRadius: "0.375rem",
         boxShadow: "0 -4px 6px -1px rgb(0 0 0 / 0.1), 0 -2px 4px -2px rgb(0 0 0 / 0.1)",
-        WebkitTransform: "translateZ(0)",
-        transform: "translateZ(0)",
+        WebkitTransform: "translateZ(30)",
+        transform: "translateZ(30)",
         paddingBottom: "env(safe-area-inset-bottom, 0px)"
       }}
     >
@@ -49,7 +49,7 @@ export default function MobileNav() {
         prefetch={false}
         onClick={() => handleClick("/escorts")}
       >
-        <Search className="h-6 w-6" />
+        <Search className={`h-6 w-6 transition-transform ${isClicked("/escorts") ? "scale-90" : ""}`} />
         <span className="text-xs">Directory</span>
       </Link>
       <Link
@@ -58,7 +58,7 @@ export default function MobileNav() {
         prefetch={false}
         onClick={() => handleClick("/jobs")}
       >
-        <Clapperboard className="h-6 w-6" />
+        <Clapperboard className={`h-6 w-6 transition-transform ${isClicked("/jobs") ? "scale-90" : ""}`} />
         <span className="text-xs">Studios</span>
       </Link>
       <Link
@@ -67,7 +67,7 @@ export default function MobileNav() {
         prefetch={false}
         onClick={() => handleClick("/vip")}
       >
-        <Camera className="h-6 w-6" />
+        <Camera className={`h-6 w-6 transition-transform ${isClicked("/vip") ? "scale-90" : ""}`} />
         <span className="text-xs">Creators</span>
       </Link>
       <Link
@@ -76,7 +76,7 @@ export default function MobileNav() {
         prefetch={false}
         onClick={() => handleClick("/live")}
       >
-        <TvMinimalPlay className="h-6 w-6" />
+        <TvMinimalPlay className={`h-6 w-6 transition-transform ${isClicked("/live") ? "scale-90" : ""}`} />
         <span className="text-xs">Live</span>
       </Link>
       <Link
@@ -85,7 +85,7 @@ export default function MobileNav() {
         prefetch={false}
         onClick={() => handleClick("/events")}
       >
-        <Calendar className="h-6 w-6" />
+        <Calendar className={`h-6 w-6 transition-transform ${isClicked("/events") ? "scale-90" : ""}`} />
         <span className="text-xs">Events</span>
       </Link>
       <Link
@@ -94,7 +94,7 @@ export default function MobileNav() {
         prefetch={false}
         onClick={() => handleClick("/dating")}
       >
-        <Flame className="h-6 w-6" />
+        <Flame className={`h-6 w-6 transition-transform ${isClicked("/dating") ? "scale-90" : ""}`} />
         <span className="text-xs">Meet</span>
       </Link>
     </nav>
