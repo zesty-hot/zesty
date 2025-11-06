@@ -18,12 +18,21 @@ import {
   LayoutList,
   Loader2,
   Send,
-  X
+  X,
+  Camera,
+  Webcam,
+  ChevronDown
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Menu,
+  MenuTrigger,
+  MenuPopup,
+  MenuItem,
+} from "@/components/ui/menu";
 
 interface VIPProfileData {
   id: string;
@@ -55,6 +64,8 @@ interface VIPProfileData {
     discountedPrice: number;
     validUntil: Date | null;
   } | null;
+  hasActiveEscort: boolean;
+  hasActiveLive: boolean;
 }
 
 interface ContentItem {
@@ -77,7 +88,7 @@ interface ContentItem {
 }
 
 export default function VIPProfilePage() {
-  const { slug } = useParams();
+  const { slug, lang } = useParams();
   const [profile, setProfile] = useState<VIPProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -226,7 +237,7 @@ export default function VIPProfilePage() {
               )}
             </div>
             {/* Online Status Indicator */}
-            {isOnline && (
+            {true && (
               <div className="absolute bottom-2 right-2 w-8 h-8 bg-background rounded-full flex items-center justify-center">
                 <div className="w-5 h-5 bg-green-500 rounded-full border-2 border-background shadow-lg" />
               </div>
@@ -265,10 +276,52 @@ export default function VIPProfilePage() {
             </div>
           </div>
 
-          {/* Subscription Button */}
+          {/* Action Buttons */}
           {!profile.isOwnPage && (
-            <div className="w-full md:w-auto flex flex-col gap-2">
-              {profile.hasActiveSubscription ? (
+            <div className="w-full md:w-auto flex flex-col gap-2 lg:-mb-11">
+              {/* Other Pages Dropdown */}
+              {(profile.hasActiveEscort || profile.hasActiveLive) && (
+                <Menu>
+                  <MenuTrigger render={
+                    <Button variant="outline" size="lg" className="w-full">
+                      <span>Other Pages</span>
+                      <ChevronDown className="w-4 h-4 ml-2" />
+                    </Button>
+                  } />
+                  <MenuPopup>
+                    {profile.hasActiveEscort ? (
+                      <Link href={`/${lang}/escorts/${profile.user.slug}`} className="cursor-pointer w-full">
+                        <MenuItem className="flex items-center gap-2 cursor-pointer w-full">
+                          <Camera className="w-4 h-4" />
+                          Escort Profile
+                        </MenuItem>
+                      </Link>
+                    ) : (
+                      <MenuItem className="flex items-center gap-2 opacity-40 pointer-events-none">
+                        <Camera className="w-4 h-4" />
+                        Escort Profile
+                      </MenuItem>
+                    )}
+                    {profile.hasActiveLive ? (
+                      <Link href={`/${lang}/live/${profile.user.slug}`} className="cursor-pointer">
+                        <MenuItem className="flex items-center gap-2 cursor-pointer w-full">
+                          <Webcam className="w-4 h-4" />
+                          Live Streams
+                        </MenuItem>
+                      </Link>
+                    ) : (
+                      <MenuItem className="flex items-center gap-2 opacity-40 pointer-events-none">
+                        <Webcam className="w-4 h-4" />
+                        Live Streams
+                      </MenuItem>
+                    )}
+                  </MenuPopup>
+                </Menu>
+              )}
+
+              {/* Subscription Buttons */}
+              {/* {true ? ( */}
+                {profile.hasActiveSubscription ? (
                 <>
                   <Button 
                     size="lg" 

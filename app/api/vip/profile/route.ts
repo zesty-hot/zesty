@@ -172,6 +172,18 @@ export async function POST(req: NextRequest) {
     // Get total likes across all content
     const totalLikes = await withRetry(() => prisma.vIPLike.count({ where: { content: { vipPageId: vipPage.id } } }));
 
+    // Check if user has active escort profile
+    const hasActiveEscort = await withRetry(() => prisma.privateAd.findFirst({
+      where: {
+        workerId: vipPage.userId,
+        active: true,
+      },
+      select: { id: true },
+    }));
+
+    // Check if user has active live page (placeholder for future implementation)
+    const hasActiveLive = false; // TODO: Implement when live streaming is added
+
     const canViewContent = isOwnPage || hasActiveSubscription || vipPage.isFree;
 
     const formattedContent = items.map((item: any) => {
@@ -184,7 +196,7 @@ export async function POST(req: NextRequest) {
 
     const activeDiscount = vipPage.discountOffers?.[0] || null;
 
-    return NextResponse.json({ id: vipPage.id, title: vipPage.title, description: vipPage.description, bannerUrl: vipPage.bannerUrl, subscriptionPrice: vipPage.subscriptionPrice, isFree: vipPage.isFree, user: { id: vipPage.user.id, slug: vipPage.user.slug, bio: vipPage.user.bio, location: vipPage.user.location, suburb: vipPage.user.suburb, lastActive: vipPage.user.lastActive, createdAt: vipPage.user.createdAt, image: userImage }, hasActiveSubscription, isOwnPage, totalContent: vipPage._count.content, totalLikes, content: formattedContent, nextCursor, hasMore, activeDiscount: activeDiscount ? { discountPercent: activeDiscount.discountPercent, discountedPrice: activeDiscount.discountedPrice, validUntil: activeDiscount.validUntil } : null });
+    return NextResponse.json({ id: vipPage.id, title: vipPage.title, description: vipPage.description, bannerUrl: vipPage.bannerUrl, subscriptionPrice: vipPage.subscriptionPrice, isFree: vipPage.isFree, user: { id: vipPage.user.id, slug: vipPage.user.slug, bio: vipPage.user.bio, location: vipPage.user.location, suburb: vipPage.user.suburb, lastActive: vipPage.user.lastActive, createdAt: vipPage.user.createdAt, image: userImage }, hasActiveSubscription, isOwnPage, totalContent: vipPage._count.content, totalLikes, content: formattedContent, nextCursor, hasMore, activeDiscount: activeDiscount ? { discountPercent: activeDiscount.discountPercent, discountedPrice: activeDiscount.discountedPrice, validUntil: activeDiscount.validUntil } : null, hasActiveEscort: !!hasActiveEscort, hasActiveLive });
 
   } catch (error) {
     console.error('Error fetching VIP profile (final catch):', error);

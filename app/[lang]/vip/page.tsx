@@ -1,42 +1,645 @@
+"use client";
 
+import { useEffect, useState, useRef } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import UnifiedSearch from "@/components/unified-search";
+import type { FilterData } from '@/app/[lang]/escorts/(client-renders)/filter';
+import { 
+  Heart, 
+  MessageCircle, 
+  Lock,
+  CheckCircle2,
+  Image as ImageIcon,
+  Video,
+  FileText,
+  Sparkles,
+  Loader2,
+  TrendingUp,
+  Users,
+  Crown,
+  ArrowRight,
+  X
+} from "lucide-react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+
+interface FeedContentItem {
+  id: string;
+  type: 'IMAGE' | 'VIDEO' | 'STATUS';
+  caption?: string;
+  imageUrl?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  duration?: number;
+  statusText?: string;
+  NSFW?: boolean;
+  likesCount: number;
+  commentsCount: number;
+  createdAt: Date;
+  isLiked: boolean;
+  creator: {
+    id: string;
+    slug: string | null;
+    image: string | null;
+  };
+}
+
+interface FeaturedCreator {
+  id: string;
+  slug: string;
+  image: string | null;
+  title: string;
+  description: string;
+  location?: string;
+  subscribersCount: number;
+  contentCount: number;
+  isFree: boolean;
+  price: number;
+}
+
+// Default filter values
+const defaultFilters: FilterData = {
+  gender: [],
+  age: [18, 100],
+  bodyType: [],
+  race: [],
+};
 
 export default function Page() {
-  return (
-    <div className="flex min-h-[calc(100vh*0.55)] items-center justify-center p-4 mb-5 mt-5">
-      <div className="text-center space-y-6">
-        <svg 
-          fill="currentColor" 
-          className="w-24 h-24 mx-auto text-muted-foreground" 
-          viewBox="0 0 24 24" 
-          id="Layer_1" 
-          data-name="Layer 1" 
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <style>{`
-              .cls-1 {
-                fill: none;
-                stroke: currentColor;
-                stroke-linecap: round;
-                stroke-linejoin: round;
-                stroke-width: 1.5px;
-              }
-            `}</style>
-          </defs>
-          <polygon className="cls-1" points="9.13 22.54 5.29 22.54 5.29 6.25 5.29 1.46 9.13 1.46 9.13 22.54" />
-          <polygon className="cls-1" points="1.46 6.25 22.54 6.25 22.54 5.29 9.13 1.46 5.29 1.46 1.46 5.29 1.46 6.25" />
-          <line className="cls-1" x1="23.5" y1="22.54" x2="0.5" y2="22.54" />
-          <path className="cls-1" d="M20.62,6.25V9.64a1.82,1.82,0,0,0,.9,1.63A1.92,1.92,0,1,1,18.71,13" />
-          <line className="cls-1" x1="9.13" y1="16.79" x2="5.29" y2="20.63" />
-          <line className="cls-1" x1="5.29" y1="12" x2="9.13" y2="15.83" />
-          <line className="cls-1" x1="9.13" y1="7.21" x2="5.29" y2="11.04" />
-        </svg>
+  const { lang } = useParams();
+  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [feedContent, setFeedContent] = useState<FeedContentItem[]>([]);
+  const [featuredCreators, setFeaturedCreators] = useState<FeaturedCreator[]>([]);
+  const [searchResults, setSearchResults] = useState<FeaturedCreator[]>([]);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const hasLoadedRef = useRef(false);
+
+  useEffect(() => {
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
+    fetchInitialData();
+  }, []);
+
+  const fetchInitialData = async () => {
+    try {
+      const response = await fetch('/api/vip/feed', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ limit: 8 }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsLoggedIn(data.isLoggedIn);
         
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">Under Construction</h1>
-          <p className="text-muted-foreground text-lg">This VIP section is currently being built. Check back soon!</p>
+        if (data.isLoggedIn) {
+          setFeedContent(data.content || []);
+          setCursor(data.nextCursor);
+          setHasMore(data.hasMore);
+        } else {
+          setFeaturedCreators(data.featuredCreators || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching VIP feed:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadMore = async () => {
+    if (!cursor || isLoadingMore || !hasMore) return;
+    
+    setIsLoadingMore(true);
+    try {
+      const response = await fetch('/api/vip/feed', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cursor, limit: 8 }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFeedContent([...feedContent, ...data.content]);
+        setCursor(data.nextCursor);
+        setHasMore(data.hasMore);
+      }
+    } catch (error) {
+      console.error('Error loading more content:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  const handleLike = async (contentId: string) => {
+    try {
+      const response = await fetch('/api/vip/like', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ contentId }),
+      });
+
+      if (response.ok) {
+        // Update the like status locally
+        setFeedContent(feedContent.map(item => 
+          item.id === contentId 
+            ? { ...item, isLiked: !item.isLiked, likesCount: item.isLiked ? item.likesCount - 1 : item.likesCount + 1 }
+            : item
+        ));
+      }
+    } catch (error) {
+      console.error('Error liking content:', error);
+    }
+  };
+
+  const handleUsernameSearch = async (username: string, filters: FilterData) => {
+    setIsSearching(true);
+    try {
+      const response = await fetch('/api/vip/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ slug: username, page: 1, limit: 20 }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSearchResults(data.creators || []);
+      }
+    } catch (error) {
+      console.error('Error searching creators:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleLocationSearch = async (location: any, filters: FilterData) => {
+    // VIP doesn't use location-based search, redirect to username search
+    console.log('Location search not supported for VIP, please use username search');
+  };
+
+  const handleClearSearch = () => {
+    setSearchResults([]);
+    setIsSearching(false);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
+
+  // Logged-in user view - Show subscription feed
+  if (isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Your VIP Feed</h1>
+            <p className="text-muted-foreground">Latest content from your subscriptions</p>
+          </div>
+
+          {/* Unified Search Bar */}
+          <UnifiedSearch
+            defaultFilters={defaultFilters}
+            onLocationSearch={handleLocationSearch}
+            onUsernameSearch={handleUsernameSearch}
+            onClearSearch={handleClearSearch}
+            searchType="vip"
+          />
+
+          {/* Search Results */}
+          {isSearching ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : searchResults.length > 0 ? (
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-4">Search Results</h2>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {searchResults.map((creator) => (
+                  <CreatorCard key={creator.id} creator={creator} lang={lang as string} />
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {/* Feed Content */}
+          {feedContent.length === 0 ? (
+            <div className="max-w-2xl mx-auto text-center py-16">
+              <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+              <h2 className="text-2xl font-semibold mb-2">No subscriptions yet</h2>
+              <p className="text-muted-foreground mb-6">
+                Start following creators to see their exclusive content here
+              </p>
+              <Link href={`/${lang}/vip/discover`}>
+                <Button size="lg">
+                  Discover Creators
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="max-w-2xl mx-auto space-y-6">
+              {feedContent.map((item) => (
+                <FeedCard
+                  key={item.id}
+                  item={item}
+                  onLike={() => handleLike(item.id)}
+                  lang={lang as string}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Load More Button */}
+          {hasMore && feedContent.length > 0 && (
+            <div className="mt-8 flex justify-center">
+              <Button
+                onClick={loadMore}
+                disabled={isLoadingMore}
+                variant="outline"
+                size="lg"
+                className="min-w-[200px]"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  'Load More'
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Non-logged-in user view - Show marketing page with featured content
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden bg-linear-to-br from-purple-500/10 via-pink-500/10 to-rose-500/10 border-b">
+        <div className="container mx-auto px-4 py-16 md:py-24">
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-background/50 backdrop-blur-sm rounded-full border">
+              <Crown className="w-4 h-4 text-purple-500" />
+              <span className="text-sm font-medium">Exclusive VIP Content</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+              Connect with Your
+              <span className="block text-transparent bg-clip-text bg-linear-to-r from-purple-500 to-pink-500">
+                Favorite Creators
+              </span>
+            </h1>
+            
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+              Subscribe to exclusive content, interact directly, and support the creators you love
+            </p>
+
+            {/* Unified Search Bar */}
+            <div className="max-w-xl mx-auto pt-4">
+              <UnifiedSearch
+                defaultFilters={defaultFilters}
+                onLocationSearch={handleLocationSearch}
+                onUsernameSearch={handleUsernameSearch}
+                onClearSearch={handleClearSearch}
+                searchType="vip"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Decorative Elements */}
+        <div className="absolute top-20 right-10 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-10 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl" />
+      </div>
+
+      {/* Features Section */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
+          <div className="text-center space-y-3">
+            <div className="w-14 h-14 mx-auto bg-purple-500/10 rounded-2xl flex items-center justify-center">
+              <Lock className="w-7 h-7 text-purple-500" />
+            </div>
+            <h3 className="text-xl font-semibold">Exclusive Content</h3>
+            <p className="text-muted-foreground">
+              Access premium photos, videos, and updates not available anywhere else
+            </p>
+          </div>
+
+          <div className="text-center space-y-3">
+            <div className="w-14 h-14 mx-auto bg-pink-500/10 rounded-2xl flex items-center justify-center">
+              <MessageCircle className="w-7 h-7 text-pink-500" />
+            </div>
+            <h3 className="text-xl font-semibold">Direct Interaction</h3>
+            <p className="text-muted-foreground">
+              Message creators, comment on posts, and be part of an exclusive community
+            </p>
+          </div>
+
+          <div className="text-center space-y-3">
+            <div className="w-14 h-14 mx-auto bg-rose-500/10 rounded-2xl flex items-center justify-center">
+              <Sparkles className="w-7 h-7 text-rose-500" />
+            </div>
+            <h3 className="text-xl font-semibold">Support Creators</h3>
+            <p className="text-muted-foreground">
+              Directly support the creators you love and help them create more content
+            </p>
+          </div>
+        </div>
+
+        {/* Featured Creators */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold mb-1">Featured Creators</h2>
+              <p className="text-muted-foreground">Discover popular creators with free content</p>
+            </div>
+            <Link href={`/${lang}/vip/discover`}>
+              <Button variant="outline">
+                View All
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
+
+          {featuredCreators.length === 0 ? (
+            <div className="text-center py-16 border rounded-xl bg-muted/30">
+              <Users className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+              <p className="text-muted-foreground">No featured creators available yet</p>
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {featuredCreators.map((creator) => (
+                <CreatorCard key={creator.id} creator={creator} lang={lang as string} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* CTA Section */}
+        <div className="mt-16 max-w-4xl mx-auto">
+          <div className="relative overflow-hidden bg-linear-to-br from-purple-500 to-pink-500 rounded-2xl p-8 md:p-12 text-center text-white">
+            <div className="relative z-10 space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold">Ready to get started?</h2>
+              <p className="text-lg text-white/90 max-w-2xl mx-auto">
+                Sign up now to subscribe to creators, unlock exclusive content, and join the community
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" variant="secondary" className="bg-white text-purple-600 hover:bg-white/90">
+                  Sign Up Free
+                </Button>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                  Learn More
+                </Button>
+              </div>
+            </div>
+            
+            {/* Decorative Elements */}
+            <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+          </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function FeedCard({ 
+  item, 
+  onLike,
+  lang
+}: { 
+  item: FeedContentItem;
+  onLike: () => void;
+  lang: string;
+}) {
+  return (
+    <div className="bg-card border rounded-xl overflow-hidden">
+      {/* Post Header */}
+      <div className="p-4 flex items-center gap-3">
+        <Link href={`/${lang}/vip/${item.creator.slug}`}>
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-muted hover:ring-2 ring-primary transition-all cursor-pointer">
+            {item.creator.image ? (
+              <img
+                src={item.creator.image}
+                alt={item.creator.slug || 'Creator'}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-sm font-bold text-muted-foreground">
+                {item.creator.slug?.[0]?.toUpperCase() || '?'}
+              </div>
+            )}
+          </div>
+        </Link>
+        <div className="flex-1">
+          <Link href={`/${lang}/vip/${item.creator.slug}`}>
+            <p className="font-semibold text-sm hover:underline cursor-pointer">
+              {item.creator.slug}
+            </p>
+          </Link>
+          <p className="text-xs text-muted-foreground">
+            {new Date(item.createdAt).toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: 'numeric',
+              year: 'numeric'
+            })}
+          </p>
+        </div>
+        <Badge variant="secondary" className="text-xs">
+          {item.type === 'IMAGE' && 'Photo'}
+          {item.type === 'VIDEO' && 'Video'}
+          {item.type === 'STATUS' && 'Post'}
+        </Badge>
+      </div>
+
+      {/* Caption (if exists and not status) */}
+      {item.caption && item.type !== 'STATUS' && (
+        <div className="px-4 pb-3">
+          <p className="text-sm">{item.caption}</p>
+        </div>
+      )}
+
+      {/* Image */}
+      {item.type === 'IMAGE' && item.imageUrl && (
+        <div className="relative w-full">
+          <img
+            src={item.imageUrl}
+            alt={item.caption || 'Content'}
+            className={cn(
+              "w-full object-contain max-h-[600px]",
+              item.NSFW && "blur-xl hover:blur-0 transition-all duration-300 cursor-pointer"
+            )}
+          />
+          {item.NSFW && (
+            <div className="absolute top-4 right-4">
+              <Badge variant="destructive">NSFW</Badge>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Video */}
+      {item.type === 'VIDEO' && (
+        <div className="relative w-full bg-black group/video">
+          {item.thumbnailUrl ? (
+            <img
+              src={item.thumbnailUrl}
+              alt="Video thumbnail"
+              className={cn(
+                "w-full object-contain max-h-[600px] transition-all duration-300",
+                item.NSFW && "blur-xl group-hover/video:blur-0 cursor-pointer"
+              )}
+            />
+          ) : (
+            <div className="aspect-video flex items-center justify-center">
+              <Video className="w-16 h-16 text-muted-foreground" />
+            </div>
+          )}
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
+            <div className="bg-white/90 rounded-full p-4">
+              <Video className="w-8 h-8 text-black" />
+            </div>
+          </div>
+          {item.duration && (
+            <div className="absolute bottom-4 right-4 bg-black/75 px-3 py-1.5 rounded text-sm text-white font-medium">
+              {Math.floor(item.duration / 60)}:{(item.duration % 60).toString().padStart(2, '0')}
+            </div>
+          )}
+          {item.NSFW && (
+            <div className="absolute top-4 right-4">
+              <Badge variant="destructive">NSFW</Badge>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Status Update */}
+      {item.type === 'STATUS' && (
+        <div className="px-4 pb-4">
+          <p className="text-base whitespace-pre-line">{item.statusText}</p>
+        </div>
+      )}
+
+      {/* Interactions */}
+      <div className="p-4 border-t">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onLike}
+            className="flex items-center gap-2 text-sm hover:text-red-500 transition-colors"
+          >
+            <Heart 
+              className={cn(
+                "w-5 h-5",
+                item.isLiked && "fill-red-500 text-red-500"
+              )} 
+            />
+            <span className="font-medium">{item.likesCount}</span>
+          </button>
+          <button className="flex items-center gap-2 text-sm hover:text-blue-500 transition-colors">
+            <MessageCircle className="w-5 h-5" />
+            <span className="font-medium">{item.commentsCount}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CreatorCard({ creator, lang }: { creator: FeaturedCreator; lang: string }) {
+  return (
+    <Link href={`/${lang}/vip/${creator.slug}`}>
+      <div className="bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
+        {/* Profile Image */}
+        <div className="relative aspect-square bg-linear-to-br from-purple-500/20 to-pink-500/20">
+          {creator.image ? (
+            <img
+              src={creator.image}
+              alt={creator.slug}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-muted-foreground">
+              {creator.slug[0]?.toUpperCase()}
+            </div>
+          )}
+          
+          {/* Free Badge */}
+          {creator.isFree && (
+            <div className="absolute top-3 right-3">
+              <Badge className="bg-green-500 hover:bg-green-600">
+                FREE
+              </Badge>
+            </div>
+          )}
+        </div>
+
+        {/* Creator Info */}
+        <div className="p-4 space-y-3">
+          <div>
+            <h3 className="font-semibold text-lg mb-1 group-hover:text-purple-500 transition-colors">
+              {creator.title}
+            </h3>
+            <p className="text-sm text-muted-foreground">@{creator.slug}</p>
+          </div>
+
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {creator.description}
+          </p>
+
+          {/* Stats */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
+            <div className="flex items-center gap-1">
+              <Users className="w-3 h-3" />
+              <span>{creator.subscribersCount} subscribers</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <ImageIcon className="w-3 h-3" />
+              <span>{creator.contentCount} posts</span>
+            </div>
+          </div>
+
+          {/* Price */}
+          <div className="pt-2">
+            {creator.isFree ? (
+              <Button className="w-full" size="sm">
+                Follow for Free
+              </Button>
+            ) : (
+              <Button className="w-full" size="sm" variant="outline">
+                ${(creator.price / 100).toFixed(2)}/month
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 }

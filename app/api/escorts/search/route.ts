@@ -12,8 +12,9 @@ interface FilterData {
 }
 
 interface SearchRequest {
-  longitude: number;
-  latitude: number;
+  longitude?: number;
+  latitude?: number;
+  slug?: string; // For username-based search
   filters: FilterData;
   page: number;
   limit: number;
@@ -43,19 +44,25 @@ type UserWithDistance = {
 export async function POST(request: NextRequest) {
   try {
     const body: SearchRequest = await request.json();
-    const { longitude, latitude, filters, page = 1, limit = 30 } = body;
+    const { longitude, latitude, slug, filters, page = 1, limit = 30 } = body;
     const clientLatitude = latitude;
     const clientLongitude = longitude;
+    const isSlugSearch = !!slug;
 
-    if (!longitude || !latitude) {
+    if (!isSlugSearch && (!longitude || !latitude)) {
       return NextResponse.json(
-        { error: 'Location coordinates are required' },
+        { error: 'Location coordinates or slug are required' },
         { status: 400 }
       );
     }
 
     // Build where clause for Prisma
     const where: any = {};
+
+    // Apply slug filter if searching by username
+    if (isSlugSearch) {
+      where.slug = slug;
+    }
 
     // Apply gender filter
     if (filters.gender && filters.gender.length > 0) {
@@ -172,9 +179,12 @@ export async function POST(request: NextRequest) {
     const profilesWithDistance: UserWithDistance[] = ads
       .map((ad) => {
         const user = ad.worker!;
-        // Parse location "lat,lng"
-        const [workerLat, workerLong] = user.location!.split(',').map(parseFloat);
-        const distance = calculateDistance(clientLatitude, clientLongitude, workerLat, workerLong);
+        // Parse location "lat,lng" - only if we have client coordinates
+        let distance = 0;
+        if (!isSlugSearch && clientLatitude !== undefined && clientLongitude !== undefined && user.location) {
+          const [workerLat, workerLong] = user.location.split(',').map(parseFloat);
+          distance = calculateDistance(clientLatitude, clientLongitude, workerLat, workerLong);
+        }
         const age = user.dob ? calculateAge(user.dob) : null;
         const ratings = ratingsMap.get(user.id) ?? { averageRating: 0 };
 
@@ -218,8 +228,8 @@ export async function POST(request: NextRequest) {
         }
         return true;
       })
-      // Sort by distance (nearest first)
-      .sort((a, b) => a.distance - b.distance);
+      // Sort by distance (nearest first) only if location-based search
+      .sort((a, b) => isSlugSearch ? 0 : a.distance - b.distance);
 
     // Paginate
     const total = profilesWithDistance.length;
@@ -256,7 +266,7 @@ export async function POST(request: NextRequest) {
         slug: user.slug,
         location: user.suburb,
         vip: user.vip,
-        distance: `${user.distance.toFixed(1)}km away`,
+        distance: isSlugSearch ? 'N/A' : `${user.distance.toFixed(1)}km away`,
         price: user.minPrice && user.maxPrice
           ? (user.minPrice === user.maxPrice
             ? `$${user.minPrice}`

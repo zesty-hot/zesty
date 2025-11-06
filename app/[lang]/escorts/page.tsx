@@ -7,9 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Combobox, ComboboxInput, ComboboxPopup, ComboboxList, ComboboxItem, ComboboxEmpty } from "@/components/ui/combobox";
+import UnifiedSearch from "@/components/unified-search";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 import FilterComponent, { type FilterData } from '@/app/[lang]/escorts/(client-renders)/filter';
@@ -260,15 +258,8 @@ const defaultFilters: FilterData = {
 };
 
 export default function Page() {
-  const id = useId();
   const { lang } = useParams();
   const router = useRouter();
-
-  // Location search state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState<LocationSuggestion | null>(null);
-  const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
-  const [isLoadingLocations, setIsLoadingLocations] = useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -278,6 +269,16 @@ export default function Page() {
   // Results state
   const [profiles, setProfiles] = useState<EscortProfileData[]>([]);
   const [totalResults, setTotalResults] = useState(0);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [searchResultsTitle, setSearchResultsTitle] = useState<string>('Results');
+  
+  // Store last search parameters for pagination
+  const [lastSearch, setLastSearch] = useState<{
+    type: 'location' | 'username';
+    location?: LocationSuggestion;
+    slug?: string;
+    filters: FilterData;
+  } | null>(null);
 
   // Featured profile state
   const [featuredProfile, setFeaturedProfile] = useState<EscortProfileData | null>(null);
@@ -286,10 +287,6 @@ export default function Page() {
   // Featured carousel state
   const [imageRotation, setImageRotation] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-
-  // Filter state
-  const [filters, setFilters] = useState<FilterData>(defaultFilters);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Fetch featured profile on mount
   useEffect(() => {
@@ -302,23 +299,6 @@ export default function Page() {
 
     loadFeaturedProfile();
   }, []);
-
-  // Debounced location search - only search when length > 1
-  useEffect(() => {
-    if (searchQuery.length <= 1) {
-      setLocationSuggestions([]);
-      return;
-    }
-
-    const timer = setTimeout(async () => {
-      setIsLoadingLocations(true);
-      const results = await searchLocations(searchQuery);
-      setLocationSuggestions(results);
-      setIsLoadingLocations(false);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
 
   // Rotate images every 3 seconds with fade transition
   useEffect(() => {
@@ -336,68 +316,104 @@ export default function Page() {
     return () => clearInterval(interval);
   }, [featuredProfile]);
 
-  // Handler to update filters while dialog is open
-  const handleFilterChange = (newFilters: FilterData) => {
-    setFilters(newFilters);
-  };
-
-  // Handler for Apply Filters button - triggers search
-  const handleApplyFilters = async () => {
-    setIsDialogOpen(false);
-    setCurrentPage(1);
-    await performSearch(1);
-  };
-
-  // Handler for Reset Filters button
-  const handleResetFilters = async () => {
-    setFilters(defaultFilters);
-    setIsDialogOpen(false);
-    if (selectedLocation) {
-      setCurrentPage(1);
-      await performSearch(1);
-    }
-  };
-
-  // Perform search with current filters and location
-  const performSearch = async (page: number = currentPage) => {
-    // Only search if location is selected
-    if (!selectedLocation) return;
-
+  // Handle location search
+  const handleLocationSearch = async (location: LocationSuggestion, filters: FilterData) => {
+    setHasSearched(true);
+    setSearchResultsTitle(`Results in ${location.label}`);
     setIsLoadingProfiles(true);
-    const result = await fetchProfiles(selectedLocation, filters, page);
+    setCurrentPage(1);
+    
+    // Store search parameters for pagination
+    setLastSearch({ type: 'location', location, filters });
+    
+    const result = await fetchProfiles(location, filters, 1);
     setProfiles(result.profiles);
     setTotalResults(result.total);
     setTotalPages(result.totalPages);
-    setCurrentPage(page);
     setIsLoadingProfiles(false);
   };
 
-  // Handle location selection - automatically trigger search
-  const handleLocationSelect = async (value: string | null) => {
-    if (!value) return;
+  // Handle username search
+  const handleUsernameSearch = async (slug: string, filters: FilterData) => {
+    setHasSearched(true);
+    setSearchResultsTitle(`Search results for @${slug}`);
+    setIsLoadingProfiles(true);
+    setCurrentPage(1);
+    
+    // Store search parameters for pagination (filters not used for username search)
+    setLastSearch({ type: 'username', slug, filters: defaultFilters });
+    
+    try {
+      const response = await fetch('/api/escorts/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug,
+          page: 1,
+          limit: 30
+        }),
+      });
 
-    const location = locationSuggestions.find(l => l.value === value);
-    if (location) {
-      setSelectedLocation(location);
-      setSearchQuery(location.label);
-      setCurrentPage(1);
-
-      // Trigger search with current filters
-      setIsLoadingProfiles(true);
-      const result = await fetchProfiles(location, filters, 1);
-      setProfiles(result.profiles);
-      setTotalResults(result.total);
-      setTotalPages(result.totalPages);
+      if (response.ok) {
+        const result = await response.json();
+        setProfiles(result.profiles);
+        setTotalResults(result.total);
+        setTotalPages(result.totalPages);
+      }
+    } catch (error) {
+      console.error('Error searching by username:', error);
+    } finally {
       setIsLoadingProfiles(false);
     }
   };
 
-  // Calculate number of active filters
-  const activeFilterCount =
-    filters.gender.length +
-    filters.bodyType.length +
-    filters.race.length +
-    ((filters.age[0] !== 18 || filters.age[1] !== 100) ? 1 : 0);
+  // Clear search results
+  const handleClearSearch = () => {
+    setProfiles([]);
+    setTotalResults(0);
+    setTotalPages(1);
+    setCurrentPage(1);
+    setHasSearched(false);
+    setLastSearch(null);
+  };
+
+  // Pagination handler
+  const performSearch = async (page: number) => {
+    if (!lastSearch) return;
+    
+    setIsLoadingProfiles(true);
+    setCurrentPage(page);
+    
+    try {
+      if (lastSearch.type === 'location' && lastSearch.location) {
+        const result = await fetchProfiles(lastSearch.location, lastSearch.filters, page);
+        setProfiles(result.profiles);
+        setTotalResults(result.total);
+        setTotalPages(result.totalPages);
+      } else if (lastSearch.type === 'username' && lastSearch.slug) {
+        const response = await fetch('/api/escorts/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slug: lastSearch.slug,
+            page,
+            limit: 30
+          }),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          setProfiles(result.profiles);
+          setTotalResults(result.total);
+          setTotalPages(result.totalPages);
+        }
+      }
+    } catch (error) {
+      console.error('Error in pagination:', error);
+    } finally {
+      setIsLoadingProfiles(false);
+    }
+  };
 
   // Navigate to profile page with pre-loaded data
   const handleProfileClick = (e: React.MouseEvent, profile: EscortProfileData) => {
@@ -431,109 +447,17 @@ export default function Page() {
         </svg>
       </section>
 
-      <section className="mb-4 flex flex-row w-full">
-        <div className="relative flex w-full">
-          <Combobox
-            value={selectedLocation?.value || null}
-            onValueChange={handleLocationSelect}
-          >
-            <div className="relative w-full">
-              <ComboboxInput
-                size="lg"
-                id={id}
-                className="peer ps-9 pe-9"
-                placeholder="Look in a city, or state"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                showTrigger={false}
-              />
-              <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
-                <SearchIcon size={16} />
-              </div>
-              <button
-                className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md text-muted-foreground/80 transition-[color,box-shadow] outline-none hover:text-foreground focus:z-10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Submit search"
-                type="submit"
-              >
-                <ArrowRightIcon size={16} aria-hidden="true" />
-              </button>
-            </div>
+      {/* Unified Search Component */}
+      <UnifiedSearch
+        defaultFilters={defaultFilters}
+        onLocationSearch={handleLocationSearch}
+        onUsernameSearch={handleUsernameSearch}
+        onClearSearch={handleClearSearch}
+        searchType="escorts"
+      />
 
-            {/* Only show popup when actively searching (length > 1) */}
-            {searchQuery.length > 1 && (
-              <ComboboxPopup>
-                <ComboboxList>
-                  {isLoadingLocations ? (
-                    <div className="p-2 text-center text-sm text-muted-foreground">
-                      Loading locations...
-                    </div>
-                  ) : locationSuggestions.length === 0 ? (
-                    <ComboboxEmpty>No locations found.</ComboboxEmpty>
-                  ) : (
-                    <>
-                      {locationSuggestions.map((location) => (
-                        <ComboboxItem key={location.value} value={location.value}>
-                          <div className="flex items-center justify-between w-full">
-                            <span>{location.label}</span>
-                            <span className="text-xs text-muted-foreground capitalize">{location.type}</span>
-                          </div>
-                        </ComboboxItem>
-                      ))}
-                    </>
-                  )}
-                </ComboboxList>
-              </ComboboxPopup>
-            )}
-          </Combobox>
-        </div>
-        <div className="mx-2" />
-        <div className="flex shrink">
-          <TooltipProvider delay={100}>
-            <Tooltip>
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <TooltipTrigger render={
-                  <DialogTrigger render={
-                    <Button size="lg" variant="outline" className="relative">
-                      <Funnel />
-                      {activeFilterCount > 0 && (
-                        <Badge variant="destructive" className="absolute -top-2 left-full min-w-5 -translate-x-3.5 border-background px-1 py-[0.145rem] text-xs font-medium">
-                          {activeFilterCount}
-                        </Badge>
-                      )}
-                    </Button>
-                  } />
-                } />
-                <TooltipContent side="bottom" className="max-sm:hidden">
-                  <p>Advanced filtering</p>
-                </TooltipContent>
-                <DialogContent className="sm:min-w-2xl rounded-2xl select-none cursor-default">
-                  <DialogHeader>
-                    <DialogTitle>Filters</DialogTitle>
-                    <DialogDescription>Refine your search results</DialogDescription>
-                  </DialogHeader>
-
-                  <FilterComponent
-                    filterData={filters}
-                    onFilterChange={handleFilterChange}
-                  />
-
-                  <DialogFooter className="md:gap-6">
-                    <Button type="button" variant="destructive-outline" onClick={handleResetFilters}>
-                      Reset Filters
-                    </Button>
-                    <Button type="button" onClick={handleApplyFilters}>
-                      Apply Filters
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </section>
-
-      {/* Show Featured section only when no location selected */}
-      {!selectedLocation && (
+      {/* Show Featured section only when no search has been performed */}
+      {!hasSearched && (
         <section className="md:max-w-[60%] mx-auto my-8">
           <h2 className="text-2xl font-bold mb-4">Featured profile</h2>
 
@@ -613,12 +537,12 @@ export default function Page() {
         </section>
       )}
 
-      {/* Filtered results section - only show when location is selected */}
-      {selectedLocation && (
+      {/* Search results section - only show when search has been performed */}
+      {hasSearched && (
         <section className="mx-auto mb-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">
-              Results in {selectedLocation.label}
+              {searchResultsTitle}
             </h2>
             <p className="text-muted-foreground">
               {totalResults} {totalResults === 1 ? 'result' : 'results'} found
@@ -635,9 +559,9 @@ export default function Page() {
                 <Button
                   variant="outline"
                 className="mt-4"
-                onClick={handleResetFilters}
+                onClick={handleClearSearch}
               >
-                Clear All Filters
+                Clear Search
               </Button>
             </div>
           ) : (
