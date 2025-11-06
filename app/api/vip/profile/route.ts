@@ -30,10 +30,6 @@ export async function POST(req: NextRequest) {
       include: {
         user: {
           select: {
-            name: false,
-            email: false,
-            image: true,
-
             id: true,
             slug: true,
             bio: true,
@@ -233,7 +229,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error fetching VIP profile:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', fuckYou: error },
       { status: 500 }
     );
   }
