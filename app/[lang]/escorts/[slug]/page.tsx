@@ -131,7 +131,7 @@ export default function EscortSlugPage() {
         {defaultImage && (
           <div className="lg:col-span-2 m-auto lg:m-0">
             <div
-              className="relative aspect-video max-h-[400px] lg:max-h-[600px] overflow-hidden rounded-xl bg-muted shadow-lg cursor-pointer hover:shadow-2xl transition-shadow group"
+              className="relative aspect-3/4 md:aspect-video max-h-[400px] lg:max-h-[600px] overflow-hidden rounded-xl bg-muted shadow-lg cursor-pointer hover:shadow-2xl transition-shadow group"
               onClick={() => setSelectedImage(defaultImage.url)}
             >
               <img
@@ -404,8 +404,8 @@ export default function EscortSlugPage() {
             <div className="flex flex-col gap-2 mt-4">
               <Button variant="outline" size="sm" className="w-full opacity-70 hover:opacity-100"><Bookmark />Add to favourites</Button>
               <div className="flex flex-row gap-2">
-                <Link href={`/${lang}/vip/${profile.slug}`} className={`flex w-full ${profile.vip ? 'pointer-events-auto cursor-pointer opacity-70 hover:opacity-100' : 'pointer-events-none opacity-40'}`}><Button variant="outline" size="sm" className="w-full"><Camera />VIP content</Button></Link>
-                <Link href={`/${lang}/live/${profile.slug}`} className="flex w-full opacity-70 hover:opacity-100"><Button variant="outline" size="sm" className="w-full"><Webcam />Live streams</Button></Link>
+                <Link href={`/${lang}/vip/${profile.slug}`} className={`flex w-full ${profile.vip ? 'pointer-events-auto cursor-pointer opacity-80 hover:opacity-100' : 'pointer-events-none opacity-40'}`}><Button variant="outline" size="sm" className="w-full"><Camera />VIP content</Button></Link>
+                <Link href={`/${lang}/live/${profile.slug}`} className="flex w-full opacity-80 hover:opacity-100"><Button variant="outline" size="sm" className="w-full"><Webcam />Live streams</Button></Link>
               </div>
               <Button variant="outline" size="lg" className="w-full text-sm h-11 -mb-1"><Send />Contact {decodeURIComponent(slug as string)}</Button>
             </div>

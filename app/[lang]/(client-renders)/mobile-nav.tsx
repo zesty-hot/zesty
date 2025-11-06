@@ -50,6 +50,7 @@ export default function MobileNav() {
         className={getLinkClassName("/escorts") + ` ml-3`}
         prefetch={false}
         onClick={() => handleClick("/escorts")}
+        suppressHydrationWarning
       >
         <Search className={`h-6 w-6`} />
         <span className="text-xs">Directory</span>
@@ -59,6 +60,7 @@ export default function MobileNav() {
         className={getLinkClassName("/jobs")}
         prefetch={false}
         onClick={() => handleClick("/jobs")}
+        suppressHydrationWarning
       >
         <Clapperboard className={`h-6 w-6`} />
         <span className="text-xs">Studios</span>
@@ -68,6 +70,7 @@ export default function MobileNav() {
         className={getLinkClassName("/vip")}
         prefetch={false}
         onClick={() => handleClick("/vip")}
+        suppressHydrationWarning
       >
         <Camera className={`h-6 w-6`} />
         <span className="text-xs">Creators</span>
@@ -77,6 +80,7 @@ export default function MobileNav() {
         className={getLinkClassName("/live")}
         prefetch={false}
         onClick={() => handleClick("/live")}
+        suppressHydrationWarning
       >
         <TvMinimalPlay className={`h-6 w-6`} />
         <span className="text-xs">Live</span>
@@ -86,6 +90,7 @@ export default function MobileNav() {
         className={getLinkClassName("/events")}
         prefetch={false}
         onClick={() => handleClick("/events")}
+        suppressHydrationWarning
       >
         <Calendar className={`h-6 w-6`} />
         <span className="text-xs">Events</span>
@@ -95,6 +100,7 @@ export default function MobileNav() {
         className={getLinkClassName("/dating") + ` mr-3`}
         prefetch={false}
         onClick={() => handleClick("/dating")}
+        suppressHydrationWarning
       >
         <Flame className={`h-6 w-6`} />
         <span className="text-xs">Meet</span>

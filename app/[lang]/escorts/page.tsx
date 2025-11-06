@@ -430,7 +430,7 @@ export default function Page() {
   ] : [];
 
   return (
-    <article className="container mx-auto px-10 md:px-4">
+    <article className="container mx-auto px-4">
       <section className="flex flex-row -mb-2">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
           className="w-24 h-24 mx-auto text-neutral-600"
@@ -465,7 +465,7 @@ export default function Page() {
           {isLoadingFeatured ? (
             <div className="grid gap-4">
               {/* Main featured image skeleton */}
-              <Skeleton className="w-full aspect-16/10 rounded-lg" />
+              <Skeleton className="w-full aspect-square md:aspect-16/10 rounded-lg" />
 
               {/* Thumbnail grid skeleton */}
               <div className="grid grid-cols-5 gap-4">
@@ -486,7 +486,7 @@ export default function Page() {
             >
               <div className="grid gap-4">
                 {/* Main featured image */}
-                <div className="relative w-full aspect-16/10 overflow-hidden rounded-lg bg-muted group">
+                <div className="relative w-full aspect-square md:aspect-16/10 overflow-hidden rounded-lg bg-muted group">
                   <img
                     className={cn(
                       "absolute inset-0 w-full h-full object-cover transition-all duration-500",

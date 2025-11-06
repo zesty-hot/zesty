@@ -132,7 +132,7 @@ function ComboboxPopup({
           <ComboboxPrimitive.Popup
             data-slot="combobox-popup"
             className={cn(
-              "flex max-h-[min(var(--available-height),23rem)] w-(--anchor-width) max-w-(--available-width) flex-col",
+              "flex max-h-[min(var(--available-height),23rem)] w-[calc(var(--anchor-width)+4.5rem)] max-w-(--available-width) flex-col",
               className
             )}
             {...props}
