@@ -9,22 +9,22 @@ import ClientAnalytics from "@/app/[lang]/(client-renders)/analytics";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="pb-16 lg:pb-0">
-      {/* Top */}
-      <SessionProvider>
+    <SessionProvider>
+      <main className="pb-16 lg:pb-0">
+        {/* Top */}
         <DesktopNav />      
-      </SessionProvider>
 
-      {children}
+        {children}
 
-      {/* Bottom */}
-      <Footer />
-      <MobileNav />
-      
-      {/* Injections */}
-      <ClientAnalytics />
-      <Cookies />
-    </main>
+        {/* Bottom */}
+        <Footer />
+        <MobileNav />
+        
+        {/* Injections */}
+        <ClientAnalytics />
+        <Cookies />
+      </main>
+    </SessionProvider>
   );
 }
 

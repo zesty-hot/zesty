@@ -88,6 +88,11 @@ model User {
   liveStreamFollows   LiveStreamFollower[]
   liveStreamDonations LiveStreamDonation[]
 
+  eventsOrganized     Event[] @relation("eventOrganizer")
+  eventsAttending     EventAttendee[] @relation("eventAttendee")
+  eventPosts          EventPost[] @relation("eventPostAuthor")
+  eventComments       EventComment[] @relation("eventCommentAuthor")
+
   messagesSent ChatMessage[] @relation("sender")
   activeChats  Chat[] @relation("activeChat")
   hiddenChats  Chat[] @relation("hiddenChat")
@@ -527,4 +532,118 @@ model LiveStreamDonation {
   createdAt       DateTime @default(now())
 
   @@index([streamId, createdAt])
+}
+
+// ==================== EVENTS ====================
+
+enum EventStatus {
+  OPEN                // Anyone can join
+  INVITE_ONLY        // Only invited users can join
+  PAY_TO_JOIN        // Payment required to join
+  REQUEST_TO_JOIN    // Users request, host approves
+}
+
+model Event {
+  id              String @id @default(cuid())
+  
+  title           String @db.VarChar(200)
+  description     String? @db.Text
+  slug            String @unique
+  
+  // Location
+  location        String? @db.VarChar(100)  // Latitude, Longitude
+  suburb          String? @db.VarChar(100)  // Suburb/City name
+  venue           String? @db.VarChar(200)  // Venue name/address
+  
+  // Images
+  coverImage      String?
+  
+  // Event details
+  startTime       DateTime
+  endTime         DateTime?
+  status          EventStatus @default(OPEN)
+  price           Int? // Price in cents (if PAY_TO_JOIN)
+  maxAttendees    Int? // Maximum number of attendees
+  
+  // Organizer
+  organizer       User @relation("eventOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
+  organizerId     String
+  
+  // Relations
+  attendees       EventAttendee[]
+  posts           EventPost[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([organizerId])
+  @@index([startTime])
+  @@index([suburb, startTime])
+  @@index([status, startTime])
+}
+
+model EventAttendee {
+  id              String @id @default(cuid())
+  
+  // Attendee status
+  status          EventAttendeeStatus @default(PENDING)
+  
+  event           Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId         String
+  
+  user            User @relation("eventAttendee", fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([eventId, userId])
+  @@index([eventId, status])
+  @@index([userId])
+}
+
+enum EventAttendeeStatus {
+  PENDING         // Requested to join (for REQUEST_TO_JOIN events)
+  GOING           // Confirmed attendance
+  MAYBE           // Interested/maybe going
+  DECLINED        // Declined invitation
+  INVITED         // Invited but not responded (for INVITE_ONLY)
+}
+
+model EventPost {
+  id              String @id @default(cuid())
+  
+  content         String @db.Text
+  
+  event           Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId         String
+  
+  author          User @relation("eventPostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  authorId        String
+  
+  comments        EventComment[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([eventId, createdAt])
+  @@index([authorId])
+}
+
+model EventComment {
+  id              String @id @default(cuid())
+  
+  content         String @db.Text
+  
+  post            EventPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId          String
+  
+  author          User @relation("eventCommentAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  authorId        String
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([postId, createdAt])
+  @@index([authorId])
 }

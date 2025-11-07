@@ -1,4 +1,4 @@
-import { PrismaClient, Gender, BodyType, Race, PrivateAdCustomerCategory, PrivateAdServiceCategory, PrivateAdExtraType, DaysAvailable, VIPContentType } from '@prisma/client';
+import { PrismaClient, Gender, BodyType, Race, PrivateAdCustomerCategory, PrivateAdServiceCategory, PrivateAdExtraType, DaysAvailable, VIPContentType, EventStatus, EventAttendeeStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -117,6 +117,137 @@ const vipComments = [
   'You never disappoint!',
 ];
 
+const eventTitles = [
+  'Friday Night Meetup',
+  'Weekend Social Gathering',
+  'Sunset Rooftop Party',
+  'Beach BBQ & Drinks',
+  'Wine Tasting Evening',
+  'Comedy Night Out',
+  'Live Music & Dancing',
+  'Cocktail Hour Mixer',
+  'Gaming Tournament',
+  'Karaoke Night',
+  'Pool Party Vibes',
+  'Brunch & Mimosas',
+  'Trivia Night',
+  'Art Gallery Opening',
+  'Outdoor Movie Night',
+  'Sports Bar Hangout',
+  'Networking Drinks',
+  'Dance Class Social',
+  'Board Game Night',
+  'Sunset Picnic',
+  'Bar Crawl Adventure',
+  'Theme Party Bash',
+  'Restaurant Pop-up',
+  'Fitness Boot Camp',
+  'Yoga & Meditation',
+  'Book Club Meetup',
+  'Photography Walk',
+  'Food Festival',
+  'Concert After Party',
+  'Speed Dating Event',
+];
+
+const eventDescriptions = [
+  'Join us for an amazing evening of fun, drinks, and great company! Come meet new people and make lasting connections in a relaxed atmosphere.',
+  'Looking for something fun to do this weekend? Join our social gathering and connect with awesome people in your area!',
+  'A perfect opportunity to network, socialize, and have a great time. Everyone welcome - bring your friends or come solo!',
+  'Experience an unforgettable event filled with good vibes, great music, and even better company. Don\'t miss out!',
+  'Whether you\'re new to the area or a local looking to expand your social circle, this event is perfect for you!',
+  'Come hang out, have fun, and meet interesting people in a casual and friendly environment.',
+  'An evening of entertainment, laughter, and connections awaits! Join us for an experience you won\'t forget.',
+  'Bring your best energy and get ready for an amazing time with a diverse and friendly crowd.',
+  'Looking to make new friends or just have a great night out? This is the event for you!',
+  'Join fellow enthusiasts for a memorable event. Great atmosphere, great people, great memories!',
+];
+
+const eventVenues = [
+  'The Ivy Rooftop Bar',
+  'Bondi Beach Club',
+  'Opera Bar Sydney',
+  'The Rocks Social',
+  'Darling Harbour Terrace',
+  'Manly Pavilion',
+  'Surry Hills Wine Bar',
+  'Crown Casino Melbourne',
+  'South Bank Brisbane',
+  'Fremantle Brewing Co',
+  'The Deck Adelaide',
+  'City Beach Cafe',
+  'Riverside Restaurant',
+  'Garden Terrace',
+  'Harbourside Venue',
+  'Beach House Social',
+  'Urban Rooftop',
+  'Waterfront Lounge',
+  'Parkside Pavilion',
+  'Coastal Club',
+];
+
+const eventPostTexts = [
+  'So excited for this event! Can\'t wait to meet everyone! 🎉',
+  'Who else is coming? Let\'s connect!',
+  'This is going to be amazing! See you all there! 🔥',
+  'First time attending one of these events, a bit nervous but excited!',
+  'Anyone want to share a ride? I\'m coming from [location]',
+  'What should I wear to this? Casual or dressy?',
+  'Count me in! This looks like so much fun!',
+  'Bringing my friend along - hope that\'s cool!',
+  'What time are people planning to arrive?',
+  'Is there parking nearby? First time at this venue',
+  'The weather looks perfect for this! 🌞',
+  'Who wants to grab drinks before the event?',
+  'This is going to be legendary! 💫',
+  'Really looking forward to this!',
+  'Anyone else a first-timer? Let\'s stick together!',
+];
+
+const eventCommentTexts = [
+  'Sounds great! See you there!',
+  'I\'m definitely in! 🙌',
+  'Count me in as well!',
+  'This is going to be fun!',
+  'Can\'t wait! 🎉',
+  'Same here! Super excited!',
+  'Let\'s meet up when we get there!',
+  'I\'ll be there around [time]',
+  'Awesome! Looking forward to it!',
+  'Me too! First timer here as well!',
+  'Great vibes already! 🔥',
+  'This is going to be epic!',
+  'See you soon! ✨',
+  'So pumped for this!',
+  'Yes! Can\'t wait to meet everyone!',
+];
+
+const livestreamTitles = [
+  'Just Chatting & Hanging Out',
+  'Late Night Vibes',
+  'Q&A Session - Ask Me Anything!',
+  'Getting Ready Stream',
+  'Morning Coffee Chat',
+  'Workout Stream',
+  'Cooking with Me',
+  'Gaming Session',
+  'Music & Chill',
+  'Behind the Scenes',
+  'Story Time',
+  'Day in My Life',
+  'Planning the Week',
+  'Answering Your Questions',
+  'Random Thoughts',
+];
+
+const livestreamBios = [
+  'Join me for regular streams where we can chat, have fun, and just hang out together! Hit follow to get notified when I go live! 💕',
+  'Your favorite place to unwind and have great conversations. Come say hi and let\'s make some memories! ✨',
+  'Streaming regularly for my amazing community! Let\'s chat, laugh, and have a great time together. Follow for notifications! 🎉',
+  'Welcome to my live streams! I love connecting with you all and creating fun content. Don\'t forget to follow! 🔥',
+  'Come hang out during my streams! I try to go live regularly - follow to never miss a stream! 💫',
+];
+
 function randomAge() {
   return Math.floor(Math.random() * (45 - 21) + 21); // Age between 21-45
 }
@@ -138,6 +269,104 @@ async function main() {
 
   // Clean existing data
   console.log('🗑️  Cleaning existing data...');
+  
+  // Delete events and related data
+  await prisma.eventComment.deleteMany({
+    where: {
+      post: {
+        event: {
+          organizer: {
+            email: {
+              contains: '@escort-seed.com'
+            }
+          }
+        }
+      }
+    }
+  });
+  
+  await prisma.eventPost.deleteMany({
+    where: {
+      event: {
+        organizer: {
+          email: {
+            contains: '@escort-seed.com'
+          }
+        }
+      }
+    }
+  });
+  
+  await prisma.eventAttendee.deleteMany({
+    where: {
+      event: {
+        organizer: {
+          email: {
+            contains: '@escort-seed.com'
+          }
+        }
+      }
+    }
+  });
+  
+  await prisma.event.deleteMany({
+    where: {
+      organizer: {
+        email: {
+          contains: '@escort-seed.com'
+        }
+      }
+    }
+  });
+  
+  // Delete livestream data
+  await prisma.liveStreamDonation.deleteMany({
+    where: {
+      stream: {
+        channel: {
+          user: {
+            email: {
+              contains: '@escort-seed.com'
+            }
+          }
+        }
+      }
+    }
+  });
+  
+  await prisma.liveStream.deleteMany({
+    where: {
+      channel: {
+        user: {
+          email: {
+            contains: '@escort-seed.com'
+          }
+        }
+      }
+    }
+  });
+  
+  await prisma.liveStreamFollower.deleteMany({
+    where: {
+      channel: {
+        user: {
+          email: {
+            contains: '@escort-seed.com'
+          }
+        }
+      }
+    }
+  });
+  
+  await prisma.liveStreamPage.deleteMany({
+    where: {
+      user: {
+        email: {
+          contains: '@escort-seed.com'
+        }
+      }
+    }
+  });
   
   // Delete VIP content and related data first
   await prisma.vIPLike.deleteMany({
@@ -826,6 +1055,306 @@ async function main() {
   console.log(`   - Total VIP subscriptions: ${totalVIPSubscriptions}`);
   console.log(`   - Total VIP likes: ${totalVIPLikes}`);
   console.log(`   - Total VIP comments: ${totalVIPComments}`);
+  
+  console.log('📺 Creating livestream channels...');
+  
+  // Create livestream channels for 40% of escorts (20 out of 50)
+  const livestreamCount = Math.floor(users.length * 0.4);
+  const livestreamers = users.slice(0, livestreamCount);
+  
+  let totalLiveStreamPages = 0;
+  let totalFollowers = 0;
+  
+  for (const streamer of livestreamers) {
+    const streamerIndex = livestreamers.indexOf(streamer);
+    
+    // Get streamer details
+    const streamerDetails = await prisma.user.findUnique({
+      where: { id: streamer.id },
+      select: { name: true, image: true }
+    });
+    
+    // Generate a unique stream key and slug
+    const streamKey = `sk_${streamer.id.substring(0, 8)}_${Date.now()}`;
+    const slug = `${(streamerDetails?.name || 'streamer').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${streamerIndex}`;
+    
+    // Create livestream page (channel)
+    const liveStreamPage = await prisma.liveStreamPage.create({
+      data: {
+        userId: streamer.id,
+        slug,
+        title: `${streamerDetails?.name}'s Live Stream`,
+        description: randomElement(livestreamBios),
+        streamKey,
+        active: true,
+      }
+    });
+    
+    totalLiveStreamPages++;
+    
+    // Add followers (5-25 followers per channel)
+    const numFollowers = Math.floor(Math.random() * 21) + 5;
+    const followers = clients
+      .sort(() => Math.random() - 0.5)
+      .slice(0, Math.min(numFollowers, clients.length));
+    
+    const followersToCreate = [];
+    for (const follower of followers) {
+      // Followed 1-180 days ago
+      const followedDaysAgo = Math.floor(Math.random() * 180) + 1;
+      const followDate = new Date();
+      followDate.setDate(followDate.getDate() - followedDaysAgo);
+      
+      followersToCreate.push({
+        userId: follower.id,
+        channelId: liveStreamPage.id,
+        createdAt: followDate,
+      });
+    }
+    
+    if (followersToCreate.length > 0) {
+      await prisma.liveStreamFollower.createMany({
+        data: followersToCreate,
+        skipDuplicates: true,
+      });
+      totalFollowers += followersToCreate.length;
+    }
+    
+    // Create 2-5 past stream sessions for each channel
+    const numPastStreams = Math.floor(Math.random() * 4) + 2;
+    
+    for (let i = 0; i < numPastStreams; i++) {
+      // Stream happened 1-90 days ago
+      const streamDaysAgo = Math.floor(Math.random() * 90) + 1;
+      const streamStartDate = new Date();
+      streamStartDate.setDate(streamStartDate.getDate() - streamDaysAgo);
+      streamStartDate.setHours(Math.floor(Math.random() * 24));
+      streamStartDate.setMinutes(Math.floor(Math.random() * 60));
+      
+      // Stream duration: 30min - 4 hours
+      const durationMinutes = Math.floor(Math.random() * 210) + 30;
+      const streamEndDate = new Date(streamStartDate);
+      streamEndDate.setMinutes(streamEndDate.getMinutes() + durationMinutes);
+      
+      // Generate room name for this session
+      const roomName = `room_${liveStreamPage.id.substring(0, 8)}_${streamStartDate.getTime()}`;
+      
+      await prisma.liveStream.create({
+        data: {
+          channelId: liveStreamPage.id,
+          title: randomElement(livestreamTitles),
+          roomName,
+          isLive: false, // Past streams are not live
+          viewerCount: Math.floor(Math.random() * 50) + 5, // 5-55 peak viewers
+          startedAt: streamStartDate,
+          endedAt: streamEndDate,
+        }
+      });
+    }
+  }
+  
+  console.log(`✅ Created ${totalLiveStreamPages} livestream channels`);
+  console.log(`   - Total followers: ${totalFollowers}`);
+  console.log(`   - Past streams per channel: 2-5 sessions`);
+  
+  console.log('🎉 Creating events...');
+  
+  // Create 30 events across different locations and dates
+  const numEvents = 30;
+  let totalEvents = 0;
+  let totalEventAttendees = 0;
+  let totalEventPosts = 0;
+  let totalEventComments = 0;
+  
+  for (let i = 0; i < numEvents; i++) {
+    const location = randomElement(locations);
+    
+    // Event status distribution
+    let eventStatus: EventStatus;
+    const statusRand = Math.random();
+    if (statusRand < 0.60) eventStatus = EventStatus.OPEN; // 60% open
+    else if (statusRand < 0.75) eventStatus = EventStatus.INVITE_ONLY; // 15% invite only
+    else if (statusRand < 0.85) eventStatus = EventStatus.REQUEST_TO_JOIN; // 10% request to join
+    else eventStatus = EventStatus.PAY_TO_JOIN; // 15% paid
+    
+    // Event timing
+    const isToday = i < 5; // First 5 events are today
+    const isThisWeek = i < 15; // Next 10 events are this week
+    // Rest are next 2-4 weeks
+    
+    const eventDate = new Date();
+    if (isToday) {
+      // Today: between now and midnight
+      eventDate.setHours(Math.floor(Math.random() * 8) + 16); // 4pm - midnight
+      eventDate.setMinutes(Math.floor(Math.random() * 60));
+    } else if (isThisWeek) {
+      // This week: 1-7 days from now
+      eventDate.setDate(eventDate.getDate() + Math.floor(Math.random() * 7) + 1);
+      eventDate.setHours(Math.floor(Math.random() * 12) + 12); // noon - midnight
+      eventDate.setMinutes(Math.floor(Math.random() * 60));
+    } else {
+      // Next 2-4 weeks
+      eventDate.setDate(eventDate.getDate() + Math.floor(Math.random() * 14) + 14);
+      eventDate.setHours(Math.floor(Math.random() * 12) + 12);
+      eventDate.setMinutes(Math.floor(Math.random() * 60));
+    }
+    
+    // Event duration: 2-6 hours
+    const durationHours = Math.floor(Math.random() * 5) + 2;
+    const endDate = new Date(eventDate);
+    endDate.setHours(endDate.getHours() + durationHours);
+    
+    // Price for paid events: $10-$100
+    const price = eventStatus === EventStatus.PAY_TO_JOIN 
+      ? Math.floor(Math.random() * 90) + 10 
+      : null;
+    
+    // Max attendees: 10-200
+    const maxAttendees = Math.floor(Math.random() * 190) + 10;
+    
+    // Random organizer (use escorts as organizers)
+    const organizer = randomElement(users);
+    
+    // Create event
+    const event = await prisma.event.create({
+      data: {
+        organizerId: organizer.id,
+        slug: `${randomElement(eventTitles).toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${location.city.toLowerCase()}-${i}`,
+        title: randomElement(eventTitles),
+        description: randomElement(eventDescriptions),
+        coverImage: `https://picsum.photos/seed/event${i}/1200/600`,
+        location: `${location.lat},${location.lon}`,
+        suburb: `${location.city}, ${location.state}`,
+        venue: randomElement(eventVenues),
+        startTime: eventDate,
+        endTime: endDate,
+        status: eventStatus,
+        price,
+        maxAttendees,
+      }
+    });
+    
+    totalEvents++;
+    
+    // Add attendees (5-30 attendees per event)
+    const numAttendees = Math.floor(Math.random() * 26) + 5;
+    const attendees = clients
+      .sort(() => Math.random() - 0.5)
+      .slice(0, Math.min(numAttendees, clients.length));
+    
+    const attendeesToCreate = [];
+    for (const attendee of attendees) {
+      // Status distribution based on event status
+      let attendeeStatus: EventAttendeeStatus;
+      
+      if (eventStatus === EventStatus.INVITE_ONLY) {
+        // For invite only: mix of invited, going, maybe
+        const rand = Math.random();
+        if (rand < 0.50) attendeeStatus = EventAttendeeStatus.GOING;
+        else if (rand < 0.75) attendeeStatus = EventAttendeeStatus.MAYBE;
+        else attendeeStatus = EventAttendeeStatus.INVITED;
+      } else if (eventStatus === EventStatus.REQUEST_TO_JOIN) {
+        // For request to join: mix of going, pending, declined
+        const rand = Math.random();
+        if (rand < 0.70) attendeeStatus = EventAttendeeStatus.GOING;
+        else if (rand < 0.90) attendeeStatus = EventAttendeeStatus.PENDING;
+        else attendeeStatus = EventAttendeeStatus.DECLINED;
+      } else {
+        // For open/paid: mostly going, some maybe
+        const rand = Math.random();
+        if (rand < 0.80) attendeeStatus = EventAttendeeStatus.GOING;
+        else attendeeStatus = EventAttendeeStatus.MAYBE;
+      }
+      
+      // Joined 1-30 days ago (or hours ago for today's events)
+      const joinedDate = new Date(eventDate);
+      if (isToday) {
+        joinedDate.setHours(joinedDate.getHours() - Math.floor(Math.random() * 24));
+      } else {
+        joinedDate.setDate(joinedDate.getDate() - Math.floor(Math.random() * 30) - 1);
+      }
+      
+      attendeesToCreate.push({
+        userId: attendee.id,
+        eventId: event.id,
+        status: attendeeStatus,
+        createdAt: joinedDate,
+      });
+    }
+    
+    if (attendeesToCreate.length > 0) {
+      await prisma.eventAttendee.createMany({
+        data: attendeesToCreate,
+        skipDuplicates: true,
+      });
+      totalEventAttendees += attendeesToCreate.length;
+    }
+    
+    // Create posts from attendees (2-8 posts per event)
+    const confirmedAttendees = attendeesToCreate.filter(
+      a => a.status === EventAttendeeStatus.GOING || a.status === EventAttendeeStatus.MAYBE
+    );
+    
+    if (confirmedAttendees.length > 0) {
+      const numPosts = Math.floor(Math.random() * 7) + 2;
+      
+      for (let p = 0; p < Math.min(numPosts, confirmedAttendees.length); p++) {
+        const poster = randomElement(confirmedAttendees);
+        
+        // Post created between join date and event date
+        const postDate = new Date(poster.createdAt);
+        const daysBetween = Math.floor((eventDate.getTime() - poster.createdAt.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysBetween > 0) {
+          postDate.setDate(postDate.getDate() + Math.floor(Math.random() * daysBetween));
+        }
+        
+        const post = await prisma.eventPost.create({
+          data: {
+            eventId: event.id,
+            authorId: poster.userId,
+            content: randomElement(eventPostTexts),
+            createdAt: postDate,
+          }
+        });
+        
+        totalEventPosts++;
+        
+        // Add comments to posts (0-5 comments per post)
+        const numComments = Math.floor(Math.random() * 6);
+        
+        for (let c = 0; c < Math.min(numComments, confirmedAttendees.length); c++) {
+          const commenter = randomElement(confirmedAttendees);
+          
+          // Comment created after post
+          const commentDate = new Date(postDate);
+          const hoursAfterPost = Math.floor(Math.random() * 48) + 1; // 1-48 hours after post
+          commentDate.setHours(commentDate.getHours() + hoursAfterPost);
+          
+          // Only create comment if it's before event date
+          if (commentDate < eventDate) {
+            await prisma.eventComment.create({
+              data: {
+                postId: post.id,
+                authorId: commenter.userId,
+                content: randomElement(eventCommentTexts),
+                createdAt: commentDate,
+              }
+            });
+            
+            totalEventComments++;
+          }
+        }
+      }
+    }
+  }
+  
+  console.log(`✅ Created ${totalEvents} events`);
+  console.log(`   - Events today: 5`);
+  console.log(`   - Events this week: 10`);
+  console.log(`   - Events next 2-4 weeks: 15`);
+  console.log(`   - Total attendees: ${totalEventAttendees}`);
+  console.log(`   - Total posts: ${totalEventPosts}`);
+  console.log(`   - Total comments: ${totalEventComments}`);
   
   console.log('🎉 Seed completed successfully!');
   console.log('\n📊 Summary:');
