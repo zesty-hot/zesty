@@ -188,7 +188,7 @@ export async function POST(req: NextRequest) {
                 slug: true,
                 images: {
                   where: { default: true },
-                  select: { url: true },
+                  select: { url: true, NSFW: true },
                   take: 1,
                 }
               }
@@ -239,7 +239,7 @@ export async function POST(req: NextRequest) {
                 slug: true,
                 images: {
                   where: { default: true },
-                  select: { url: true },
+                  select: { url: true, NSFW: true },
                   take: 1,
                 }
               }
@@ -271,7 +271,7 @@ export async function POST(req: NextRequest) {
     const featuredCreators = featuredPages.map((page: any) => ({
       id: page.id,
       slug: page.user.slug || '',
-      image: page.user.images?.[0]?.url || null,
+      image: page.user.images?.[0] || null,
       title: page.title,
       description: page.description,
       subscribersCount: page._count.subscriptions,

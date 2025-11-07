@@ -181,8 +181,13 @@ export async function POST(req: NextRequest) {
       select: { id: true },
     }));
 
-    // Check if user has active live page (placeholder for future implementation)
-    const hasActiveLive = false; // TODO: Implement when live streaming is added
+    // Check if user has active live stream page
+    const hasActiveLive = await withRetry(() => prisma.liveStreamPage.findFirst({
+      where: {
+        userId: vipPage.userId,
+      },
+      select: { id: true },
+    }));
 
     const canViewContent = isOwnPage || hasActiveSubscription || vipPage.isFree;
 

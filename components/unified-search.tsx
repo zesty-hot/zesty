@@ -32,7 +32,7 @@ interface UnifiedSearchProps {
   onLocationSearch: (location: LocationSuggestion, filters: FilterData) => void;
   onUsernameSearch: (username: string, filters: FilterData) => void;
   onClearSearch?: () => void;
-  searchType?: 'escorts' | 'vip'; // Determines which API endpoints to use
+  searchType?: 'escorts' | 'vip' | 'live'; // Determines which API endpoints to use
   lang: string; // Language/locale for navigation
 }
 
@@ -101,14 +101,16 @@ async function searchLocationsNominatim(query: string): Promise<LocationSuggesti
 }
 
 // Search for users by slug/username
-async function searchUsers(query: string, searchType: 'escorts' | 'vip'): Promise<UserSuggestion[]> {
+async function searchUsers(query: string, searchType: 'escorts' | 'vip' | 'live'): Promise<UserSuggestion[]> {
   if (!query || query.length < 2) return [];
 
   try {
     const endpoint = searchType === 'escorts' 
-      ? '/api/escorts/search-users' 
-      : '/api/vip/search-creators';
-
+      ? '/api/escorts/search-users'
+      : searchType === 'vip'
+      ? '/api/vip/search-creators'
+      : '/api/live/search'; // For live, we'll use the main search endpoint
+    
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -221,7 +223,7 @@ export default function UnifiedSearch({
     const user = userSuggestions.find(u => u.value === value);
     if (user) {
       // Navigate directly to the user's profile page
-      const basePath = searchType === 'escorts' ? 'escorts' : 'vip';
+      const basePath = searchType === 'escorts' ? 'escorts' : searchType === 'vip' ? 'vip' : 'live';
       router.push(`/${lang}/${basePath}/${user.slug}`);
     }
   };

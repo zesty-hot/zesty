@@ -5,9 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import UnifiedSearch from "@/components/unified-search";
 import type { FilterData } from '@/app/[lang]/escorts/(client-renders)/filter';
-import { 
-  Heart, 
-  MessageCircle, 
+import {
+  Heart,
+  MessageCircle,
   Lock,
   CheckCircle2,
   Image as ImageIcon,
@@ -51,7 +51,7 @@ interface FeedContentItem {
 interface FeaturedCreator {
   id: string;
   slug: string;
-  image: string | null;
+  image: { url: string, NSFW: boolean } | null;
   title: string;
   description: string;
   location?: string;
@@ -102,7 +102,7 @@ export default function Page() {
       if (response.ok) {
         const data = await response.json();
         setIsLoggedIn(data.isLoggedIn);
-        
+
         if (data.isLoggedIn) {
           setFeedContent(data.content || []);
           setCursor(data.nextCursor);
@@ -120,7 +120,7 @@ export default function Page() {
 
   const loadMore = async () => {
     if (!cursor || isLoadingMore || !hasMore) return;
-    
+
     setIsLoadingMore(true);
     try {
       const response = await fetch('/api/vip/feed', {
@@ -156,8 +156,8 @@ export default function Page() {
 
       if (response.ok) {
         // Update the like status locally
-        setFeedContent(feedContent.map(item => 
-          item.id === contentId 
+        setFeedContent(feedContent.map(item =>
+          item.id === contentId
             ? { ...item, isLiked: !item.isLiked, likesCount: item.isLiked ? item.likesCount - 1 : item.likesCount + 1 }
             : item
         ));
@@ -311,14 +311,14 @@ export default function Page() {
               <Crown className="w-4 h-4 text-purple-500" />
               <span className="text-sm font-medium">Exclusive VIP Content</span>
             </div>
-            
+
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
               Connect with Your
               <span className="block text-transparent bg-clip-text bg-linear-to-r from-purple-500 to-pink-500">
                 Favorite Creators
               </span>
             </h1>
-            
+
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Subscribe to exclusive content, interact directly, and support the creators you love
             </p>
@@ -417,12 +417,12 @@ export default function Page() {
                 <Button size="lg" variant="secondary" className="bg-white text-purple-600 hover:bg-white/90">
                   Sign Up Free
                 </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                {/* <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
                   Learn More
-                </Button>
+                </Button> */}
               </div>
             </div>
-            
+
             {/* Decorative Elements */}
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
             <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
@@ -433,11 +433,11 @@ export default function Page() {
   );
 }
 
-function FeedCard({ 
-  item, 
+function FeedCard({
+  item,
   onLike,
   lang
-}: { 
+}: {
   item: FeedContentItem;
   onLike: () => void;
   lang: string;
@@ -468,8 +468,8 @@ function FeedCard({
             </p>
           </Link>
           <p className="text-xs text-muted-foreground">
-            {new Date(item.createdAt).toLocaleDateString('en-US', { 
-              month: 'short', 
+            {new Date(item.createdAt).toLocaleDateString('en-US', {
+              month: 'short',
               day: 'numeric',
               year: 'numeric'
             })}
@@ -557,11 +557,11 @@ function FeedCard({
             onClick={onLike}
             className="flex items-center gap-2 text-sm hover:text-red-500 transition-colors"
           >
-            <Heart 
+            <Heart
               className={cn(
                 "w-5 h-5",
                 item.isLiked && "fill-red-500 text-red-500"
-              )} 
+              )}
             />
             <span className="font-medium">{item.likesCount}</span>
           </button>
@@ -582,20 +582,30 @@ function CreatorCard({ creator, lang }: { creator: FeaturedCreator; lang: string
         {/* Profile Image */}
         <div className="relative aspect-square bg-linear-to-br from-purple-500/20 to-pink-500/20">
           {creator.image ? (
-            <img
-              src={creator.image}
-              alt={creator.slug}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
+            <>
+              <img
+                src={creator.image.url}
+                alt={creator.slug}
+                className={cn(
+                  "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300",
+                  creator.image.NSFW && "blur-xl hover:blur-0 transition-all duration-300 cursor-pointer"
+                )}
+              />
+              {creator.image.NSFW && (
+                <div className="absolute top-4 right-4">
+                  <Badge variant="destructive">NSFW</Badge>
+                </div>
+              )}
+            </>
           ) : (
             <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-muted-foreground">
               {creator.slug[0]?.toUpperCase()}
             </div>
           )}
-          
+
           {/* Free Badge */}
           {creator.isFree && (
-            <div className="absolute top-3 right-3">
+            <div className="absolute top-3 left-3">
               <Badge className="bg-green-500 hover:bg-green-600">
                 FREE
               </Badge>

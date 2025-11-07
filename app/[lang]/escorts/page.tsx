@@ -33,18 +33,18 @@ export interface EscortProfileData {
     acceptsAgeRange: number[];
     daysAvailable: DaysAvailable[];
     services: ({
-        options: {
-            id: string;
-            serviceId: string;
-            durationMin: number;
-            price: number;
-        }[];
-    } & {
+      options: {
         id: string;
-        label: string | null;
-        createdAt: Date;
-        privateAdId: string;
-        category: PrivateAdServiceCategory;
+        serviceId: string;
+        durationMin: number;
+        price: number;
+      }[];
+    } & {
+      id: string;
+      label: string | null;
+      createdAt: Date;
+      privateAdId: string;
+      category: PrivateAdServiceCategory;
     })[];
     extras: {
       active: boolean;
@@ -271,7 +271,7 @@ export default function Page() {
   const [totalResults, setTotalResults] = useState(0);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchResultsTitle, setSearchResultsTitle] = useState<string>('Results');
-  
+
   // Store last search parameters for pagination
   const [lastSearch, setLastSearch] = useState<{
     type: 'location' | 'username';
@@ -322,10 +322,10 @@ export default function Page() {
     setSearchResultsTitle(`Results in ${location.label}`);
     setIsLoadingProfiles(true);
     setCurrentPage(1);
-    
+
     // Store search parameters for pagination
     setLastSearch({ type: 'location', location, filters });
-    
+
     const result = await fetchProfiles(location, filters, 1);
     setProfiles(result.profiles);
     setTotalResults(result.total);
@@ -339,10 +339,10 @@ export default function Page() {
     setSearchResultsTitle(`Search results for @${slug}`);
     setIsLoadingProfiles(true);
     setCurrentPage(1);
-    
+
     // Store search parameters for pagination (filters not used for username search)
     setLastSearch({ type: 'username', slug, filters: defaultFilters });
-    
+
     try {
       const response = await fetch('/api/escorts/search', {
         method: 'POST',
@@ -380,10 +380,10 @@ export default function Page() {
   // Pagination handler
   const performSearch = async (page: number) => {
     if (!lastSearch) return;
-    
+
     setIsLoadingProfiles(true);
     setCurrentPage(page);
-    
+
     try {
       if (lastSearch.type === 'location' && lastSearch.location) {
         const result = await fetchProfiles(lastSearch.location, lastSearch.filters, page);
@@ -448,14 +448,16 @@ export default function Page() {
       </section>
 
       {/* Unified Search Component */}
-      <UnifiedSearch
-        defaultFilters={defaultFilters}
-        onLocationSearch={handleLocationSearch}
-        onUsernameSearch={handleUsernameSearch}
-        onClearSearch={handleClearSearch}
-        searchType="escorts"
-        lang={lang as string}
-      />
+      <div className="lg:mx-10 xl:mx-40">
+        <UnifiedSearch
+          defaultFilters={defaultFilters}
+          onLocationSearch={handleLocationSearch}
+          onUsernameSearch={handleUsernameSearch}
+          onClearSearch={handleClearSearch}
+          searchType="escorts"
+          lang={lang as string}
+        />
+      </div>
 
       {/* Show Featured section only when no search has been performed */}
       {!hasSearched && (
@@ -479,8 +481,8 @@ export default function Page() {
               <p className="text-muted-foreground text-lg">No featured profiles available.</p>
             </div>
           ) : (
-                <Link
-                  href={`/${lang}/escorts/${featuredProfile.slug}`}
+            <Link
+              href={`/${lang}/escorts/${featuredProfile.slug}`}
               className="block transition-transform hover:scale-[1.02]"
               onClick={(e) => handleProfileClick(e, featuredProfile)}
             >
@@ -557,8 +559,8 @@ export default function Page() {
           ) : profiles.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground text-lg">No profiles match your criteria.</p>
-                <Button
-                  variant="outline"
+              <Button
+                variant="outline"
                 className="mt-4"
                 onClick={handleClearSearch}
               >

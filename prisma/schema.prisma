@@ -84,6 +84,10 @@ model User {
   vipLikes            VIPLike[] @relation("vipLikes")
   vipComments         VIPComment[] @relation("vipComments")
 
+  liveStreamPage      LiveStreamPage?
+  liveStreamFollows   LiveStreamFollower[]
+  liveStreamDonations LiveStreamDonation[]
+
   messagesSent ChatMessage[] @relation("sender")
   activeChats  Chat[] @relation("activeChat")
   hiddenChats  Chat[] @relation("hiddenChat")
@@ -433,4 +437,94 @@ model ChatMessage {
 
   chat Chat @relation(fields: [chatId], references: [id])
   chatId String
+}
+
+// LiveStreamPage is a channel/profile for livestreaming (like a sub-account)
+// It can be enabled/disabled and has its own followers
+model LiveStreamPage {
+  id              String @id @default(cuid())
+  slug            String @unique
+  
+  title           String @db.VarChar(200)
+  description     String? @db.VarChar(3000)
+  bannerUrl       String?          // Banner image for the channel
+  
+  active          Boolean @default(false)  // Channel enabled/disabled
+  
+  // RTMP/Stream key for broadcasting (persistent per channel)
+  ingressId       String?          // LiveKit ingress ID for RTMP/WHIP
+  streamKey       String?          // Stream key for broadcasting
+  
+  // Relations
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  
+  followers       LiveStreamFollower[]
+  streams         LiveStream[]     // Individual streaming sessions
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId])
+  @@index([active, createdAt])
+  @@index([slug])
+}
+
+// Individual live stream sessions within a channel
+model LiveStream {
+  id              String @id @default(cuid())
+  
+  title           String? @db.VarChar(200)  // Optional custom title for this session
+  
+  isLive          Boolean @default(true)    // Currently streaming
+  roomName        String @unique            // LiveKit room for this session
+  
+  viewerCount     Int @default(0)           // Current/peak viewers
+  
+  startedAt       DateTime @default(now())
+  endedAt         DateTime?
+  
+  // Relations
+  channel         LiveStreamPage @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId       String
+  
+  donations       LiveStreamDonation[]
+  
+  @@index([channelId, isLive])
+  @@index([isLive, startedAt])
+}
+
+// Followers for livestream channels
+model LiveStreamFollower {
+  id              String @id @default(cuid())
+  
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  
+  channel         LiveStreamPage @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId       String
+  
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, channelId])
+  @@index([channelId])
+  @@index([userId])
+}
+
+// Donations/tips to live streams
+model LiveStreamDonation {
+  id              String @id @default(cuid())
+  
+  amount          Int              // Amount in cents
+  message         String? @db.VarChar(500)
+  
+  donor           User? @relation(fields: [donorId], references: [id])
+  donorId         String?
+  
+  stream          LiveStream @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  streamId        String
+  
+  createdAt       DateTime @default(now())
+
+  @@index([streamId, createdAt])
 }
