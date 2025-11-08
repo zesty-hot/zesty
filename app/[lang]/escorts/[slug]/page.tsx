@@ -145,7 +145,7 @@ export default function EscortSlugPage() {
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center flex-col md:flex-row justify-center gap-3">
           <h1 className="text-3xl font-bold text-center">{profile.slug}</h1>
           {profile.isLive && (
             <Link href={`/${lang}/live/${profile.slug}`} className="group">

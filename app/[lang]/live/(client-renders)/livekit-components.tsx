@@ -85,7 +85,8 @@ export function LiveStreamViewer({ roomName, userSlug }: LiveStreamViewerProps) 
       token={token}
       serverUrl={wsUrl}
       data-lk-theme="default"
-      className="livekit-room"
+      className="livekit-room h-full w-full"
+      style={{ position: 'relative', height: '100%', width: '100%' }}
     >
       <VideoConference />
       <RoomAudioRenderer />
@@ -164,7 +165,8 @@ export function LiveStreamBroadcaster({ roomName, userSlug, onStreamEnd }: LiveS
       token={token}
       serverUrl={wsUrl}
       data-lk-theme="default"
-      className="livekit-room"
+      className="livekit-room h-full w-full"
+      style={{ position: 'relative', height: '100%', width: '100%' }}
       onDisconnected={onStreamEnd}
     >
       <VideoConference />

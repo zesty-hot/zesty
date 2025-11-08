@@ -199,7 +199,7 @@ export default function LiveStreamPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-8">
         <div className="flex items-center justify-center min-h-[50vh]">
           <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
         </div>
@@ -209,10 +209,10 @@ export default function LiveStreamPage() {
 
   if (!channel) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-8">
         <div className="text-center py-16">
           <Radio className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-          <h2 className="text-2xl font-bold mb-2">Channel not found</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-2">Channel not found</h2>
           <p className="text-muted-foreground mb-6">
             This livestream channel doesn't exist or has been removed
           </p>
@@ -233,7 +233,7 @@ export default function LiveStreamPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Back Button */}
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-2 sm:px-4 py-4">
         <Link href={`/${lang}/live`}>
           <Button variant="ghost" size="lg">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -242,13 +242,13 @@ export default function LiveStreamPage() {
         </Link>
       </div>
 
-      <div className="container mx-auto px-4 pb-8">
+      <div className="container mx-auto px-2 sm:px-4 pb-8">
         {isLive ? (
           // Active Stream View
-          <div className="grid lg:grid-cols-[1fr_400px] gap-6">
+          <div className="grid lg:grid-cols-[1fr_400px] gap-3 sm:gap-6">
             {/* Main Video Player */}
             <div className="space-y-4">
-              <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+              <div className="relative aspect-video bg-black rounded-lg overflow-hidden isolate">
                 {channel.isOwner ? (
                   <LiveStreamBroadcaster
                     roomName={roomName}
@@ -262,7 +262,7 @@ export default function LiveStreamPage() {
                 )}
 
                 {/* Live Badge Overlay */}
-                <div className="absolute top-4 left-4">
+                <div className="absolute top-4 left-4 z-10">
                   <Badge className="bg-red-500 hover:bg-red-600 animate-pulse text-lg px-4 py-2">
                     <Radio className="w-4 h-4 mr-2" />
                     LIVE
@@ -294,7 +294,7 @@ export default function LiveStreamPage() {
                 </div>
 
                 {/* Streamer Info */}
-                <div className="flex flex-col md:flex-row lg:flex-col xl:flex-row md:items-center lg:items-baseline xl:items-center justify-between p-4 border rounded-lg">
+                <div className="flex flex-col md:flex-row lg:flex-col xl:flex-row md:items-center lg:items-baseline xl:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
                   <Link href={`/${lang}/vip/${channel.user.slug}`} className="flex items-center gap-3 pb-4 md:pb-0 lg:pb-4 xl:pb-0">
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
                       {channel.user.images[0]?.url ? (
@@ -321,15 +321,14 @@ export default function LiveStreamPage() {
                   </Link>
 
                   {!channel.isOwner && (
-                    <div className="flex gap-2"
+                    <div className="flex gap-2 flex-wrap w-full md:w-auto lg:w-full xl:w-auto"
                     >
-
-                      <div className="flex gap-2 flex-col">
+                      <div className="flex gap-2 flex-col w-full md:w-auto lg:w-full xl:w-auto">
                         {(channel.user.vipPage || channel.user.privateAds.length > 0) && (
                           <Menu>
                             <MenuTrigger render={
-                              <Button variant="outline" size="lg" className="w-full">
-                                <span>Other Pages</span>
+                              <Button variant="outline" size="lg" className="w-full md:w-auto lg:w-full xl:w-auto">
+                                <span className="inline">Other Pages</span>
                                 <ChevronDown className="w-4 h-4 ml-2" />
                               </Button>
                             } />
@@ -366,12 +365,13 @@ export default function LiveStreamPage() {
                       </div>
 
 
-                      <Button onClick={toggleFollow} className="px-6" variant={isFollowing ? "outline" : "default"}>
+                      <Button onClick={toggleFollow} className="px-4 sm:px-6 flex-1 md:flex-initial lg:flex-1 xl:flex-initial" variant={isFollowing ? "outline" : "default"}>
                         {isFollowing ? 'Unfollow' : 'Follow'}
                       </Button>
-                      <Button onClick={handleDonation} variant="outline">
+                      <Button onClick={handleDonation} variant="outline" className="flex-1 md:flex-initial lg:flex-1 xl:flex-initial">
                         <DollarSign className="w-4 h-4 mr-2" />
-                        Send Tip
+                        <span className="hidden sm:inline">Send Tip</span>
+                        <span className="sm:hidden">Tip</span>
                       </Button>
                     </div>
                   )}
@@ -395,7 +395,7 @@ export default function LiveStreamPage() {
             </div>
 
             {/* Chat Sidebar */}
-            <div className="border rounded-lg p-4 h-[600px] flex flex-col">
+            <div className="border rounded-lg p-3 sm:p-4 h-[600px] flex flex-col">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <MessageCircle className="w-5 h-5" />
                 Live Chat
@@ -418,10 +418,10 @@ export default function LiveStreamPage() {
         ) : (
           // Offline Channel View - Profile-like page
           <div className="max-w-4xl mx-auto">
-            <div className="text-center py-8 border rounded-lg bg-muted/30 mb-8">
-              <Radio className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h2 className="text-2xl font-bold mb-2">Channel Offline</h2>
-              <p className="text-muted-foreground">
+            <div className="text-center py-6 sm:py-8 border rounded-lg bg-muted/30 mb-6 sm:mb-8">
+              <Radio className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-muted-foreground" />
+              <h2 className="text-xl sm:text-2xl font-bold mb-2">Channel Offline</h2>
+              <p className="text-muted-foreground text-sm sm:text-base px-4">
                 {channel.user.slug} is not currently streaming
               </p>
             </div>
@@ -429,7 +429,7 @@ export default function LiveStreamPage() {
             {/* Profile Information */}
             <div className="space-y-6">
               {/* Header */}
-              <div className="flex items-start gap-6">
+              <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
                 <div className="w-24 h-24 rounded-full overflow-hidden bg-muted shrink-0">
                   {channel.user.images[0]?.url ? (
                     <img
@@ -445,8 +445,8 @@ export default function LiveStreamPage() {
                 </div>
 
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold mb-2">{channel.user.slug}'s Channel</h1>
-                  <p className="text-lg text-muted-foreground mb-2">@{channel.user.slug}</p>
+                  <h1 className="text-2xl sm:text-3xl font-bold mb-2">{channel.user.slug}'s Channel</h1>
+                  <p className="text-base sm:text-lg text-muted-foreground mb-2">@{channel.user.slug}</p>
                   {channel.user.suburb && (
                     <p className="text-muted-foreground flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
@@ -458,14 +458,15 @@ export default function LiveStreamPage() {
                   </p>
                 </div>
 
-                <div className="flex gap-2 flex-col">
+                <div className="flex gap-2 flex-col w-full sm:w-auto">
                   {!channel.isOwner && (
                     <>
                       {(channel.user.vipPage || channel.user.privateAds.length > 0) && (
                         <Menu>
                           <MenuTrigger render={
-                            <Button variant="outline" size="lg" className="w-full">
-                              <span>Other Pages</span>
+                            <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                              <span className="hidden sm:inline">Other Pages</span>
+                              <span className="sm:hidden">Pages</span>
                               <ChevronDown className="w-4 h-4 ml-2" />
                             </Button>
                           } />
@@ -532,23 +533,23 @@ export default function LiveStreamPage() {
 
               {/* About Section */}
               {channel.description && (
-                <div className="border rounded-lg p-6">
-                  <h2 className="text-xl font-semibold mb-3">About</h2>
+                <div className="border rounded-lg p-4 sm:p-6">
+                  <h2 className="text-lg sm:text-xl font-semibold mb-3">About</h2>
                   <p className="text-muted-foreground whitespace-pre-line">{channel.description}</p>
                 </div>
               )}
 
               {channel.user.bio && (
-                <div className="border rounded-lg p-6">
-                  <h2 className="text-xl font-semibold mb-3">Bio</h2>
+                <div className="border rounded-lg p-4 sm:p-6">
+                  <h2 className="text-lg sm:text-xl font-semibold mb-3">Bio</h2>
                   <p className="text-muted-foreground whitespace-pre-line">{channel.user.bio}</p>
                 </div>
               )}
 
               {/* Past Streams */}
               {channel.pastStreams && channel.pastStreams.length > 0 && (
-                <div className="border rounded-lg p-6">
-                  <h2 className="text-xl font-semibold mb-4">Past Streams</h2>
+                <div className="border rounded-lg p-4 sm:p-6">
+                  <h2 className="text-lg sm:text-xl font-semibold mb-4">Past Streams</h2>
                   <div className="space-y-3">
                     {channel.pastStreams.map((pastStream) => (
                       <div key={pastStream.id} className="flex items-center justify-between p-3 bg-muted rounded">
