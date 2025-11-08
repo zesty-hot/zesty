@@ -4,7 +4,14 @@ import { prisma, withRetry } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
-    const sessionUser = await getCurrentUser();
+    let sessionUser = null;
+    try {
+      sessionUser = await getCurrentUser();
+    } catch (err) {
+      console.error('getCurrentUser failed in dating/swipe route:', err);
+      return NextResponse.json({ error: 'Unauthorized - authentication error' }, { status: 401 });
+    }
+    
     if (!sessionUser?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

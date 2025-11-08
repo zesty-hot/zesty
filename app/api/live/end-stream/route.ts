@@ -6,7 +6,13 @@ import { deleteRoom } from '@/lib/livekit';
 // End the current live stream session
 export async function POST(request: NextRequest) {
   try {
-    const currentUser = await getCurrentUser();
+    let currentUser = null;
+    try {
+      currentUser = await getCurrentUser();
+    } catch (err) {
+      console.error('getCurrentUser failed in live/end-stream route:', err);
+      return NextResponse.json({ error: 'Unauthorized - authentication error' }, { status: 401 });
+    }
     
     if (!currentUser?.email) {
       return NextResponse.json(

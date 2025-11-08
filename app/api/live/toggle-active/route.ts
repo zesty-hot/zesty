@@ -6,7 +6,13 @@ import { prisma, withRetry } from '@/lib/prisma';
 // Not individual stream sessions
 export async function POST(request: NextRequest) {
   try {
-    const currentUser = await getCurrentUser();
+    let currentUser = null;
+    try {
+      currentUser = await getCurrentUser();
+    } catch (err) {
+      console.error('getCurrentUser failed in live/toggle-active route:', err);
+      return NextResponse.json({ error: 'Unauthorized - authentication error' }, { status: 401 });
+    }
     
     if (!currentUser?.email) {
       return NextResponse.json(

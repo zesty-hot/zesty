@@ -7,7 +7,14 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const currentUser = await getCurrentUser();
+    let currentUser = null;
+    try {
+      currentUser = await getCurrentUser();
+    } catch (err) {
+      console.error('getCurrentUser failed in jobs/apply route:', err);
+      return NextResponse.json({ error: 'Unauthorized - authentication error' }, { status: 401 });
+    }
+    
     if (!currentUser?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -123,7 +130,14 @@ export async function DELETE(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const currentUser = await getCurrentUser();
+    let currentUser = null;
+    try {
+      currentUser = await getCurrentUser();
+    } catch (err) {
+      console.error('getCurrentUser failed in jobs/apply DELETE route:', err);
+      return NextResponse.json({ error: 'Unauthorized - authentication error' }, { status: 401 });
+    }
+    
     if (!currentUser?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },

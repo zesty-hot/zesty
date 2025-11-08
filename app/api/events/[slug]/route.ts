@@ -7,7 +7,15 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const currentUser = await getCurrentUser();
+    // Safely get current user, proceeding without authentication if it fails
+    let currentUser = null;
+    try {
+      currentUser = await getCurrentUser();
+    } catch (err) {
+      console.error('getCurrentUser failed in events route, proceeding as unauthenticated:', err);
+      currentUser = null;
+    }
+    
     const { slug } = await params;
 
     if (!slug) {
