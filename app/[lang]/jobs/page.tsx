@@ -253,8 +253,8 @@ export default function Page() {
           <div className="flex flex-col lg:flex-row md:items-center gap-3 md:gap-4">
             <div className="flex items-center justify-between md:justify-start gap-2 md:shrink-0">
               <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-primary" />
-                <h1 className="text-xl font-bold">Studio Jobs</h1>
+                <Briefcase className="w-5 h-5 text-muted-foreground" />
+                <h1 className="text-xl font-bold">Studio Ads</h1>
               </div>
             </div>
 

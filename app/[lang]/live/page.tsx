@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -20,8 +20,6 @@ import { cn } from "@/lib/utils";
 
 interface LiveChannel {
   id: string;
-  slug: string;
-  title: string;
   description: string | null;
   active: boolean;
   createdAt: Date;
@@ -36,6 +34,7 @@ interface LiveChannel {
   };
   streams: {
     id: string;
+    title: string | null;
     roomName: string;
     viewerCount: number;
     isLive: boolean;
@@ -60,32 +59,93 @@ export default function Page() {
   const router = useRouter();
   const [channels, setChannels] = useState<LiveChannel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [searchResults, setSearchResults] = useState<LiveChannel[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchActiveChannels();
+    fetchActiveChannels(1);
   }, []);
 
-  const fetchActiveChannels = async () => {
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !hasSearched) {
+          loadMoreChannels();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasMore, isLoadingMore, hasSearched, currentPage]);
+
+  const fetchActiveChannels = async (page: number) => {
     try {
       const response = await fetch('/api/live/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ page: 1, limit: 8 }),
+        body: JSON.stringify({ page, limit: 8, liveOnly: true }),
       });
 
       if (response.ok) {
         const data = await response.json();
         setChannels(data.channels || []);
+        setTotalPages(data.totalPages || 1);
+        setTotalCount(data.total || 0);
+        setHasMore(page < (data.totalPages || 1));
+        setCurrentPage(page);
       }
     } catch (error) {
       console.error('Error fetching livestream channels:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadMoreChannels = async () => {
+    if (isLoadingMore || !hasMore) return;
+    
+    setIsLoadingMore(true);
+    const nextPage = currentPage + 1;
+    
+    try {
+      const response = await fetch('/api/live/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ page: nextPage, limit: 8, liveOnly: true }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setChannels(prev => [...prev, ...(data.channels || [])]);
+        setCurrentPage(nextPage);
+        setHasMore(nextPage < (data.totalPages || 1));
+      }
+    } catch (error) {
+      console.error('Error loading more channels:', error);
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -146,6 +206,7 @@ export default function Page() {
     setSearchResults([]);
     setIsSearching(false);
     setHasSearched(false);
+    setHasMore(currentPage < totalPages);
   };
 
   const displayChannels = hasSearched ? searchResults : channels;
@@ -163,7 +224,7 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-background">
       {/* Compact Header with Search */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b">
+      <div className="z-40 bg-background/95 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4 py-3">
           <div className="flex flex-col lg:flex-row md:items-center gap-3 md:gap-4">
             <div className="flex items-center justify-between md:justify-start gap-2 md:shrink-0">
@@ -171,9 +232,9 @@ export default function Page() {
                 <Radio className="w-5 h-5 text-red-500" />
                 <h1 className="text-xl font-bold">Live Streams</h1>
               </div>
-              {displayChannels.length > 0 && !isSearching && (
+              {totalCount > 0 && !isSearching && (
                 <Badge variant="destructive" className="animate-pulse">
-                  {displayChannels.length} LIVE
+                  {totalCount} LIVE
                 </Badge>
               )}
             </div>
@@ -247,9 +308,39 @@ export default function Page() {
               ))}
             </div>
 
+            {/* Infinite Scroll Loading Indicator and Load More Button */}
+            {!hasSearched && hasMore && (
+              <div className="flex flex-col items-center justify-center py-8 gap-4">
+                <div ref={observerTarget} className="w-full flex justify-center">
+                  {isLoadingMore && (
+                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                  )}
+                </div>
+                {!isLoadingMore && (
+                  <Button 
+                    onClick={loadMoreChannels}
+                    variant="outline"
+                    size="lg"
+                    disabled={isLoadingMore}
+                  >
+                    Load More
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {/* End of results message */}
+            {!hasSearched && !hasMore && channels.length > 0 && (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground text-sm">
+                  You've reached the end of live channels
+                </p>
+              </div>
+            )}
+
             {/* Bottom CTA */}
-            {!hasSearched && (
-              <div className="mt-12 p-8 border rounded-xl bg-linear-to-br from-red-500/5 to-pink-500/5">
+            {!hasSearched && !hasMore && (
+              <div className="mt-4 p-8 border rounded-xl bg-linear-to-br from-red-500/5 to-pink-500/5">
                 <div className="flex flex-col md:flex-row items-center gap-6 max-w-4xl mx-auto">
                   <div className="shrink-0">
                     <div className="w-16 h-16 rounded-full bg-linear-to-br from-red-500 to-pink-500 flex items-center justify-center">
@@ -282,7 +373,7 @@ function ChannelCard({ channel, lang }: { channel: LiveChannel; lang: string }) 
   const followerCount = channel._count?.followers || 0;
 
   return (
-    <Link href={`/${lang}/live/${channel.slug}`}>
+    <Link href={`/${lang}/live/${channel.user.slug}`}>
       <div className="group cursor-pointer">
         {/* Thumbnail - 16:9 aspect ratio */}
         <div className="relative aspect-video rounded-lg overflow-hidden bg-muted mb-2">
@@ -339,7 +430,7 @@ function ChannelCard({ channel, lang }: { channel: LiveChannel; lang: string }) 
           {/* Text Info */}
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm line-clamp-1 group-hover:text-red-500 transition-colors">
-              {channel.title}
+              {channel.streams?.[0]?.title || `${channel.user.slug}'s Channel`}
             </h3>
             <p className="text-xs text-muted-foreground">
               {channel.user.slug}
@@ -352,11 +443,6 @@ function ChannelCard({ channel, lang }: { channel: LiveChannel; lang: string }) 
                   <MapPin className="w-3 h-3" />
                   <span className="line-clamp-1">{channel.user.suburb}</span>
                 </div>
-              )}
-              {channel.user.verified && (
-                <Badge variant="secondary" className="h-4 px-1 text-[10px] bg-blue-500 text-white">
-                  ✓
-                </Badge>
               )}
             </div>
           </div>

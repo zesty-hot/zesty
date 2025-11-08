@@ -11,7 +11,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/origin_ui_old/button";
-import { ArrowLeft, Bookmark, Camera, CircleCheck, CircleX, Send, TriangleAlert, Webcam, X } from "lucide-react";
+import { ArrowLeft, Bookmark, Camera, CircleCheck, CircleX, Radio, Send, TriangleAlert, Webcam, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -144,7 +144,21 @@ export default function EscortSlugPage() {
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-center">{profile.slug}</h1>
+        <div className="flex items-center justify-center gap-3">
+          <h1 className="text-3xl font-bold text-center">{profile.slug}</h1>
+          {profile.isLive && (
+            <Link href={`/${lang}/live/${profile.slug}`} className="group">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors shadow-lg hover:shadow-xl">
+                <div className="relative">
+                  <Radio className="w-4 h-4" />
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full animate-ping" />
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full" />
+                </div>
+                <span className="text-sm font-semibold">LIVE NOW</span>
+              </div>
+            </Link>
+          )}
+        </div>
         <p className="text-lg text-center text-muted-foreground mt-2">
           {profile.ad.title}
         </p>
@@ -240,13 +254,13 @@ export default function EscortSlugPage() {
                   className="inline-flex items-center"
                   aria-hidden="true"
                 >
-                  {profile.averageRating == 0 && (
+                  {profile.averageRating === 0 && (
                     <>
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
                     </>
                   )}
                   {profile.averageRating > 0 && profile.averageRating < 0.8 && (
@@ -269,19 +283,19 @@ export default function EscortSlugPage() {
                           </defs>
                         </svg>
                       </div>
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
                     </>
                   )}
                   {profile.averageRating >= 0.8 && profile.averageRating <= 1.2 && (
                     <>
                       <RiStarFill size={16} className="text-amber-500" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
                     </>
                   )}
                   {profile.averageRating > 1.2 && profile.averageRating < 1.8 && (
@@ -305,18 +319,18 @@ export default function EscortSlugPage() {
                           </defs>
                         </svg>
                       </div>
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
                     </>
                   )}
                   {profile.averageRating >= 1.8 && profile.averageRating <= 2.2 && (
                     <>
                       <RiStarFill size={16} className="text-amber-500" />
                       <RiStarFill size={16} className="text-amber-500" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
                     </>
                   )}
                   {profile.averageRating > 2.2 && profile.averageRating < 2.8 && (
@@ -348,8 +362,8 @@ export default function EscortSlugPage() {
                       <RiStarFill size={16} className="text-amber-500" />
                       <RiStarFill size={16} className="text-amber-500" />
                       <RiStarFill size={16} className="text-amber-500" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
                     </>
                   )}
                   {profile.averageRating > 3.2 && profile.averageRating < 3.8 && (
@@ -383,7 +397,7 @@ export default function EscortSlugPage() {
                       <RiStarFill size={16} className="text-amber-500" />
                       <RiStarFill size={16} className="text-amber-500" />
                       <RiStarFill size={16} className="text-amber-500" />
-                      <RiStarFill size={16} className="text-amber-500 opacity-60" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
                     </>
                   )}
                   {profile.averageRating > 4.2 && profile.averageRating < 4.8 && (

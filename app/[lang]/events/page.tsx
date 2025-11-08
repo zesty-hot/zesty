@@ -267,7 +267,7 @@ export default function Page() {
           <div className="flex flex-col lg:flex-row md:items-center gap-3 md:gap-4">
             <div className="flex items-center justify-between md:justify-start gap-2 md:shrink-0">
               <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-primary" />
+                <Calendar className="w-5 h-5 text-blue-500" />
                 <h1 className="text-xl font-bold">Events</h1>
               </div>
             </div>
@@ -343,25 +343,38 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-8">
         {isSearching ? (
           <div className="flex items-center justify-center py-24">
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 animate-spin text-indigo-500 mx-auto mb-4" />
+              <p className="text-muted-foreground">Finding events...</p>
+            </div>
           </div>
         ) : hasSearched ? (
           // Search Results View
           <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">Search Results</h2>
-              <Button onClick={handleClearSearch} variant="outline" size="sm">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-3xl font-bold mb-1">Search Results</h2>
+                <p className="text-muted-foreground">
+                  {searchResults.length} {searchResults.length === 1 ? 'event' : 'events'} found
+                </p>
+              </div>
+              <Button onClick={handleClearSearch} variant="outline">
                 Clear Search
               </Button>
             </div>
             {searchResults.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-24">
-                <Calendar className="w-16 h-16 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No events found</h3>
-                <p className="text-muted-foreground">Try adjusting your search criteria</p>
+              <div className="flex flex-col items-center justify-center py-24 border-2 border-dashed rounded-2xl">
+                <div className="bg-indigo-100 dark:bg-indigo-900/20 rounded-full p-6 mb-4">
+                  <Calendar className="w-12 h-12 text-indigo-600" />
+                </div>
+                <h3 className="text-2xl font-bold mb-2">No events found</h3>
+                <p className="text-muted-foreground mb-4">Try adjusting your search criteria</p>
+                <Button onClick={handleClearSearch} variant="outline">
+                  Browse All Events
+                </Button>
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -374,11 +387,16 @@ export default function Page() {
         ) : (
           // Default View
           <>
-            {/* Happening Today - Compact Horizontal Section */}
+            {/* Happening Today - Vibrant Horizontal Section */}
             {todayEvents.length > 0 && (
-              <div className="mb-8 pb-8 border-b">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold">Happening Today</h2>
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-3xl font-bold mb-1 flex items-center gap-2">
+                      🔥 Happening Today
+                    </h2>
+                    <p className="text-muted-foreground">Don't miss out on these events</p>
+                  </div>
                   {todayEvents.length > 4 && (
                     <div className="hidden sm:flex gap-2">
                       <Button
@@ -401,7 +419,7 @@ export default function Page() {
 
                 <div
                   id="today-events-scroll"
-                  className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory hide-scrollbar"
+                  className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory hide-scrollbar"
                   style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 >
                   {todayEvents.map((event) => (
@@ -415,23 +433,27 @@ export default function Page() {
               </div>
             )}
 
-            {/* Upcoming Events - Single Column Feed */}
+            {/* Upcoming Events - Colorful Feed */}
             <div>
-              <h2 className="text-xl font-bold mb-6">Upcoming Events</h2>
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold mb-1">Upcoming Events</h2>
+              </div>
               {upcomingEvents.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-24 border rounded-xl bg-muted/30">
-                  <Calendar className="w-16 h-16 text-muted-foreground mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">No upcoming events</h3>
+                <div className="flex flex-col items-center justify-center py-24 border-2 border-dashed rounded-2xl bg-linear-to-br from-blue-50 to-purple-50 dark:from-blue-950/10 dark:to-purple-950/10">
+                  <div className="bg-indigo-100 dark:bg-indigo-900/20 rounded-full p-6 mb-4">
+                    <Calendar className="w-12 h-12 text-indigo-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">No upcoming events</h3>
                   <p className="text-muted-foreground mb-6">
                     Be the first to create one!
                   </p>
-                  <Button>
+                  <Button className="bg-indigo-600 hover:bg-indigo-700">
                     <Plus className="w-4 h-4 mr-2" />
                     Create Event
                   </Button>
                 </div>
               ) : (
-                <div className="max-w-2xl mx-auto space-y-4">
+                <div className="max-w-3xl mx-auto space-y-5">
                   {upcomingEvents.map((event) => (
                     <FeedEventCard
                       key={event.id}
@@ -526,7 +548,7 @@ function FeedEventCard({ event, lang }: { event: Event; lang: string }) {
               <EventStatusBadge status={event.status} />
             </div>
 
-            {event.organizer.verified && (
+            {/* {event.organizer.verified && (
               <div className="absolute top-3 right-3">
                 <Badge
                   variant="secondary"
@@ -535,7 +557,7 @@ function FeedEventCard({ event, lang }: { event: Event; lang: string }) {
                   ✓ Verified
                 </Badge>
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Event Details */}
@@ -646,13 +668,13 @@ function EventCard({ event, lang }: { event: Event; lang: string }) {
             <EventStatusBadge status={event.status} />
           </div>
 
-          {event.organizer.verified && (
+          {/* {event.organizer.verified && (
             <div className="absolute top-3 right-3">
               <Badge variant="secondary" className="bg-blue-500 text-white text-xs">
                 ✓ Verified
               </Badge>
             </div>
-          )}
+          )} */}
         </div>
 
         <div className="p-4 space-y-3">

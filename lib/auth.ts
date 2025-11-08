@@ -31,12 +31,21 @@ export const authOptions: NextAuthOptions = {
       })
     ] : []),
   ],
-  pages: {
-    signIn: '/auth/signin',
-  },
   session: {
     strategy: "jwt" as const,
   },
+  cookies: {
+    pkceCodeVerifier: {
+      name: "next-auth.pkce.code_verifier",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
+  useSecureCookies: process.env.NODE_ENV === "production",
   callbacks: {
     async signIn({ user, account, profile }: {
       user: User | AdapterUser;

@@ -22,7 +22,9 @@ import {
   Camera,
   Webcam,
   ChevronDown,
-  TriangleAlert
+  TriangleAlert,
+  Coffee,
+  Radio
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -37,6 +39,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface VIPProfileData {
+  liveStreamPage: boolean;
   id: string;
   title: string;
   description: string;
@@ -68,6 +71,7 @@ interface VIPProfileData {
   } | null;
   hasActiveEscort: boolean;
   hasActiveLive: boolean;
+  isLive: boolean;
 }
 
 interface ContentItem {
@@ -244,6 +248,22 @@ export default function VIPProfilePage() {
                 </div>
               )}
             </div>
+            
+            {/* Live Badge - Top Right */}
+            {profile.isLive && (
+              <Link href={`/${lang}/live/${profile.user.slug}`} className="absolute -top-2 -right-2 group">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-600 hover:bg-red-700 text-white transition-all shadow-lg hover:shadow-xl hover:scale-105">
+                  <div className="relative">
+                    <Radio className="w-3.5 h-3.5" />
+                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-white rounded-full" />
+                  </div>
+                  <span className="text-xs font-bold">LIVE</span>
+                </div>
+              </Link>
+            )}
+            
+            {/* Online Status - Bottom Right */}
             {profile.user.lastActive && (Date.now() - new Date(profile.user.lastActive).getTime()) < 3600000 && (
               <div className="absolute bottom-2 right-2 w-8 h-8 bg-background rounded-full flex items-center justify-center">
                 <div className="w-5 h-5 bg-green-500 rounded-full border-2 border-background shadow-lg" />
@@ -254,20 +274,22 @@ export default function VIPProfilePage() {
           {/* Profile Info */}
           <div className="flex-1 space-y-2">
             <div>
-              <Tooltip delay={100}>
-                <TooltipTrigger className="cursor-text" render={<h1 className="text-3xl hidden lg:block xl:hidden md:text-4xl font-bold text-foreground">
-                  {profile.title.slice(0, 30) + '...' || profile.user.slug}
-                </h1>}>
-                </TooltipTrigger>
-                <TooltipContent className={profile.title.length > 30 ? '' : 'hidden'}>
-                  <p className="text-sm text-muted-foreground">
-                    {profile.title || profile.user.slug}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-              <h1 className="text-3xl lg:hidden xl:block md:text-4xl font-bold text-foreground">
-                {profile.title || profile.user.slug}
-              </h1>
+              <div className="flex items-center gap-3">
+                <Tooltip delay={100}>
+                  <TooltipTrigger className="cursor-text" render={<h1 className="text-3xl hidden md:block xl:hidden md:text-4xl font-bold text-foreground">
+                    {profile.title.slice(0, 30) + '...' || profile.user.slug}
+                  </h1>}>
+                  </TooltipTrigger>
+                  <TooltipContent className={profile.title.length > 30 ? '' : 'hidden'}>
+                    <p className="text-sm text-muted-foreground">
+                      {profile.title || profile.user.slug}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+                <h1 className="text-3xl md:hidden xl:block md:text-4xl font-bold text-foreground">
+                  {profile.title || profile.user.slug}
+                </h1>
+              </div>
               {profile.user.slug && (
                 <p className="text-muted-foreground">@{profile.user.slug}</p>
               )}
@@ -298,7 +320,7 @@ export default function VIPProfilePage() {
           {!profile.isOwnPage && (
             <div className="w-full md:w-auto flex flex-col gap-2 md:-mb-14 lg:-mb-20">
               {/* Other Pages Dropdown */}
-              {(profile.hasActiveEscort || profile.hasActiveLive) && (
+              {(profile.hasActiveEscort || profile.liveStreamPage) && (
                 <Menu>
                   <MenuTrigger render={
                     <Button variant="outline" size="lg" className="w-full">
@@ -310,17 +332,17 @@ export default function VIPProfilePage() {
                     {profile.hasActiveEscort ? (
                       <Link href={`/${lang}/escorts/${profile.user.slug}`} className="cursor-pointer w-full">
                         <MenuItem className="flex items-center gap-2 cursor-pointer w-full">
-                          <Camera className="w-4 h-4" />
+                          <Coffee className="w-4 h-4" />
                           Escort Profile
                         </MenuItem>
                       </Link>
                     ) : (
                       <MenuItem className="flex items-center gap-2 opacity-40 pointer-events-none">
-                        <Camera className="w-4 h-4" />
+                        <Coffee className="w-4 h-4" />
                         Escort Profile
                       </MenuItem>
                     )}
-                    {profile.hasActiveLive ? (
+                    {profile.liveStreamPage ? (
                       <Link href={`/${lang}/live/${profile.user.slug}`} className="cursor-pointer">
                         <MenuItem className="flex items-center gap-2 cursor-pointer w-full">
                           <Webcam className="w-4 h-4" />

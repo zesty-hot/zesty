@@ -119,10 +119,14 @@ export async function POST(req: NextRequest) {
         user: {
           select: {
             id: true,
-            name: true,
+            title: true,
             slug: true,
-            image: true,
             verified: true,
+            images: {
+              where: { default: true },
+              select: { url: true },
+              take: 1,
+            },
           },
         },
       },

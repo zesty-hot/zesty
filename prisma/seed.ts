@@ -1,4 +1,4 @@
-import { PrismaClient, Gender, BodyType, Race, PrivateAdCustomerCategory, PrivateAdServiceCategory, PrivateAdExtraType, DaysAvailable, VIPContentType, EventStatus, EventAttendeeStatus, JobType, JobStatus, ApplicationStatus } from '@prisma/client';
+import { PrismaClient, Gender, BodyType, Race, PrivateAdCustomerCategory, PrivateAdServiceCategory, PrivateAdExtraType, DaysAvailable, VIPContentType, EventStatus, EventAttendeeStatus, JobType, JobStatus, ApplicationStatus, SwipeDirection } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -548,6 +548,7 @@ async function main() {
     
     const profile = {
       name: firstName,
+      title: `${firstName} - ${location.city}`, // Add unified title
       email: `${firstName.toLowerCase()}.${i}@escort-seed.com`,
       slug: `${firstName.toLowerCase()}-${location.city.toLowerCase()}-${i}`,
       bio: randomElement(bios),
@@ -944,7 +945,6 @@ async function main() {
     const vipPage = await prisma.vIPPage.create({
       data: {
         userId: escortUser.id,
-        title: `${escortDetails?.slug}'s Exclusive Content`,
         description: escortDetails?.bio || 'Welcome to my VIP page! Subscribe for exclusive content, behind-the-scenes access, and special updates just for you.',
         bannerUrl: `https://picsum.photos/seed/${escortIndex}/1200/400`, // Random banner
         subscriptionPrice,
@@ -1142,6 +1142,9 @@ async function main() {
     where: {
       id: {
         in: users.slice(0, livestreamCount).map(u => u.id)
+      },
+      slug: {
+        not: null  // Ensure user has a slug
       }
     },
     select: {
@@ -1158,12 +1161,9 @@ async function main() {
   // Batch create livestream pages
   const liveStreamPagesToCreate = livestreamers.map((streamer, index) => {
     const streamKey = `sk_${streamer.id.substring(0, 8)}_${Date.now()}_${index}`;
-    const slug = streamer.slug || `streamer-${index}`;  // Use user's slug directly
     
     return {
       userId: streamer.id,
-      slug,
-      title: `${streamer.slug}'s Live Stream`,
       description: randomElement(livestreamBios),
       streamKey,
       active: true,
@@ -1178,16 +1178,18 @@ async function main() {
   
   totalLiveStreamPages = liveStreamPagesToCreate.length;
   
-  // Get created livestream pages
+  // Get created livestream pages WITH ACTIVE STATUS to ensure we only create live streams for active pages
   const liveStreamPages = await prisma.liveStreamPage.findMany({
     where: {
       userId: {
         in: livestreamers.map(s => s.id)
-      }
+      },
+      active: true  // Only get active livestream pages
     },
     select: {
       id: true,
-      userId: true
+      userId: true,
+      active: true
     }
   });
   
@@ -1247,6 +1249,30 @@ async function main() {
       });
     }
   }
+
+  // Create CURRENTLY LIVE streams for 75% of channels (so we have enough to test with)
+  let totalLiveStreams = 0;
+  for (const liveStreamPage of liveStreamPages) {
+    if (Math.random() < 0.75) { // 75% chance of being live
+      // Stream started 10 minutes to 3 hours ago
+      const minutesAgo = Math.floor(Math.random() * 170) + 10;
+      const streamStartDate = new Date();
+      streamStartDate.setMinutes(streamStartDate.getMinutes() - minutesAgo);
+      
+      const roomName = `room_${liveStreamPage.id.substring(0, 8)}_live_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      
+      streamsToCreate.push({
+        channelId: liveStreamPage.id,
+        title: randomElement(livestreamTitles),
+        roomName,
+        isLive: true, // Currently streaming!
+        viewerCount: Math.floor(Math.random() * 100) + 1, // 1-100 current viewers
+        startedAt: streamStartDate,
+        endedAt: null, // Still streaming
+      });
+      totalLiveStreams++;
+    }
+  }
   
   // Batch create all followers
   if (followersToCreate.length > 0) {
@@ -1269,6 +1295,7 @@ async function main() {
   console.log(`✅ Created ${totalLiveStreamPages} livestream channels`);
   console.log(`   - Total followers: ${totalFollowers}`);
   console.log(`   - Total past streams: ${totalStreams}`);
+  console.log(`   - Currently live: ${totalLiveStreams}`);
   
   console.log('🎉 Creating events...');
   
@@ -1469,7 +1496,7 @@ async function main() {
   console.log(`   - Total posts: ${totalEventPosts}`);
   console.log(`   - Total comments: ${totalEventComments}`);
   
-  console.log('� Creating studios and jobs...');
+  console.log('💼 Creating studios and jobs...');
   
   // Import JobType, JobStatus, ApplicationStatus from Prisma
   const { JobType, JobStatus, ApplicationStatus } = await import('@prisma/client');
@@ -1824,7 +1851,180 @@ async function main() {
   
   console.log(`   - Created ${reviewsToCreate.length} studio reviews`);
   
-  console.log('�🎉 Seed completed successfully!');
+  console.log('💕 Creating dating profiles...');
+  
+  // Create dating profiles for 70% of users (both escorts and clients)
+  const allUsersForDating = [...users, ...clients];
+  const datingUserCount = Math.floor(allUsersForDating.length * 0.7);
+  const datingUsers = allUsersForDating
+    .sort(() => Math.random() - 0.5)
+    .slice(0, datingUserCount);
+  
+  const datingProfilesToCreate = [];
+  
+  for (const user of datingUsers) {
+    // Get user details
+    const userDetails = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        gender: true,
+        dob: true,
+      }
+    });
+    
+    if (!userDetails) continue;
+    
+    // Determine what they're looking for
+    const lookingForOptions = ['Dating', 'Friends', 'Relationship', 'Casual'];
+    const numOptions = Math.floor(Math.random() * 2) + 1; // 1-2 options
+    const lookingFor = lookingForOptions
+      .sort(() => Math.random() - 0.5)
+      .slice(0, numOptions);
+    
+    // Age preference based on their own age
+    const userAge = userDetails.dob ? new Date().getFullYear() - userDetails.dob.getFullYear() : 20;
+    const ageRangeMin = Math.max(18, userAge - 10);
+    const ageRangeMax = Math.min(65, userAge + 15);
+    
+    // Max distance: 10-100km
+    const maxDistance = [10, 25, 50, 75, 100][Math.floor(Math.random() * 5)];
+    
+    // Gender preference
+    let showGender: Gender[] = [];
+    if (userDetails.gender === Gender.MALE) {
+      // Males mostly looking for females, some for both
+      showGender = Math.random() < 0.85 
+        ? [Gender.FEMALE] 
+        : [Gender.FEMALE, Gender.TRANS];
+    } else if (userDetails.gender === Gender.FEMALE) {
+      // Females mostly looking for males, some for both
+      showGender = Math.random() < 0.85 
+        ? [Gender.MALE] 
+        : [Gender.MALE, Gender.FEMALE];
+    } else {
+      // Trans looking for various combinations
+      showGender = Math.random() < 0.5 
+        ? [Gender.MALE, Gender.FEMALE] 
+        : [Gender.MALE, Gender.FEMALE, Gender.TRANS];
+    }
+    
+    datingProfilesToCreate.push({
+      userId: user.id,
+      lookingFor,
+      ageRangeMin,
+      ageRangeMax,
+      maxDistance,
+      showGender,
+      active: Math.random() > 0.15, // 85% active
+      verified: Math.random() > 0.6, // 40% verified
+    });
+  }
+  
+  // Batch create dating profiles
+  await prisma.datingPage.createMany({
+    data: datingProfilesToCreate,
+    skipDuplicates: true,
+  });
+  
+  console.log(`✅ Created ${datingProfilesToCreate.length} dating profiles`);
+  
+  // Get created dating profiles
+  const datingProfiles = await prisma.datingPage.findMany({
+    where: {
+      userId: {
+        in: datingUsers.map(u => u.id)
+      }
+    },
+    select: {
+      id: true,
+      userId: true,
+    }
+  });
+  
+  // Create some swipes and matches
+  console.log('   Creating swipes and matches...');
+  
+  const swipesToCreate = [];
+  const matchesToCreate = [];
+  const swipeMap = new Map<string, Set<string>>(); // Track who swiped on whom
+  
+  for (const profile of datingProfiles) {
+    // Each profile swipes on 5-20 other profiles
+    const numSwipes = Math.floor(Math.random() * 16) + 5;
+    const otherProfiles = datingProfiles
+      .filter(p => p.id !== profile.id)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, numSwipes);
+    
+    if (!swipeMap.has(profile.id)) {
+      swipeMap.set(profile.id, new Set());
+    }
+    
+    for (const otherProfile of otherProfiles) {
+      // 60% like, 40% pass
+      const direction = Math.random() < 0.6 ? SwipeDirection.LIKE : SwipeDirection.PASS;
+      const superLike = direction === SwipeDirection.LIKE && Math.random() < 0.1; // 10% of likes are super likes
+      
+      swipesToCreate.push({
+        swiperId: profile.id,
+        swipedId: otherProfile.id,
+        direction,
+        superLike,
+      });
+      
+      swipeMap.get(profile.id)!.add(otherProfile.id);
+      
+      // Check for mutual match
+      if (direction === SwipeDirection.LIKE && swipeMap.has(otherProfile.id) && swipeMap.get(otherProfile.id)!.has(profile.id)) {
+        // Both swiped on each other, check if other person liked back
+        const otherSwipedLike = swipesToCreate.find(
+          s => s.swiperId === otherProfile.id && s.swipedId === profile.id && s.direction === SwipeDirection.LIKE
+        );
+        
+        if (otherSwipedLike) {
+          // Create a match!
+          // First create a chat
+          const chat = await prisma.chat.create({
+            data: {
+              activeUsers: {
+                connect: [
+                  { id: profile.userId },
+                  { id: otherProfile.userId }
+                ]
+              }
+            }
+          });
+          
+          matchesToCreate.push({
+            user1Id: profile.id,
+            user2Id: otherProfile.id,
+            chatId: chat.id,
+          });
+        }
+      }
+    }
+  }
+  
+  // Batch create swipes
+  if (swipesToCreate.length > 0) {
+    await prisma.datingSwipe.createMany({
+      data: swipesToCreate,
+      skipDuplicates: true,
+    });
+  }
+  
+  // Batch create matches
+  if (matchesToCreate.length > 0) {
+    await prisma.datingMatch.createMany({
+      data: matchesToCreate,
+      skipDuplicates: true,
+    });
+  }
+  
+  console.log(`   - Created ${swipesToCreate.length} swipes`);
+  console.log(`   - Created ${matchesToCreate.length} matches`);
+  
+  console.log('🎉 Seed completed successfully!');
   console.log('\n📊 Summary:');
   console.log(`   - Total escort profiles: ${created.count}`);
   console.log(`   - Total client profiles: ${createdClients.count}`);

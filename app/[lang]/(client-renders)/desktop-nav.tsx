@@ -38,11 +38,11 @@ export default function DesktopNav() {
         </div>
 
         {status === "authenticated" && (
-          <section>
+          <section className="flex flex-row align-middle gap-6">
 
-            <div className="flex-1 max-xl:hidden"></div>
-            <div className="h-6 w-px bg-border max-xl:hidden"></div>
-            <div className="flex-1 max-xl:hidden"></div>
+            {/* <div className="flex-1 max-xl:hidden"></div> */}
+            <div className="flex mx-2 my-auto h-6 w-px bg-border max-xl:hidden"></div>
+            {/* <div className="flex-2 max-xl:hidden"></div> */}
 
             <div className="flex gap-4 max-xl:hidden">
               <a href="#" data-slot="button" className="focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:shrink-0 [&amp;_svg:not([class*='size-'])]:size-4 hover:bg-accent-foreground/5 hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 border size-9 bg-transparent shadow-none">
@@ -86,7 +86,7 @@ export default function DesktopNav() {
               </DialogHeader>
             </div>
             <div className="flex flex-col gap-2">
-              <Button className="bg-[#DB4437] text-white after:flex-1 hover:bg-[#DB4437]/85 cursor-pointer" onClick={() => signIn("google")}
+              <Button className="bg-[#DB4437] text-white after:flex-1 hover:bg-[#DB4437]/85 cursor-pointer" onClick={() => signIn("google", { callbackUrl: `/${lang}` })}
                 style={{
                   border: "none"
                 }}>
@@ -95,7 +95,7 @@ export default function DesktopNav() {
                 </span>
                 Continue with Google
               </Button>
-              <Button className="bg-[#1877f2] text-white after:flex-1 hover:bg-[#1877f2]/85 cursor-pointer" onClick={() => signIn("facebook")}
+              <Button className="bg-[#1877f2] text-white after:flex-1 hover:bg-[#1877f2]/85 cursor-pointer" onClick={() => signIn("facebook", { callbackUrl: `/${lang}` })}
                 style={{
                   border: "none"
                 }}>
@@ -104,7 +104,7 @@ export default function DesktopNav() {
                 </span>
                 Continue with Facebook
               </Button>
-              <Button className="bg-[#333333] text-white after:flex-1 hover:bg-[#333333]/85 cursor-pointer" onClick={() => signIn("azure-ad")}
+              <Button className="bg-[#333333] text-white after:flex-1 hover:bg-[#333333]/85 cursor-pointer" onClick={() => signIn("azure-ad", { callbackUrl: `/${lang}` })}
                 style={{
                   border: "none"
                 }}>

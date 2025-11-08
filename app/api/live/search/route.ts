@@ -19,9 +19,8 @@ export async function POST(request: NextRequest) {
     if (slug) {
       const channel = await withRetry(() => prisma.liveStreamPage.findFirst({
         where: {
-          slug: {
-            contains: decodedSlug,
-            mode: 'insensitive',
+          user: {
+            slug: decodedSlug,
           },
           active: true,  // Only show enabled channels
         },
@@ -62,6 +61,7 @@ export async function POST(request: NextRequest) {
               roomName: true,
               viewerCount: true,
               startedAt: true,
+              isLive: true,
             },
             take: 1,
           },

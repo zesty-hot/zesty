@@ -178,14 +178,15 @@ export async function POST(req: NextRequest) {
           },
           select: {
             id: true,
-            title: true,
             description: true,
             isFree: true,
             subscriptionPrice: true,
             user: {
               select: {
                 id: true,
+                title: true,
                 slug: true,
+                verified: true,
                 images: {
                   where: { default: true },
                   select: { url: true, NSFW: true },
@@ -229,14 +230,15 @@ export async function POST(req: NextRequest) {
           },
           select: {
             id: true,
-            title: true,
             description: true,
             isFree: true,
             subscriptionPrice: true,
             user: {
               select: {
                 id: true,
+                title: true,
                 slug: true,
+                verified: true,
                 images: {
                   where: { default: true },
                   select: { url: true, NSFW: true },
@@ -272,7 +274,7 @@ export async function POST(req: NextRequest) {
       id: page.id,
       slug: page.user.slug || '',
       image: page.user.images?.[0] || null,
-      title: page.title,
+      title: page.user.title || page.user.slug,
       description: page.description,
       subscribersCount: page._count.subscriptions,
       contentCount: page._count.content,

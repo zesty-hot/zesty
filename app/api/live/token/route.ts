@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     // Get user details
     const user = await withRetry(() => prisma.user.findUnique({
       where: { email: currentUser.email },
-      select: { id: true, slug: true, name: true },
+      select: { id: true, slug: true, title: true },
     }));
 
     if (!user) {
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     }));
 
     const isOwner = stream?.channel.userId === user.id;
-    const participantName = user.slug || user.name || 'Anonymous';
+    const participantName = user.slug || user.title || 'Anonymous';
 
     // Generate appropriate token based on role and ownership
     let token: string;

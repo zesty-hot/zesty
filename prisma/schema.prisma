@@ -58,13 +58,14 @@ model User {
   sessions     Session[]
 
   name        String?
+  title       String? @db.VarChar(200) // Unified title across all pages
   bio         String? @db.VarChar(1000)
   email       String @unique
   emailVerified DateTime?
   slug        String? @unique
   image       String?
   role        Role    @default(USER)
-  dob         DateTime
+  dob         DateTime?
   stripeId    String?
   verified    Boolean @default(false)
   mobile      String? @db.VarChar(15)
@@ -107,12 +108,13 @@ model User {
 
   lastActive      DateTime? @default(now())
   createdAt       DateTime @default(now())
+
+  datingPages DatingPage[]
 }
 
 model VIPPage {
   id              String @id @default(cuid())
 
-  title           String @db.VarChar(200)
   description     String @db.VarChar(3000)
   bannerUrl       String? // Banner image for the VIP page
   active          Boolean @default(true)
@@ -312,6 +314,7 @@ enum PrivateAdExtraType {
   TOY_USE
   CREAMPIE
   GOLDEN_SHOWER
+  LIVE_STREAM
 }
 
 enum PrivateAdCustomerCategory {
@@ -323,10 +326,10 @@ enum PrivateAdCustomerCategory {
 }
 
 enum PrivateAdServiceCategory {
+  MEET_AND_GREET
   MASSAGE
   IN_CALL
   OUT_CALL
-  MEET_AND_GREET
 }
 
 enum DaysAvailable {
@@ -433,6 +436,7 @@ model Chat {
   hiddenUsers User[] @relation("hiddenChat")
 
   PrivateOffer PrivateOffer[]
+  datingMatch  DatingMatch?
 }
 
 model ChatMessage {
@@ -449,13 +453,89 @@ model ChatMessage {
   chatId String
 }
 
+model DatingPage {
+  id              String @id @default(cuid())
+  
+  // Preferences
+  lookingFor      String[] @default([])      // What they're looking for: "dating", "friends", "hookup", "relationship"
+  ageRangeMin     Int @default(18)
+  ageRangeMax     Int @default(100)
+  maxDistance     Int @default(50)           // Max distance in km
+  showGender      Gender[] @default([])      // What genders to show
+  
+  active          Boolean @default(true)     // Profile enabled/disabled
+  verified        Boolean @default(false)    // Verified dating profile
+  
+  // Relations
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  
+  swipesGiven     DatingSwipe[] @relation("swiper")
+  swipesReceived  DatingSwipe[] @relation("swiped")
+  matchesAsUser1  DatingMatch[] @relation("user1")
+  matchesAsUser2  DatingMatch[] @relation("user2")
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId])
+  @@index([active, createdAt])
+}
+
+// Swipe actions (like/pass)
+model DatingSwipe {
+  id              String @id @default(cuid())
+  
+  swiperId        String             // User who swiped
+  swiper          DatingPage @relation("swiper", fields: [swiperId], references: [id], onDelete: Cascade)
+  
+  swipedId        String             // User who was swiped on
+  swiped          DatingPage @relation("swiped", fields: [swipedId], references: [id], onDelete: Cascade)
+  
+  direction       SwipeDirection     // Like or Pass
+  superLike       Boolean @default(false)
+  
+  createdAt       DateTime @default(now())
+
+  @@unique([swiperId, swipedId])
+  @@index([swiperId, createdAt])
+  @@index([swipedId, direction])
+}
+
+// Matches (when both users like each other)
+model DatingMatch {
+  id              String @id @default(cuid())
+  
+  user1Id         String
+  user1           DatingPage @relation("user1", fields: [user1Id], references: [id], onDelete: Cascade)
+  
+  user2Id         String
+  user2           DatingPage @relation("user2", fields: [user2Id], references: [id], onDelete: Cascade)
+  
+  // Chat for this match
+  chatId          String? @unique
+  chat            Chat? @relation(fields: [chatId], references: [id], onDelete: SetNull)
+  
+  unmatchedBy     String?            // If unmatched, who unmatched
+  unmatchedAt     DateTime?
+  
+  createdAt       DateTime @default(now())
+
+  @@unique([user1Id, user2Id])
+  @@index([user1Id, createdAt])
+  @@index([user2Id, createdAt])
+}
+
+enum SwipeDirection {
+  LIKE
+  PASS
+}
+
 // LiveStreamPage is a channel/profile for livestreaming (like a sub-account)
 // It can be enabled/disabled and has its own followers
 model LiveStreamPage {
   id              String @id @default(cuid())
-  slug            String @unique
   
-  title           String @db.VarChar(200)
   description     String? @db.VarChar(3000)
   bannerUrl       String?          // Banner image for the channel
   
@@ -477,7 +557,6 @@ model LiveStreamPage {
 
   @@unique([userId])
   @@index([active, createdAt])
-  @@index([slug])
 }
 
 // Individual live stream sessions within a channel

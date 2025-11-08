@@ -69,9 +69,13 @@ export async function POST(request: NextRequest) {
             select: {
               id: true,
               slug: true,
-              name: true,
-              image: true,
+              title: true,
               verified: true,
+              images: {
+                where: { default: true },
+                select: { url: true },
+                take: 1,
+              },
             },
           },
           _count: {
@@ -137,9 +141,13 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             slug: true,
-            name: true,
-            image: true,
+            title: true,
             verified: true,
+            images: {
+              where: { default: true },
+              select: { url: true },
+              take: 1,
+            },
           },
         },
         _count: {

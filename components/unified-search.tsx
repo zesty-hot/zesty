@@ -2,7 +2,7 @@
 
 import { useId, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRightIcon, Funnel, SearchIcon, User } from "lucide-react";
+import { ArrowRightIcon, Funnel, SearchIcon, Settings, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -368,7 +368,7 @@ export default function UnifiedSearch({
                     className="relative" 
                     disabled={searchMode === 'username'}
                   >
-                    <Funnel />
+                    <Settings />
                     {activeFilterCount > 0 && (
                       <Badge variant="destructive" className="absolute -top-2 left-full min-w-5 -translate-x-3.5 border-background px-1 py-[0.145rem] text-xs font-medium">
                         {activeFilterCount}

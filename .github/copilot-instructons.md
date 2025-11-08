@@ -1,3 +1,6 @@
+---
+applyTo: "**"
+---
 **CRITICAL: Never access private User fields**
 
 The following User model fields are PRIVATE and must NEVER be selected, accessed, or used in any query:

@@ -48,9 +48,13 @@ export async function GET(
           select: {
             id: true,
             slug: true,
-            name: true,
-            image: true,
+            title: true,
             verified: true,
+            images: {
+              where: { default: true },
+              select: { url: true },
+              take: 1,
+            },
           },
         },
         attendees: {
@@ -61,8 +65,12 @@ export async function GET(
               select: {
                 id: true,
                 slug: true,
-                name: true,
-                image: true,
+                title: true,
+                images: {
+                  where: { default: true },
+                  select: { url: true },
+                  take: 1,
+                },
               },
             },
           },
@@ -81,8 +89,12 @@ export async function GET(
               select: {
                 id: true,
                 slug: true,
-                name: true,
-                image: true,
+                title: true,
+                images: {
+                  where: { default: true },
+                  select: { url: true },
+                  take: 1,
+                },
               },
             },
             comments: {
@@ -94,8 +106,12 @@ export async function GET(
                   select: {
                     id: true,
                     slug: true,
-                    name: true,
-                    image: true,
+                    title: true,
+                    images: {
+                      where: { default: true },
+                      select: { url: true },
+                      take: 1,
+                    },
                   },
                 },
               },
@@ -108,6 +124,8 @@ export async function GET(
             createdAt: 'desc',
           },
         },
+        createdAt: true,
+        updatedAt: true,
       },
     }));
 

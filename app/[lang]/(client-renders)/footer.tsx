@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 const MAIN_NAV_LINKS = [
   { href: "#", label: "Home" },
@@ -17,9 +18,11 @@ const LEGAL_LINKS = [
 ];
 
 export function Footer() {
+  const { lang } = useParams<{ lang: string }>();
+  
   return (
     <footer
-      className="bg-background text-sm pb-6 mt-2"
+      className="bg-background text-sm pb-6 mt-6"
       role="contentinfo"
       aria-label="Site footer"
     >
@@ -29,7 +32,7 @@ export function Footer() {
           {/* Copyright Text */}
           <p className="text-muted-foreground text-center lg:text-left">
             <span>Copyright © {new Date().getFullYear()}</span>{" "}
-            <Link href="/" className="hover:underline">
+            <Link href={`/${lang}/about`} className="hover:underline">
               Zesty
             </Link>
             . All rights reserved.

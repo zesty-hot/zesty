@@ -20,6 +20,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ step: 1, ok: false, message: 'Slug is required' }, { status: 400 });
     }
 
+    const decodedSlug = decodeURIComponent(slug);
+
     // Return success for step 1 so we can deploy and verify parsing works on Vercel
     if (body.__debug_step === 1) {
       return NextResponse.json({ step: 1, ok: true, message: 'Parsed body OK', slug });
@@ -61,17 +63,19 @@ export async function POST(req: NextRequest) {
     try {
       vipPage = await withRetry(() => prisma.vIPPage.findFirst({
         where: {
-          user: { slug },
+          user: { slug: decodedSlug },
           active: true,
         },
         include: {
           user: {
             select: {
               id: true,
+              title: true,
               slug: true,
               bio: true,
               location: true,
               suburb: true,
+              verified: true,
               lastActive: true,
               createdAt: true,
               images: {
@@ -85,7 +89,7 @@ export async function POST(req: NextRequest) {
             where: {
               active: true,
               validFrom: { lte: new Date() },
-              OR: [ { validUntil: null }, { validUntil: { gte: new Date() } } ],
+              OR: [{ validUntil: null }, { validUntil: { gte: new Date() } }],
             },
             orderBy: { createdAt: 'desc' },
             take: 1,
@@ -160,7 +164,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (body.__debug_step === 7) {
-      return NextResponse.json({ step: 7, ok: true, message: 'content fetched', count: content.length, sample: content.slice(0,2).map(c => ({ id: c.id, type: c.type })) });
+      return NextResponse.json({ step: 7, ok: true, message: 'content fetched', count: content.length, sample: content.slice(0, 2).map(c => ({ id: c.id, type: c.type })) });
     }
 
     // At this point, if no debug flags provided, continue and return the normal response
@@ -185,9 +189,26 @@ export async function POST(req: NextRequest) {
     const hasActiveLive = await withRetry(() => prisma.liveStreamPage.findFirst({
       where: {
         userId: vipPage.userId,
+        active: true,
       },
-      select: { id: true },
+      select: {
+        id: true,
+          streams: {
+            where: { isLive: true },
+            select: {
+              id: true,
+              title: true,
+              roomName: true,
+              viewerCount: true,
+              startedAt: true,
+              isLive: true,
+            },
+            take: 1,
+          },
+      },
     }));
+
+    const isLive = (hasActiveLive?.streams && hasActiveLive.streams.length > 0 && hasActiveLive.streams[0].isLive) || false;
 
     const canViewContent = isOwnPage || hasActiveSubscription || vipPage.isFree;
 
@@ -201,7 +222,26 @@ export async function POST(req: NextRequest) {
 
     const activeDiscount = vipPage.discountOffers?.[0] || null;
 
-    return NextResponse.json({ id: vipPage.id, title: vipPage.title, description: vipPage.description, bannerUrl: vipPage.bannerUrl, subscriptionPrice: vipPage.subscriptionPrice, isFree: vipPage.isFree, user: { id: vipPage.user.id, slug: vipPage.user.slug, bio: vipPage.user.bio, location: vipPage.user.location, suburb: vipPage.user.suburb, lastActive: vipPage.user.lastActive, createdAt: vipPage.user.createdAt, image: userImage }, hasActiveSubscription, isOwnPage, totalContent: vipPage._count.content, totalLikes, content: formattedContent, nextCursor, hasMore, activeDiscount: activeDiscount ? { discountPercent: activeDiscount.discountPercent, discountedPrice: activeDiscount.discountedPrice, validUntil: activeDiscount.validUntil } : null, hasActiveEscort: !!hasActiveEscort, hasActiveLive });
+    return NextResponse.json({
+      id: vipPage.id,
+      title: vipPage.user.title || vipPage.user.slug,
+      description: vipPage.description,
+      bannerUrl: vipPage.bannerUrl,
+      subscriptionPrice: vipPage.subscriptionPrice,
+      isFree: vipPage.isFree,
+      user: { id: vipPage.user.id, slug: vipPage.user.slug, bio: vipPage.user.bio, location: vipPage.user.location, suburb: vipPage.user.suburb, verified: vipPage.user.verified, lastActive: vipPage.user.lastActive, createdAt: vipPage.user.createdAt, image: userImage },
+      hasActiveSubscription,
+      isOwnPage,
+      totalContent: vipPage._count.content,
+      totalLikes,
+      content: formattedContent,
+      nextCursor,
+      hasMore,
+      activeDiscount: activeDiscount ? { discountPercent: activeDiscount.discountPercent, discountedPrice: activeDiscount.discountedPrice, validUntil: activeDiscount.validUntil } : null,
+      hasActiveEscort: !!hasActiveEscort,
+      liveStreamPage: hasActiveLive?.id ? true : false,
+      isLive,
+    });
 
   } catch (error) {
     console.error('Error fetching VIP profile (final catch):', error);
