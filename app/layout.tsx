@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cookies } from "next/headers";
+import { defaultMetadata, generateStructuredData } from "@/lib/metadata";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,14 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Zesty",
-  description: "Adult Services, Entertainment & Dating",
+  ...defaultMetadata,
   manifest: "/site.webmanifest",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Zesty",
-  },
 };
 
 export default async function RootLayout({
@@ -33,11 +28,22 @@ export default async function RootLayout({
   const cookieTheme = cookieStore.get("zesty-theme")?.value;
   const htmlClass = cookieTheme === "dark" ? "dark" : undefined;
 
+  const websiteStructuredData = generateStructuredData("WebSite");
+  const organizationStructuredData = generateStructuredData("Organization");
+
   return (
     <html lang="en" className={htmlClass}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
         <meta name="theme-color" content={cookieTheme === "dark" ? "black" : "white"} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteStructuredData) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationStructuredData) }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

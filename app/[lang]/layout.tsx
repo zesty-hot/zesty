@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react";
 import { Footer } from "@/app/[lang]/(client-renders)/footer";
 import Cookies from "@/app/[lang]//(client-renders)/cookies";
 import ClientAnalytics from "@/app/[lang]/(client-renders)/analytics";
+import AgeVerify from "./(client-renders)/age-verify";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -23,6 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Injections */}
         <ClientAnalytics />
         <Cookies />
+        <AgeVerify />
       </main>
     </SessionProvider>
   );

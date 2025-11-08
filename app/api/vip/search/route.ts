@@ -73,7 +73,6 @@ export async function POST(request: NextRequest) {
       },
       select: {
         id: true,
-        title: true,
         description: true,
         bannerUrl: true,
         subscriptionPrice: true,
@@ -82,6 +81,7 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             slug: true,
+            title: true,
             dob: true,
             suburb: true,
             images: {
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
     const creators = paginatedPages.map((page) => ({
       id: page.id,
       slug: page.user.slug,
-      title: page.title,
+      title: page.user.title,
       description: page.description,
       bannerUrl: page.bannerUrl,
       image: page.user.images?.[0]?.url || null,

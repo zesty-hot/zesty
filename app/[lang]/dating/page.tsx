@@ -634,7 +634,7 @@ export default function Page() {
                   {currentProfile.images.length > 1 && (
                     <>
                       <div
-                        className="absolute left-0 top-0 bottom-0 w-1/3 cursor-pointer group z-10"
+                        className="absolute left-0 top-0 bottom-0 w-1/3 cursor-pointer group z-30"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (currentImageIndex > 0) setCurrentImageIndex(currentImageIndex - 1);
@@ -647,7 +647,7 @@ export default function Page() {
                         )}
                       </div>
                       <div
-                        className="absolute right-0 top-0 bottom-0 w-1/3 cursor-pointer group z-10"
+                        className="absolute right-0 top-0 bottom-0 w-1/3 cursor-pointer group z-30"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (currentImageIndex < currentProfile.images.length - 1) setCurrentImageIndex(currentImageIndex + 1);
@@ -670,12 +670,12 @@ export default function Page() {
                     <div className="flex items-end gap-3 mb-2">
                       <h2 className="text-3xl font-bold">{currentProfile.title}</h2>
                       <span className="text-2xl mb-1">{currentProfile.age}</span>
-                      {currentProfile.verified && (
+                      {/* {currentProfile.verified && (
                         <Badge className="bg-blue-500 mb-1">
                           <Star className="w-3 h-3 mr-1 fill-current" />
                           Verified
                         </Badge>
-                      )}
+                      )} */}
                     </div>
 
                     {currentProfile.suburb && (
@@ -706,15 +706,15 @@ export default function Page() {
                   </div>
 
                   {/* Info button */}
-                  <button
-                    className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                  {/* <button
+                    className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-white hover:bg-white/30 transition-colors z-30"
                     onClick={(e) => {
                       e.stopPropagation();
                       // TODO: Show full profile modal
                     }}
                   >
                     <Info className="w-5 h-5" />
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>

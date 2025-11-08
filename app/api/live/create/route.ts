@@ -15,14 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { title, description } = await request.json();
-
-    if (!title) {
-      return NextResponse.json(
-        { error: 'Title is required' },
-        { status: 400 }
-      );
-    }
-
+    
     // Get user
     const user = await withRetry(() => prisma.user.findUnique({
       where: { email: currentUser.email },
@@ -49,7 +42,6 @@ export async function POST(request: NextRequest) {
       const updated = await withRetry(() => prisma.liveStreamPage.update({
         where: { userId: user.id },
         data: {
-          title,
           description,
         },
       }));
@@ -65,8 +57,6 @@ export async function POST(request: NextRequest) {
 
     const liveStreamPage = await withRetry(() => prisma.liveStreamPage.create({
       data: {
-        slug: user.slug as string,
-        title,
         description,
         userId: user.id,
         streamKey,

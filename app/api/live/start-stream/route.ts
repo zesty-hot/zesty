@@ -27,7 +27,6 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             active: true,
-            slug: true,
             streams: {
               where: { isLive: true },
               select: { id: true },
@@ -67,7 +66,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create LiveKit room for this session
-    const roomName = generateRoomName(user.liveStreamPage.slug);
+    const roomName = generateRoomName(user.slug!);
     await createRoom(roomName);
 
     // Create new stream session
@@ -83,8 +82,6 @@ export async function POST(request: NextRequest) {
         channel: {
           select: {
             id: true,
-            slug: true,
-            title: true,
           },
         },
       },

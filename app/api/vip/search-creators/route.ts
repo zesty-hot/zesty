@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
         select: {
           id: true,
           slug: true,
+          title: true,
           images: {
             where: { default: true },
             select: { url: true },
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
           },
           vipPage: {
             select: {
-              title: true,
+              active: true,
             }
           }
         },
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     const formattedCreators = users.map((user) => ({
       value: user.id,
-      label: user.vipPage?.title || user.slug || 'Unknown',
+      label: user.title || user.slug || 'Unknown',
       slug: user.slug || '',
       image: user.images?.[0]?.url || null,
     }));
