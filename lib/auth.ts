@@ -104,6 +104,7 @@ export const authOptions: NextAuthOptions = {
             role: true,
             slug: true,
             dob: true,
+            onboardingCompleted: true,
           },
         }));
 
@@ -111,6 +112,7 @@ export const authOptions: NextAuthOptions = {
           session.user.role = dbUser.role;
           session.user.slug = dbUser.slug ?? undefined;
           session.user.dob = dbUser.dob ?? undefined;
+          (session.user as any).onboardingCompleted = dbUser.onboardingCompleted;
         }
       }
 

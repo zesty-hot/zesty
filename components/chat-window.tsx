@@ -68,7 +68,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
           const newMsg = payload.new as any;
           setChat((prevChat) => {
             if (!prevChat) return prevChat;
-            
+
             // Check if message already exists
             if (prevChat.messages.some(m => m.id === newMsg.id)) {
               return prevChat;
@@ -83,10 +83,10 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
                 senderId: newMsg.senderId,
                 sender: newMsg.senderId === (session?.user as any)?.id
                   ? {
-                      id: (session?.user as any)?.id,
-                      slug: (session?.user as any)?.slug || null,
-                      images: [],
-                    }
+                    id: (session?.user as any)?.id,
+                    slug: (session?.user as any)?.slug || null,
+                    images: [],
+                  }
                   : prevChat.otherUser,
               }],
             };
@@ -118,7 +118,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
     try {
       const response = await fetch(`/api/messages/${chatId}`);
       if (!response.ok) throw new Error('Failed to fetch messages');
-      
+
       const data = await response.json();
       setChat(data);
     } catch (error) {
@@ -140,7 +140,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
 
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault();
-    
+
     if (!newMessage.trim() || sending) return;
 
     setSending(true);
@@ -157,7 +157,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
       });
 
       if (!response.ok) throw new Error('Failed to send message');
-      
+
       // Message will be added via realtime subscription
     } catch (error) {
       console.error('Error sending message:', error);
@@ -169,8 +169,8 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <Spinner />
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
+        <Spinner className="size-8 text-muted-foreground" />
       </div>
     );
   }
@@ -214,39 +214,37 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
         ) : (
           chat.messages.map((message) => {
             const isOwn = message.senderId === (session?.user as any)?.id;
-            
+
             return (
               <div
                 key={message.id}
-                className={`flex w-full mt-2 space-x-3 max-w-xs ${
-                  isOwn ? 'ml-auto justify-end' : ''
-                }`}
+                className={`flex w-full mt-2 space-x-3 max-w-xs ${isOwn ? 'ml-auto justify-end' : ''
+                  }`}
               >
-                {!isOwn && (
-                  <div className="shrink-0 h-10 w-10 rounded-full bg-gray-300 overflow-hidden">
-                    {message.sender.images?.[0]?.url ? (
-                      <img
-                        src={message.sender.images[0].url}
-                        alt="User"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-xs font-semibold">
-                          {message.sender.slug?.[0]?.toUpperCase() || '?'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
+                {/* {!isOwn && ( */}
+                <div className="shrink-0 h-10 w-10 rounded-full bg-gray-300 overflow-hidden">
+                  {message.sender.images?.[0]?.url ? (
+                    <img
+                      src={message.sender.images[0].url}
+                      alt="User"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full bg-gray-300 flex items-center justify-center">
+                      <span className="text-xs font-semibold">
+                        {message.sender.slug?.[0]?.toUpperCase() || '?'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {/* )} */}
 
                 <div>
                   <div
-                    className={`p-3 ${
-                      isOwn
+                    className={`p-3 ${isOwn
                         ? 'bg-blue-600 text-white rounded-l-lg rounded-br-lg'
                         : 'bg-gray-300 rounded-r-lg rounded-bl-lg'
-                    }`}
+                      }`}
                   >
                     <p className="text-sm">{message.content}</p>
                   </div>
@@ -255,7 +253,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
                   </span>
                 </div>
 
-                {isOwn && (
+                {/* {isOwn && (
                   <div className="shrink-0 h-10 w-10 rounded-full bg-gray-300 overflow-hidden">
                     {(session?.user as any)?.images?.[0]?.url ? (
                       <img
@@ -271,7 +269,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
                       </div>
                     )}
                   </div>
-                )}
+                )} */}
               </div>
             );
           })
@@ -290,9 +288,9 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
             disabled={sending}
             className="flex-1 h-10 rounded px-3 text-sm bg-white border-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <Button 
-            type="submit" 
-            disabled={!newMessage.trim() || sending} 
+          <Button
+            type="submit"
+            disabled={!newMessage.trim() || sending}
             size="icon"
             className="shrink-0 p-5"
           >

@@ -105,12 +105,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     // Job type keywords
     const jobTypeKeywords: { [key: string]: string[] } = {
-      ESCORT: ["escort job", "companion work"],
+      ACTOR: ["actor job", "acting work", "adult performer"],
+      DIRECTOR: ["director job", "directing work", "film director"],
+      CAMERA_OPERATOR: ["camera operator", "cinematography", "videographer"],
+      EDITOR: ["editor job", "video editing", "post-production"],
+      PRODUCTION_STAFF: ["production job", "film crew", "production staff"],
       MODEL: ["model job", "modeling work"],
-      PERFORMER: ["performer job", "adult performer"],
-      CONTENT_CREATOR: ["content creator", "OnlyFans work"],
-      WEBCAM: ["webcam model", "cam model job"],
-      PRODUCTION_CREW: ["production job", "film crew"],
       OTHER: ["adult industry job"],
     };
 
@@ -122,7 +122,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       keywords: [
         job.title,
         "adult industry job",
-        ...jobTypeKeywords[job.type],
+        ...(jobTypeKeywords[job.type] || []),
         job.suburb || "",
         location || "",
         `${job.studio.name} job`,

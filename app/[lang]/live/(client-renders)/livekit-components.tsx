@@ -10,6 +10,7 @@ import {
   ControlBar,
   useTracks,
   useParticipants,
+  TrackReference,
 } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { Track } from 'livekit-client';
@@ -88,9 +89,32 @@ export function LiveStreamViewer({ roomName, userSlug }: LiveStreamViewerProps) 
       className="livekit-room h-full w-full"
       style={{ position: 'relative', height: '100%', width: '100%' }}
     >
-      <VideoConference />
-      <RoomAudioRenderer />
+      <ViewerVideo />
     </LiveKitRoom>
+  );
+}
+
+function ViewerVideo() {
+  const tracks = useTracks([
+    { source: Track.Source.Camera, withPlaceholder: false },
+  ]);
+
+  // Filter out null/placeholder tracks
+  const realTracks = tracks.filter(
+    (t): t is TrackReference => t.publication !== undefined
+  );
+
+  if (realTracks.length === 0) {
+    return <p className="text-white">Waiting for host...</p>;
+  }
+
+  const hostCamera = realTracks[0];
+
+  return (
+    <ParticipantTile
+      trackRef={hostCamera}
+      className="w-full h-full"
+    />
   );
 }
 
@@ -170,7 +194,6 @@ export function LiveStreamBroadcaster({ roomName, userSlug, onStreamEnd }: LiveS
       onDisconnected={onStreamEnd}
     >
       <VideoConference />
-      <RoomAudioRenderer />
     </LiveKitRoom>
   );
 }

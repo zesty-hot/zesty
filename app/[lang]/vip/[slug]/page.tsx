@@ -37,6 +37,7 @@ import {
   MenuItem,
 } from "@/components/ui/menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { StartChatButton } from "@/components/start-chat-button";
 
 interface VIPProfileData {
   liveStreamPage: boolean;
@@ -384,10 +385,7 @@ export default function VIPProfilePage() {
                       Unsubscribe
                     </span>
                   </Button>
-                  <Button size="lg" variant="default" className="w-full md:w-auto">
-                    <Send className="w-4 h-4 mr-2" />
-                    Send Message
-                  </Button>
+                  <StartChatButton otherUserSlug={profile.user.slug as string} lang={lang as string} size="lg" />
                 </>
               ) : profile.isFree ? (
                 <Button size="lg" className="w-full md:w-auto">

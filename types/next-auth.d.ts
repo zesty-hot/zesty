@@ -8,6 +8,7 @@ declare module "next-auth" {
       role?: Role;
       slug?: string;
       dob?: Date;
+      onboardingCompleted?: boolean;
     } & DefaultSession["user"];
   }
 
@@ -15,6 +16,7 @@ declare module "next-auth" {
     role?: Role;
     slug?: string;
     dob?: Date;
+    onboardingCompleted?: boolean;
   }
 }
 
@@ -24,5 +26,6 @@ declare module "next-auth/jwt" {
     role?: Role;
     slug?: string;
     dob?: Date;
+    onboardingCompleted?: boolean;
   }
 }

@@ -207,12 +207,12 @@ export default function JobPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link href={`/${lang}/jobs`}>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="lg">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
             </Link>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="lg">
               <Share2 className="w-4 h-4" />
             </Button>
           </div>

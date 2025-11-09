@@ -68,6 +68,7 @@ model User {
   dob         DateTime?
   stripeId    String?
   verified    Boolean @default(false)
+  onboardingCompleted Boolean @default(false)
   mobile      String? @db.VarChar(15)
   location    String? @db.VarChar(100) // Latitude, Longitude
   suburb      String? @db.VarChar(100) // Suburb/City name

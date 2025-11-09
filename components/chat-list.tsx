@@ -34,7 +34,7 @@ export function ChatList() {
   const { data: session } = useSession();
   const params = useParams();
   const lang = params?.lang as string;
-  
+
   const [chats, setChats] = useState<ChatListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
@@ -73,7 +73,7 @@ export function ChatList() {
     try {
       const response = await fetch('/api/messages');
       if (!response.ok) throw new Error('Failed to fetch chats');
-      
+
       const data = await response.json();
       setChats(data);
     } catch (error) {
@@ -87,14 +87,14 @@ export function ChatList() {
     try {
       const response = await fetch('/api/messages/unread-count');
       if (!response.ok) return;
-      
+
       const data = await response.json();
       const counts: Record<string, number> = {};
-      
+
       data.unreadByChat?.forEach((item: { chatId: string; count: number }) => {
         counts[item.chatId] = item.count;
       });
-      
+
       setUnreadCounts(counts);
     } catch (error) {
       console.error('Error fetching unread counts:', error);
@@ -103,8 +103,8 @@ export function ChatList() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <Spinner />
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
+        <Spinner className="size-8 text-muted-foreground" />
       </div>
     );
   }
@@ -130,7 +130,7 @@ export function ChatList() {
       <div className="border-b border-gray-200 p-4 bg-white">
         <h1 className="text-2xl font-bold text-gray-800">Messages</h1>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto">
         {chats.map((chat) => (
           <Link
@@ -173,7 +173,7 @@ export function ChatList() {
                     )}
                   </div>
                 </div>
-                
+
                 {chat.lastMessage && (
                   <p className="text-sm text-gray-600 truncate">
                     {chat.lastMessage.sender.id === (session?.user as any)?.id ? 'You: ' : ''}
