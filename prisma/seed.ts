@@ -719,6 +719,7 @@ async function main() {
       
       // Create descriptive label based on category
       const labels: Record<PrivateAdServiceCategory, string> = {
+        [PrivateAdServiceCategory.VIDEO_CHAT]: 'Video Chat Session',
         [PrivateAdServiceCategory.IN_CALL]: 'Incall Service',
         [PrivateAdServiceCategory.OUT_CALL]: 'Outcall Service',
         [PrivateAdServiceCategory.MASSAGE]: 'Massage Session',
