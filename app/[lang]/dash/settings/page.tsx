@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@/components/ui/spinner";
+import { PushNotificationToggle } from "@/components/push-notification-toggle";
 
 export default function SettingsPage() {
   const { lang } = useParams<{ lang: string }>();
@@ -78,8 +79,8 @@ export default function SettingsPage() {
               </div>
             </Card>
 
-            <Card className="p-6 opacity-50">
-              <div className="flex items-center gap-4">
+            <Card className="p-6">
+              <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
                   <Bell className="w-6 h-6 text-white" />
                 </div>
@@ -89,7 +90,9 @@ export default function SettingsPage() {
                     Manage email and push notification preferences
                   </p>
                 </div>
-                <span className="text-xs text-muted-foreground">Coming Soon</span>
+              </div>
+              <div className="pl-16">
+                <PushNotificationToggle />
               </div>
             </Card>
 

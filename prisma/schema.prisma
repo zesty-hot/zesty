@@ -108,6 +108,8 @@ model User {
   reviewsGiven    Review[] @relation("reviewer")
   reviewsReceived Review[] @relation("reviewee")
 
+  pushSubscriptions PushSubscription[] @relation("pushSubscriptions")
+
   lastActive      DateTime? @default(now())
   createdAt       DateTime @default(now())
 
@@ -940,5 +942,31 @@ model StudioReview {
 
   @@index([studioId, createdAt])
   @@index([reviewerId])
+}
+
+// ==================== PUSH NOTIFICATIONS ====================
+
+model PushSubscription {
+  id              String @id @default(cuid())
+  
+  // Web Push subscription details
+  endpoint        String @unique
+  keys            String // JSON string containing p256dh and auth keys
+  
+  // User agent and device info for management
+  userAgent       String?
+  
+  // User
+  user            User @relation("pushSubscriptions", fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  
+  // Subscription status
+  active          Boolean @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, active])
+  @@index([endpoint])
 }
 
