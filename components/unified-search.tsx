@@ -10,13 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Combobox, ComboboxInput, ComboboxPopup, ComboboxList, ComboboxItem, ComboboxEmpty } from "@/components/ui/combobox";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FilterComponent, { type FilterData } from '@/app/[lang]/escorts/(client-renders)/filter';
-
-interface LocationSuggestion {
-  value: string;
-  label: string;
-  type: string;
-  coordinates?: [number, number];
-}
+import { searchLocations, type LocationSuggestion } from '@/lib/geocoding';
 
 interface UserSuggestion {
   value: string;
@@ -34,70 +28,6 @@ interface UnifiedSearchProps {
   onClearSearch?: () => void;
   searchType?: 'escorts' | 'vip' | 'live'; // Determines which API endpoints to use
   lang: string; // Language/locale for navigation
-}
-
-// Nominatim geocoding
-async function searchLocationsNominatim(query: string): Promise<LocationSuggestion[]> {
-  if (!query || query.length < 2) return [];
-
-  try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?` +
-      `q=${encodeURIComponent(query)}` +
-      `&format=json` +
-      `&addressdetails=1` +
-      `&limit=10` +
-      `&featuretype=settlement`,
-      {
-        headers: {
-          'User-Agent': 'Zesty-App/1.0'
-        }
-      }
-    );
-
-    if (!response.ok) throw new Error('Failed to fetch locations');
-
-    const data = await response.json();
-
-    const results = data.map((place: any) => {
-      let type = 'location';
-      if (place.type === 'city' || place.type === 'town') type = 'city';
-      else if (place.type === 'suburb' || place.type === 'neighbourhood' || place.type === 'quarter') type = 'suburb';
-      else if (place.type === 'state' || place.type === 'region') type = 'state';
-      else if (place.type === 'country') type = 'country';
-
-      let label = place.display_name;
-      if (place.address) {
-        const parts = [];
-        if (place.address.suburb) parts.push(place.address.suburb);
-        else if (place.address.city) parts.push(place.address.city);
-        else if (place.address.town) parts.push(place.address.town);
-        else if (place.address.village) parts.push(place.address.village);
-
-        if (place.address.state) parts.push(place.address.state);
-        else if (place.address.country) parts.push(place.address.country);
-
-        if (parts.length > 0) {
-          label = parts.join(', ');
-        }
-      }
-
-      return {
-        value: place.place_id.toString(),
-        label,
-        type,
-        coordinates: [parseFloat(place.lon), parseFloat(place.lat)] as [number, number],
-      };
-    })
-      .filter((location: LocationSuggestion, index: number, self: LocationSuggestion[]) =>
-        index === self.findIndex((l) => l.label.toLowerCase() === location.label.toLowerCase())
-      );
-
-    return results;
-  } catch (error) {
-    console.error('Error fetching locations:', error);
-    return [];
-  }
 }
 
 // Search for users by slug/username
@@ -159,7 +89,7 @@ export default function UnifiedSearch({
       setIsLoadingSuggestions(true);
       
       if (searchMode === 'location') {
-        const results = await searchLocationsNominatim(searchQuery);
+        const results = await searchLocations(searchQuery);
         setLocationSuggestions(results);
       } else {
         const results = await searchUsers(searchQuery, searchType);

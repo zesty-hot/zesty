@@ -162,3 +162,67 @@ export async function sendEventReminderNotification(
     data: { type: 'event', slug: eventSlug },
   });
 }
+
+export async function sendNewOfferNotification(
+  workerId: string,
+  clientName: string,
+  amount: number
+) {
+  return sendNotificationToUser(workerId, {
+    title: 'New Offer Received! 💰',
+    body: `${clientName} sent you an offer for $${amount}`,
+    icon: '/android-chrome-192x192.png',
+    badge: '/android-chrome-192x192.png',
+    url: '/messages',
+    tag: 'new-offer',
+    requireInteraction: true,
+    data: { type: 'offer', action: 'new' },
+  });
+}
+
+export async function sendOfferAcceptedNotification(
+  clientId: string,
+  workerName: string
+) {
+  return sendNotificationToUser(clientId, {
+    title: 'Offer Accepted! ✅',
+    body: `${workerName} accepted your offer`,
+    icon: '/android-chrome-192x192.png',
+    badge: '/android-chrome-192x192.png',
+    url: '/messages',
+    tag: 'offer-accepted',
+    requireInteraction: true,
+    data: { type: 'offer', action: 'accepted' },
+  });
+}
+
+export async function sendOfferRejectedNotification(
+  clientId: string,
+  workerName: string
+) {
+  return sendNotificationToUser(clientId, {
+    title: 'Offer Declined',
+    body: `${workerName} declined your offer`,
+    icon: '/android-chrome-192x192.png',
+    badge: '/android-chrome-192x192.png',
+    url: '/messages',
+    tag: 'offer-rejected',
+    data: { type: 'offer', action: 'rejected' },
+  });
+}
+
+export async function sendOfferConfirmedNotification(
+  clientId: string,
+  workerName: string
+) {
+  return sendNotificationToUser(clientId, {
+    title: 'Service Completed ⭐',
+    body: `${workerName} marked the service as complete. Leave a review!`,
+    icon: '/android-chrome-192x192.png',
+    badge: '/android-chrome-192x192.png',
+    url: '/messages',
+    tag: 'offer-confirmed',
+    requireInteraction: true,
+    data: { type: 'offer', action: 'confirmed' },
+  });
+}

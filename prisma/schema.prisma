@@ -334,6 +334,7 @@ enum PrivateAdServiceCategory {
   MASSAGE
   IN_CALL
   OUT_CALL
+  VIDEO_CHAT
 }
 
 enum DaysAvailable {
@@ -358,6 +359,8 @@ model PrivateAdService {
   options       ServiceOption[] // durations and prices
 
   createdAt     DateTime @default(now())
+
+  @@unique([privateAdId, category])
 }
 
 model ServiceOption {
@@ -403,20 +406,50 @@ model PrivateAd {
 }
 
 enum PrivateOfferStatus {
-  PENDING
-  CONFIRMED
-  DISPUTED
-  RELEASED
+  OFFER         // Initial offer made
+  PENDING       // Offer accepted, payment held
+  CONFIRMED     // Service completed by worker
+  DISPUTED      // Dispute raised by client
+  RELEASED      // Payment released to worker
+  REJECTED      // Offer rejected by worker
+  CANCELLED     // Offer cancelled
 }
 
 model PrivateOffer {
   id            String @id @default(cuid())
-  amount        Int
+  amount        Int                      // Total price for the service
   adId          String
 
-  status        PrivateOfferStatus @default(PENDING)
-  expiresAt     DateTime?
+  // Service details
+  service       PrivateAdServiceCategory // Type of service (IN_CALL, OUT_CALL, etc.)
+  durationMin   Int                      // Duration in minutes
+  extras        String[]                 // Array of extra service IDs/names selected
+  
+  // Scheduling
+  scheduledFor  DateTime?                // When service is scheduled (null for ASAP)
+  dayRequested  DaysAvailable?           // Day of week requested
+  isAsap        Boolean @default(false)  // True if "Now/ASAP"
 
+  // Status and timeline
+  status        PrivateOfferStatus @default(OFFER)
+  expiresAt     DateTime?                // When offer expires if not accepted
+  
+  acceptedAt    DateTime?                // When offer was accepted
+  completedAt   DateTime?                // When worker marked as complete
+  releasedAt    DateTime?                // When payment was released (48h after completedAt or dispute resolved)
+  
+  // Dispute handling
+  disputeReason String? @db.VarChar(1000)
+  disputeRaisedAt DateTime?
+  disputeResolvedAt DateTime?
+
+  // Payment tracking
+  creditFeePaid Boolean @default(false)  // $5 non-refundable fee paid when offer accepted
+  platformFeePaid Boolean @default(false) // 10% platform fee paid when released
+  stripePaymentIntentId String?          // Stripe payment intent for holding funds
+  stripeTransferId String?               // Stripe transfer ID when released to worker
+
+  // Relations
   client        User @relation("offersSent", fields: [clientId], references: [id])
   clientId      String
   worker        User @relation("offersReceived", fields: [workerId], references: [id])
@@ -426,8 +459,13 @@ model PrivateOffer {
   chatId        String?
 
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   Review Review[]
+  
+  @@index([clientId, status])
+  @@index([workerId, status])
+  @@index([status, completedAt])
 }
 
 model Chat {

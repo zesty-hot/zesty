@@ -7,13 +7,26 @@ import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
+import { Card } from '@/components/ui/card';
 import { formatDistanceToNow } from '@/lib/utils';
 import { RiSendPlaneFill } from '@remixicon/react';
+import { MakeOfferButton } from '@/components/make-offer-button';
 
 interface ChatUser {
   id: string;
   slug: string | null;
   images?: { url: string }[];
+}
+
+interface PrivateAd {
+  id: string;
+  title: string;
+  description: string;
+  active: boolean;
+  workerId: string;
+  services: any[];
+  extras: any[];
+  daysAvailable: string[];
 }
 
 interface Message {
@@ -28,6 +41,7 @@ interface ChatData {
   id: string;
   otherUser: ChatUser;
   messages: Message[];
+  otherUserAd?: PrivateAd | null;
 }
 
 interface ChatWindowProps {
@@ -204,6 +218,29 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
         </Avatar>
         <h2 className="font-semibold text-lg">{chat.otherUser.slug || 'Unknown User'}</h2>
       </div>
+
+      {/* Private Ad Banner */}
+      {chat.otherUserAd && chat.otherUserAd.active && (
+        <Card className="m-4 p-4 bg-linear-to-r from-rose-500/10 to-pink-500/10 border-rose-500/30">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h3 className="font-semibold text-lg mb-1">{chat.otherUserAd.title}</h3>
+              <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                {chat.otherUserAd.description}
+              </p>
+              <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                <span>🔧 {chat.otherUserAd.services.length} service{chat.otherUserAd.services.length !== 1 ? 's' : ''}</span>
+                {chat.otherUserAd.extras.length > 0 && (
+                  <span>➕ {chat.otherUserAd.extras.length} extra{chat.otherUserAd.extras.length !== 1 ? 's' : ''}</span>
+                )}
+              </div>
+            </div>
+            <div className="shrink-0">
+              <MakeOfferButton ad={chat.otherUserAd} chatId={chatId} />
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Messages */}
       <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4">

@@ -1,36 +1,15 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## 🚨 CRITICAL RULES FOR AI ASSISTANTS (GitHub Copilot, Cursor, etc.)
 
-## Getting Started
+### ⛔ ABSOLUTE PROHIBITION: NEVER DROP/RESET DATABASE
+- ❌ **NEVER** run `prisma migrate reset` or use `prisma-migrate-reset` tool
+- ❌ **NEVER** run any command that drops or resets the database
+- ⚠️  For schema drift: **ALWAYS ASK USER FIRST**, then suggest non-destructive SQL solutions
+- 📖 See `.github/copilot-instructions.md` and `.cursorrules` for complete rules
 
-First, run the development server:
+### 🔒 User Privacy: NEVER Access Private Fields
+- ❌ Never select: `name`, `email`, or `image` fields from User model
+- ✅ Use: `id`, `slug`, `bio`, `location`, `suburb`, public attributes
+- 🖼️  For images: use `images` relation with `default: true`
+- 🔄 Always wrap Prisma queries in `withRetry()` wrapper
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**These rules apply to ALL AI models and chat sessions. No exceptions.**

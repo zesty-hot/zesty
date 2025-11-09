@@ -16,9 +16,10 @@ interface PrivateAd {
   active: boolean;
   title: string;
   description: string;
-  hourlyRate: number;
-  location: string;
   createdAt: string;
+  services: any[];
+  extras: any[];
+  daysAvailable: string[];
 }
 
 export default function EscortsManagementPage() {
@@ -38,10 +39,14 @@ export default function EscortsManagementPage() {
 
   const fetchAds = async () => {
     try {
-      const response = await fetch("/api/escorts/my-ads");
+      const response = await fetch("/api/escorts/my-ad");
       if (response.ok) {
-        const data = await response.json();
-        setAds(data);
+        const { ad } = await response.json();
+        if (ad) {
+          setAds([ad]); // User can only have one ad
+        } else {
+          setAds([]);
+        }
       }
     } catch (error) {
       console.error("Error fetching ads:", error);
@@ -52,7 +57,7 @@ export default function EscortsManagementPage() {
 
   const toggleAdActive = async (adId: string, currentActive: boolean) => {
     try {
-      const response = await fetch(`/api/escorts/ads/${adId}`, {
+      const response = await fetch("/api/escorts/ad", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ active: !currentActive }),
@@ -103,7 +108,7 @@ export default function EscortsManagementPage() {
                 </p>
               </div>
             </div>
-            <Link href={`/${lang}/escorts/create`}>
+            <Link href={`/${lang}/dash/escorts/create`}>
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
                 Create New Ad
@@ -122,7 +127,7 @@ export default function EscortsManagementPage() {
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               You haven't created any private ads yet. Click the button below to create your first ad and start attracting clients.
             </p>
-            <Link href={`/${lang}/escorts/create`}>
+            <Link href={`/${lang}/dash/escorts/create`}>
               <Button size="lg">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Your First Ad
@@ -145,9 +150,10 @@ export default function EscortsManagementPage() {
                       {ad.description}
                     </p>
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <span>📍 {ad.location}</span>
-                      <span>💰 ${ad.hourlyRate}/hr</span>
-                      <span>📅 Created {new Date(ad.createdAt).toLocaleDateString()}</span>
+                      <span>� Created {new Date(ad.createdAt).toLocaleDateString()}</span>
+                      <span>� {ad.services.length} service{ad.services.length !== 1 ? 's' : ''}</span>
+                      {ad.extras.length > 0 && <span>➕ {ad.extras.length} extra{ad.extras.length !== 1 ? 's' : ''}</span>}
+                      {ad.daysAvailable.length > 0 && <span>📆 {ad.daysAvailable.length} day{ad.daysAvailable.length !== 1 ? 's' : ''} available</span>}
                     </div>
                   </div>
 
@@ -167,7 +173,7 @@ export default function EscortsManagementPage() {
                           {ad.active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                         </Button>
                       </Link>
-                      <Link href={`/${lang}/escorts/edit/${ad.id}`}>
+                      <Link href={`/${lang}/dash/escorts/create`}>
                         <Button variant="outline" size="sm">
                           <Pencil className="w-4 h-4 mr-2" />
                           Edit
@@ -182,7 +188,7 @@ export default function EscortsManagementPage() {
         )}
 
         {/* Tips */}
-        <Card className="mt-8 p-6 bg-gradient-to-r from-rose-500/5 to-pink-500/10 border-rose-500/20">
+        <Card className="mt-8 p-6 bg-linear-to-r from-rose-500/5 to-pink-500/10 border-rose-500/20">
           <h3 className="font-semibold text-lg mb-3">Tips for Success</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>✓ Use clear, high-quality photos to attract more clients</li>

@@ -445,7 +445,7 @@ export default function EscortSlugPage() {
                 <Link href={`/${lang}/vip/${profile.slug}`} className={`flex w-full ${profile.vip ? 'pointer-events-auto cursor-pointer opacity-80 hover:opacity-100' : 'pointer-events-none opacity-40'}`}><Button variant="outline" size="sm" className="w-full"><Camera />VIP content</Button></Link>
                 <Link href={`/${lang}/live/${profile.slug}`} className={`flex w-full ${profile.liveStreamPage ? 'pointer-events-auto cursor-pointer opacity-80 hover:opacity-100' : 'pointer-events-none opacity-40'}`}><Button variant="outline" size="sm" className="w-full"><Webcam />Live streams</Button></Link>
               </div>
-              <StartChatButton otherUserSlug={profile.slug} lang={lang as string} size="lg" />
+              <StartChatButton className="text-base" otherUserSlug={profile.slug} lang={lang as string} size="lg" />
             </div>
           </div>
         </div>

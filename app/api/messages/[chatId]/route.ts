@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendNewMessageNotification } from "@/lib/push-notifications";
 
 // Get messages for a specific chat
 export async function GET(
@@ -65,10 +66,29 @@ export async function GET(
 
     const otherUser = chat.activeUsers.find((user) => user.id !== userId);
 
+    // Fetch other user's private ad if they have one
+    let otherUserAd = null;
+    if (otherUser) {
+      otherUserAd = await prisma.privateAd.findUnique({
+        where: { workerId: otherUser.id },
+        include: {
+          services: {
+            include: {
+              options: true,
+            },
+          },
+          extras: {
+            where: { active: true },
+          },
+        },
+      });
+    }
+
     return NextResponse.json({
       id: chat.id,
       otherUser,
       messages: chat.messages,
+      otherUserAd,
     });
   } catch (error) {
     console.error("Error fetching messages:", error);
@@ -132,6 +152,26 @@ export async function POST(
         },
       },
     });
+
+    // Get other user in the chat to send notification
+    const chatWithUsers = await prisma.chat.findUnique({
+      where: { id: chatId },
+      include: {
+        activeUsers: {
+          select: { id: true, slug: true },
+        },
+      },
+    });
+
+    const recipientId = chatWithUsers?.activeUsers.find(u => u.id !== userId)?.id;
+    
+    if (recipientId) {
+      // Send push notification to recipient
+      const senderName = message.sender.slug || 'Someone';
+      await sendNewMessageNotification(recipientId, senderName, content.trim()).catch(err => {
+        console.error('Failed to send push notification:', err);
+      });
+    }
 
     return NextResponse.json(message);
   } catch (error) {

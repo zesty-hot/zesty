@@ -22,13 +22,7 @@ import {
   Filter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface LocationSuggestion {
-  value: string;
-  label: string;
-  type: string;
-  coordinates?: [number, number];
-}
+import { searchLocations, type LocationSuggestion } from '@/lib/geocoding';
 
 interface Job {
   id: string;
@@ -69,69 +63,6 @@ const JOB_TYPES = [
   { value: 'OTHER', label: 'Other' },
 ];
 
-// Nominatim geocoding
-async function searchLocationsNominatim(query: string): Promise<LocationSuggestion[]> {
-  if (!query || query.length < 2) return [];
-
-  try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?` +
-      `q=${encodeURIComponent(query)}` +
-      `&format=json` +
-      `&addressdetails=1` +
-      `&limit=10` +
-      `&countrycodes=au` +
-      `&featuretype=settlement`,
-      {
-        headers: {
-          'User-Agent': 'Zesty-App/1.0'
-        }
-      }
-    );
-
-    if (!response.ok) throw new Error('Failed to fetch locations');
-
-    const data = await response.json();
-
-    const results = data.map((place: any) => {
-      let type = 'location';
-      if (place.type === 'city' || place.type === 'town') type = 'city';
-      else if (place.type === 'suburb' || place.type === 'neighbourhood' || place.type === 'quarter') type = 'suburb';
-      else if (place.type === 'state' || place.type === 'region') type = 'state';
-
-      let label = place.display_name;
-      if (place.address) {
-        const parts = [];
-        if (place.address.suburb) parts.push(place.address.suburb);
-        else if (place.address.city) parts.push(place.address.city);
-        else if (place.address.town) parts.push(place.address.town);
-        else if (place.address.village) parts.push(place.address.village);
-
-        if (place.address.state) parts.push(place.address.state);
-
-        if (parts.length > 0) {
-          label = parts.join(', ');
-        }
-      }
-
-      return {
-        value: place.place_id.toString(),
-        label,
-        type,
-        coordinates: [parseFloat(place.lon), parseFloat(place.lat)] as [number, number],
-      };
-    })
-      .filter((location: LocationSuggestion, index: number, self: LocationSuggestion[]) =>
-        index === self.findIndex((l) => l.label.toLowerCase() === location.label.toLowerCase())
-      );
-
-    return results;
-  } catch (error) {
-    console.error('Error fetching locations:', error);
-    return [];
-  }
-}
-
 export default function Page() {
   const { lang } = useParams();
   const router = useRouter();
@@ -156,7 +87,7 @@ export default function Page() {
 
     const timer = setTimeout(async () => {
       setIsLoadingSuggestions(true);
-      const suggestions = await searchLocationsNominatim(locationQuery);
+      const suggestions = await searchLocations(locationQuery);
       setLocationSuggestions(suggestions);
       setIsLoadingSuggestions(false);
     }, 300);

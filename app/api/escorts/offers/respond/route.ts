@@ -1,0 +1,168 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getSession } from "@/lib/session";
+import { prisma, withRetry } from "@/lib/prisma";
+import { sendOfferAcceptedNotification, sendOfferRejectedNotification } from "@/lib/push-notifications";
+
+export async function POST(req: NextRequest) {
+  try {
+    const session = await getSession();
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = (session.user as { id: string }).id;
+
+    const body = await req.json();
+    const { offerId, action } = body; // action: 'accept' or 'reject'
+
+    if (!offerId || !action) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (action !== "accept" && action !== "reject") {
+      return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+    }
+
+    // Get the offer and verify ownership
+    const offer = await withRetry(() =>
+      prisma.privateOffer.findUnique({
+        where: { id: offerId },
+        select: {
+          id: true,
+          workerId: true,
+          clientId: true,
+          status: true,
+          amount: true,
+        },
+      })
+    );
+
+    if (!offer) {
+      return NextResponse.json({ error: "Offer not found" }, { status: 404 });
+    }
+
+    if (offer.workerId !== userId) {
+      return NextResponse.json(
+        { error: "You are not authorized to respond to this offer" },
+        { status: 403 }
+      );
+    }
+
+    if (offer.status !== "OFFER") {
+      return NextResponse.json(
+        { error: "This offer has already been responded to" },
+        { status: 400 }
+      );
+    }
+
+    if (action === "reject") {
+      // Simply reject the offer
+      const updatedOffer = await withRetry(() =>
+        prisma.privateOffer.update({
+          where: { id: offerId },
+          data: {
+            status: "REJECTED",
+          },
+          include: {
+            client: {
+              select: {
+                id: true,
+                slug: true,
+                bio: true,
+                verified: true,
+                images: {
+                  where: { default: true },
+                  select: { url: true },
+                },
+              },
+            },
+            worker: {
+              select: {
+                id: true,
+                slug: true,
+                bio: true,
+                verified: true,
+                images: {
+                  where: { default: true },
+                  select: { url: true },
+                },
+              },
+            },
+          },
+        })
+      );
+
+      // Send push notification to client
+      const workerName = updatedOffer.worker.slug || 'Worker';
+      await sendOfferRejectedNotification(offer.clientId, workerName).catch(err => {
+        console.error('Failed to send push notification:', err);
+      });
+
+      return NextResponse.json({ offer: updatedOffer });
+    }
+
+    // Accept the offer - this requires payment processing
+    // For now, we'll mark it as PENDING and handle payment separately
+    // In a real implementation, this would:
+    // 1. Charge the client the full amount + $5 credit fee
+    // 2. Hold the funds in escrow
+    // 3. Set creditFeePaid to true
+
+    const updatedOffer = await withRetry(() =>
+      prisma.privateOffer.update({
+        where: { id: offerId },
+        data: {
+          status: "PENDING",
+          acceptedAt: new Date(),
+          // TODO: Add Stripe payment intent creation here
+          // creditFeePaid: true,
+          // stripePaymentIntentId: paymentIntent.id,
+        },
+        include: {
+          client: {
+            select: {
+              id: true,
+              slug: true,
+              bio: true,
+              verified: true,
+              images: {
+                where: { default: true },
+                select: { url: true },
+              },
+            },
+          },
+          worker: {
+            select: {
+              id: true,
+              slug: true,
+              bio: true,
+              verified: true,
+              images: {
+                where: { default: true },
+                select: { url: true },
+              },
+            },
+          },
+        },
+      })
+    );
+
+    // Send push notification to client
+    const workerName = updatedOffer.worker.slug || 'Worker';
+    await sendOfferAcceptedNotification(offer.clientId, workerName).catch(err => {
+      console.error('Failed to send push notification:', err);
+    });
+
+    return NextResponse.json({ offer: updatedOffer });
+  } catch (error) {
+    console.error("Error responding to offer:", error);
+    return NextResponse.json(
+      { error: "Failed to respond to offer" },
+      { status: 500 }
+    );
+  }
+}
