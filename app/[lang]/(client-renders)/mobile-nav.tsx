@@ -37,15 +37,15 @@ export default function MobileNav() {
   return (
     <nav
       id="mobile-nav"
-      className="fixed min-h-16 lg:hidden bottom-0 left-0 right-0 z-30 flex pt-1 pb-2 w-full items-center justify-around bg-muted"
+      className="fixed min-h-16 lg:hidden bottom-0 left-0 right-0 z-30 flex w-full items-center justify-around bg-muted"
       style={{
         borderTopLeftRadius: "0.375rem",
         borderTopRightRadius: "0.375rem",
         boxShadow: "0 -4px 6px -1px rgb(0 0 0 / 0.1), 0 -2px 4px -2px rgb(0 0 0 / 0.1)",
         WebkitTransform: "translateZ(30)",
         transform: "translateZ(30)",
-        paddingBottom: "env(safe-area-inset-bottom, 20px)",
-        paddingTop: "calc(env(safe-area-inset-bottom, 0px)*(3/7))"
+        paddingBottom: "max(env(safe-area-inset-bottom, 0.5rem), 0.75rem)",
+        paddingTop: "0.5rem"
       }}
     >
       <Link
