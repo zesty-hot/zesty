@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DollarSign, Map, Mars, Minimize2, Transgender, Trophy, Venus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
 
 // Define the shape of our filter data
 export interface FilterData {
@@ -13,17 +12,17 @@ export interface FilterData {
   age: [number, number];
   bodyType: string[];
   race: string[];
+  sortBy?: string; // Add sortBy to the filter data
 }
 
 // Props that the Filter component will receive from parent
 interface FilterProps {
   filterData: FilterData;
   onFilterChange: (filters: FilterData) => void;
+  pageType?: 'escorts' | 'vip' | 'live'; // Determines which sort options to show
 }
 
-export default function FilterComponent({ filterData, onFilterChange }: FilterProps) {
-  const [sortValue, setSortValue] = useState("distance");
-
+export default function FilterComponent({ filterData, onFilterChange, pageType = 'escorts' }: FilterProps) {
   // Helper functions to update specific filter fields
   const updateGender = (gender: string, checked: boolean) => {
     const newGender = checked
@@ -50,39 +49,48 @@ export default function FilterComponent({ filterData, onFilterChange }: FilterPr
     onFilterChange({ ...filterData, race: newRace });
   };
 
+  const updateSortBy = (sortBy: string) => {
+    onFilterChange({ ...filterData, sortBy });
+  };
+
   return (
     <section className="select-none">
       <div className="grid gap-4 select-none">
         <div className="grid gap-3">
           <Label htmlFor={'sort-select'}>Sort</Label>
-          <Select value={sortValue} onValueChange={setSortValue} name="sort">
+          <Select value={filterData.sortBy || "distance"} onValueChange={updateSortBy} name="sort">
             <SelectTrigger id='sort-select'>
               <span className="flex items-center gap-2">
-                {sortValue === "distance" && <><Map size={16} aria-hidden="true" />Distance</>}
-                {sortValue === "lowest-price" && <><DollarSign size={16} aria-hidden="true" />Lowest price</>}
-                {sortValue === "highest-rating" && <><Trophy size={16} aria-hidden="true" />Highest rating</>}
+                {(filterData.sortBy === "distance" || !filterData.sortBy) && <><Map size={16} aria-hidden="true" />Distance</>}
+                {filterData.sortBy === "lowest-price" && <><DollarSign size={16} aria-hidden="true" />Lowest price</>}
+                {filterData.sortBy === "highest-rating" && <><Trophy size={16} aria-hidden="true" />Highest rating</>}
               </span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="distance">
                 <span className="flex items-center gap-2">
-                  {/* <Route /> */}
                   <Map size={16} aria-hidden="true" />
                   Distance
                 </span>
               </SelectItem>
-              <SelectItem value="lowest-price">
-                <span className="flex items-center gap-2">
-                  <DollarSign size={16} aria-hidden="true" />
-                  Lowest price
-                </span>
-              </SelectItem>
-              <SelectItem value="highest-rating">
-                <span className="flex items-center gap-2">
-                  <Trophy size={16} aria-hidden="true" />
-                  Highest rating
-                </span>
-              </SelectItem>
+              {/* Show price sorting for escorts and VIP */}
+              {(pageType === 'escorts' || pageType === 'vip') && (
+                <SelectItem value="lowest-price">
+                  <span className="flex items-center gap-2">
+                    <DollarSign size={16} aria-hidden="true" />
+                    Lowest price
+                  </span>
+                </SelectItem>
+              )}
+              {/* Only show rating sorting for escorts */}
+              {pageType === 'escorts' && (
+                <SelectItem value="highest-rating">
+                  <span className="flex items-center gap-2">
+                    <Trophy size={16} aria-hidden="true" />
+                    Highest rating
+                  </span>
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>

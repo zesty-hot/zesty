@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { redirect, useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, TvMinimalPlay, Eye, Settings as SettingsIcon, Radio } from "lucide-react";
@@ -27,6 +27,8 @@ export default function LiveManagementPage() {
   useEffect(() => {
     if (status === "authenticated") {
       fetchLiveStreamPage();
+    } else {
+      setLoading(false);
     }
   }, [status]);
 
@@ -64,15 +66,14 @@ export default function LiveManagementPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Spinner className="w-8 h-8" />
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
+        <Spinner className="size-8 text-muted-foreground" />
       </div>
     );
   }
 
   if (status === "unauthenticated") {
-    router.push(`/${lang}/auth/signin?callbackUrl=/${lang}/dash/live`);
-    return null;
+    redirect(`/${lang}`);
   }
 
   return (

@@ -52,6 +52,7 @@ const defaultFilters: FilterData = {
   age: [18, 100],
   bodyType: [],
   race: [],
+  sortBy: 'distance',
 };
 
 export default function Page() {
@@ -68,6 +69,17 @@ export default function Page() {
   const [totalCount, setTotalCount] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const observerTarget = useRef<HTMLDivElement>(null);
+
+  // Search pagination state
+  const [searchPage, setSearchPage] = useState(1);
+  const [searchTotalPages, setSearchTotalPages] = useState(1);
+  const [isLoadingMoreSearch, setIsLoadingMoreSearch] = useState(false);
+  const [lastSearchParams, setLastSearchParams] = useState<{
+    type: 'location' | 'username';
+    location?: any;
+    username?: string;
+    filters: FilterData;
+  } | null>(null);
 
   useEffect(() => {
     fetchActiveChannels(1);
@@ -152,18 +164,21 @@ export default function Page() {
   const handleUsernameSearch = async (slug: string, filters: FilterData) => {
     setIsSearching(true);
     setHasSearched(true);
+    setSearchPage(1);
+    setLastSearchParams({ type: 'username', username: slug, filters });
     try {
       const response = await fetch('/api/live/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ slug, page: 1, limit: 20 }),
+        body: JSON.stringify({ slug, filters, page: 1, limit: 20 }),
       });
 
       if (response.ok) {
         const data = await response.json();
         setSearchResults(data.channels || []);
+        setSearchTotalPages(data.totalPages || 1);
       }
     } catch (error) {
       console.error('Error searching livestream channels:', error);
@@ -177,6 +192,8 @@ export default function Page() {
     
     setIsSearching(true);
     setHasSearched(true);
+    setSearchPage(1);
+    setLastSearchParams({ type: 'location', location, filters });
     try {
       const response = await fetch('/api/live/search', {
         method: 'POST',
@@ -186,6 +203,7 @@ export default function Page() {
         body: JSON.stringify({ 
           longitude: location.coordinates[0],
           latitude: location.coordinates[1],
+          filters,
           page: 1, 
           limit: 20 
         }),
@@ -194,11 +212,61 @@ export default function Page() {
       if (response.ok) {
         const data = await response.json();
         setSearchResults(data.channels || []);
+        setSearchTotalPages(data.totalPages || 1);
       }
     } catch (error) {
       console.error('Error searching livestream channels:', error);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  const loadMoreSearchResults = async () => {
+    if (!lastSearchParams || isLoadingMoreSearch || searchPage >= searchTotalPages) return;
+
+    setIsLoadingMoreSearch(true);
+    const nextPage = searchPage + 1;
+
+    try {
+      let response;
+      if (lastSearchParams.type === 'location' && lastSearchParams.location) {
+        response = await fetch('/api/live/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            longitude: lastSearchParams.location.coordinates[0],
+            latitude: lastSearchParams.location.coordinates[1],
+            filters: lastSearchParams.filters,
+            page: nextPage, 
+            limit: 20 
+          }),
+        });
+      } else if (lastSearchParams.type === 'username' && lastSearchParams.username) {
+        response = await fetch('/api/live/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            slug: lastSearchParams.username, 
+            filters: lastSearchParams.filters,
+            page: nextPage, 
+            limit: 20 
+          }),
+        });
+      }
+
+      if (response && response.ok) {
+        const data = await response.json();
+        setSearchResults([...searchResults, ...(data.channels || [])]);
+        setSearchPage(nextPage);
+      }
+    } catch (error) {
+      console.error('Error loading more search results:', error);
+    } finally {
+      setIsLoadingMoreSearch(false);
     }
   };
 
@@ -308,7 +376,28 @@ export default function Page() {
               ))}
             </div>
 
-            {/* Infinite Scroll Loading Indicator and Load More Button */}
+            {/* Search Results Load More */}
+            {hasSearched && searchPage < searchTotalPages && (
+              <div className="flex justify-center py-8">
+                <Button
+                  onClick={loadMoreSearchResults}
+                  disabled={isLoadingMoreSearch}
+                  variant="outline"
+                  size="lg"
+                >
+                  {isLoadingMoreSearch ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load More'
+                  )}
+                </Button>
+              </div>
+            )}
+
+            {/* Infinite Scroll Loading Indicator and Load More Button for regular feed */}
             {!hasSearched && hasMore && (
               <div className="flex flex-col items-center justify-center py-8 gap-4">
                 <div ref={observerTarget} className="w-full flex justify-center">
@@ -339,7 +428,7 @@ export default function Page() {
             )}
 
             {/* Bottom CTA */}
-            {!hasSearched && !hasMore && (
+            {!hasSearched && (
               <div className="mt-4 p-8 border rounded-xl bg-linear-to-br from-red-500/5 to-pink-500/5">
                 <div className="flex flex-col md:flex-row items-center gap-6 max-w-4xl mx-auto">
                   <div className="shrink-0">

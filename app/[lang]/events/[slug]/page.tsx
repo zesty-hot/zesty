@@ -20,6 +20,7 @@ import {
   Send,
   DollarSign,
 } from "lucide-react";
+import { StartChatButton } from "@/components/start-chat-button";
 
 interface EventData {
   id: string;
@@ -227,7 +228,7 @@ export default function EventPage() {
         <div className="border-b">
           <div className="container mx-auto px-4 py-4">
             <Link href={`/${lang}/events`}>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="lg">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
@@ -334,10 +335,10 @@ export default function EventPage() {
                     </div>
                     <div>
                       <p className="font-semibold">Organized by</p>
-                      <Link href={`/${lang}/vip/${event.organizer.slug}`} className="text-sm text-primary hover:underline">
+                      <StartChatButton variant="ghost" otherUserSlug={event.organizer.slug as string}>
                         {event.organizer.slug}
                         {event.organizer.verified && " ✓"}
-                      </Link>
+                      </StartChatButton>
                     </div>
                   </div>
                 </div>
@@ -393,17 +394,17 @@ export default function EventPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link href={`/${lang}/events`}>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="lg">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
             </Link>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="lg">
                 <Share2 className="w-4 h-4" />
               </Button>
               {event.isOrganizer && (
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="lg">
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
               )}

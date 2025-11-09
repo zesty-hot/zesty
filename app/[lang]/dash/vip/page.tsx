@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { redirect, useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Camera, Eye, DollarSign, Users, Image as ImageIcon } from "lucide-react";
@@ -30,6 +30,8 @@ export default function VIPManagementPage() {
   useEffect(() => {
     if (status === "authenticated") {
       fetchVIPPage();
+    } else {
+      setLoading(false);
     }
   }, [status]);
 
@@ -74,8 +76,7 @@ export default function VIPManagementPage() {
   }
 
   if (status === "unauthenticated") {
-    router.push(`/${lang}/auth/signin?callbackUrl=/${lang}/dash/vip`);
-    return null;
+    redirect(`/${lang}`);
   }
 
   return (

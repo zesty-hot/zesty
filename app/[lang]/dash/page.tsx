@@ -1,14 +1,14 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import Link from "next/link";
-import { 
-  Camera, 
-  Sparkles, 
-  TvMinimalPlay, 
-  Calendar, 
-  Briefcase, 
-  Heart, 
+import {
+  Camera,
+  Sparkles,
+  TvMinimalPlay,
+  Calendar,
+  Briefcase,
+  Heart,
   Settings,
   ArrowRight,
   Coffee,
@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
+import { Spinner } from "@/components/ui/spinner";
 
 const dashboardOptions = [
   {
@@ -64,6 +66,19 @@ const dashboardOptions = [
 
 export default function DashboardPage() {
   const { lang } = useParams<{ lang: string }>();
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
+        <Spinner className="size-8 text-muted-foreground" />
+      </div>
+    )
+  }
+
+  if (status === "unauthenticated") {
+    redirect(`/${lang}`);
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -105,7 +120,7 @@ export default function DashboardPage() {
                 <Card className="group relative overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg cursor-pointer h-full">
                   {/* Gradient Background */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${option.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-                  
+
                   <div className="relative p-6 flex flex-col h-full">
                     {/* Icon */}
                     <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${option.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>

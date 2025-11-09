@@ -2,17 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma, withRetry } from '@/lib/prisma';
 import { Gender, BodyType, Race } from '@prisma/client';
 import { calculateAge } from '@/lib/calculate-age';
+import { calculateDistance } from '@/lib/calculate-distance';
 
 interface FilterData {
   gender: string[];
   age: [number, number];
   bodyType: string[];
   race: string[];
+  sortBy?: string;
 }
 
 interface SearchRequest {
   slug?: string; // For username-based search
-  filters: FilterData;
+  longitude?: number; // For location-based search
+  latitude?: number; // For location-based search
+  filters?: FilterData;
   page: number;
   limit: number;
 }
@@ -20,19 +24,21 @@ interface SearchRequest {
 export async function POST(request: NextRequest) {
   try {
     const body: SearchRequest = await request.json();
-    const { slug, filters, page = 1, limit = 20 } = body;
-
-    if (!slug) {
-      return NextResponse.json(
-        { error: 'Slug is required' },
-        { status: 400 }
-      );
-    }
+    const { slug, longitude, latitude, filters = {
+      gender: [],
+      age: [18, 100],
+      bodyType: [],
+      race: [],
+      sortBy: 'distance'
+    }, page = 1, limit = 20 } = body;
 
     // Build where clause for Prisma
-    const userWhere: any = {
-      slug,
-    };
+    const userWhere: any = {};
+
+    // If searching by slug
+    if (slug) {
+      userWhere.slug = slug;
+    }
 
     // Apply gender filter
     if (filters.gender && filters.gender.length > 0) {
@@ -84,9 +90,10 @@ export async function POST(request: NextRequest) {
             title: true,
             dob: true,
             suburb: true,
+            location: true,
             images: {
               where: { default: true },
-              select: { url: true },
+              select: { url: true, NSFW: true },
               take: 1,
             }
           }
@@ -108,23 +115,56 @@ export async function POST(request: NextRequest) {
       }
     }));
 
-    // Filter by age if specified
-    const filteredPages = vipPages.filter((page) => {
-      if (!page.user.dob) return false;
-      const age = calculateAge(page.user.dob);
-      if (filters.age) {
-        if (age < filters.age[0] || age > filters.age[1]) {
-          return false;
+    // Filter by age and calculate distance if location provided
+    let processedPages = vipPages
+      .map((page) => {
+        if (!page.user.dob) return null;
+        const age = calculateAge(page.user.dob);
+        
+        // Age filter
+        if (filters.age && (age < filters.age[0] || age > filters.age[1])) {
+          return null;
         }
-      }
-      return true;
-    });
+
+        // Calculate distance if location is provided
+        let distance: number | undefined;
+        let distanceText: string | undefined;
+        
+        if (longitude !== undefined && latitude !== undefined && page.user.location) {
+          const [userLat, userLng] = page.user.location
+            .split(',')
+            .map((coord) => parseFloat(coord.trim()));
+          
+          distance = calculateDistance(latitude, longitude, userLat, userLng);
+          distanceText = distance < 1 
+            ? `${Math.round(distance * 1000)}m away`
+            : `${distance.toFixed(1)}km away`;
+        }
+
+        return {
+          ...page,
+          distance,
+          distanceText,
+        };
+      })
+      .filter((page): page is NonNullable<typeof page> => page !== null);
+
+    // Sort based on sortBy filter
+    if (filters.sortBy === 'lowest-price') {
+      processedPages.sort((a, b) => a.subscriptionPrice - b.subscriptionPrice);
+    } else if (filters.sortBy === 'distance' && longitude !== undefined && latitude !== undefined) {
+      processedPages.sort((a, b) => {
+        if (a.distance === undefined) return 1;
+        if (b.distance === undefined) return -1;
+        return a.distance - b.distance;
+      });
+    }
 
     // Paginate
-    const total = filteredPages.length;
+    const total = processedPages.length;
     const totalPages = Math.ceil(total / limit);
     const skip = (page - 1) * limit;
-    const paginatedPages = filteredPages.slice(skip, skip + limit);
+    const paginatedPages = processedPages.slice(skip, skip + limit);
 
     // Format response
     const creators = paginatedPages.map((page) => ({
@@ -133,12 +173,17 @@ export async function POST(request: NextRequest) {
       title: page.user.title,
       description: page.description,
       bannerUrl: page.bannerUrl,
-      image: page.user.images?.[0]?.url || null,
+      image: page.user.images?.[0] ? {
+        url: page.user.images[0].url,
+        NSFW: page.user.images[0].NSFW
+      } : null,
       location: page.user.suburb,
       subscribersCount: page._count.subscriptions,
       contentCount: page._count.content,
       isFree: page.isFree,
       price: page.subscriptionPrice,
+      distance: page.distance,
+      distanceText: page.distanceText,
     }));
 
     return NextResponse.json({

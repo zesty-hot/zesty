@@ -516,6 +516,8 @@ function FeedCard({
   onLike: () => void;
   user: VIPProfileData['user'];
 }) {
+  const [isBlurred, setIsBlurred] = useState(item.NSFW);
+
   return (
     <div className="bg-card border rounded-xl overflow-hidden">
       {/* Post Header */}
@@ -573,13 +575,16 @@ function FeedCard({
 
           {/* Image */}
           {item.type === 'IMAGE' && item.imageUrl && (
-            <div className="relative w-full">
+            <div 
+              className="relative w-full overflow-hidden"
+              onClick={() => item.NSFW && setIsBlurred(!isBlurred)}
+            >
               <img
                 src={item.imageUrl}
                 alt={item.caption || 'Content'}
                 className={cn(
-                  "w-full object-contain max-h-[600px]",
-                  item.NSFW && "blur-xl hover:blur-0 transition-all duration-300 cursor-pointer"
+                  "w-full object-contain max-h-[600px] transition-all duration-300",
+                  isBlurred && "blur-xl cursor-pointer"
                 )}
               />
               {item.NSFW && (
@@ -592,14 +597,17 @@ function FeedCard({
 
           {/* Video */}
           {item.type === 'VIDEO' && (
-            <div className="relative w-full bg-black group/video">
+            <div 
+              className="relative w-full bg-black overflow-hidden group/video"
+              onClick={() => item.NSFW && setIsBlurred(!isBlurred)}
+            >
               {item.thumbnailUrl ? (
                 <img
                   src={item.thumbnailUrl}
                   alt="Video thumbnail"
                   className={cn(
                     "w-full object-contain max-h-[600px] transition-all duration-300",
-                    item.NSFW && "blur-xl group-hover/video:blur-0 cursor-pointer"
+                    isBlurred && "blur-xl cursor-pointer"
                   )}
                 />
               ) : (
@@ -680,12 +688,14 @@ function ContentCard({
   onLike: () => void;
 }) {
   const [showDetails, setShowDetails] = useState(false);
+  const [isBlurred, setIsBlurred] = useState(item.NSFW);
 
   return (
     <div
       className="relative aspect-square bg-muted rounded-lg overflow-hidden group cursor-pointer"
       onMouseEnter={() => setShowDetails(true)}
       onMouseLeave={() => setShowDetails(false)}
+      onClick={() => item.NSFW && setIsBlurred(!isBlurred)}
     >
       {/* Content Display */}
       {item.locked ? (
@@ -702,7 +712,7 @@ function ContentCard({
               alt={item.caption || 'Content'}
               className={cn(
                 "w-full h-full object-cover transition-all duration-300",
-                item.NSFW && "blur-xl group-hover:blur-0"
+                isBlurred && "blur-xl"
               )}
             />
           )}

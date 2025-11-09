@@ -67,6 +67,7 @@ const defaultFilters: FilterData = {
   age: [18, 100],
   bodyType: [],
   race: [],
+  sortBy: 'distance',
 };
 
 export default function Page() {
@@ -78,6 +79,15 @@ export default function Page() {
   const [feedContent, setFeedContent] = useState<FeedContentItem[]>([]);
   const [featuredCreators, setFeaturedCreators] = useState<FeaturedCreator[]>([]);
   const [searchResults, setSearchResults] = useState<FeaturedCreator[]>([]);
+  const [searchPage, setSearchPage] = useState(1);
+  const [searchTotalPages, setSearchTotalPages] = useState(1);
+  const [isLoadingMoreSearch, setIsLoadingMoreSearch] = useState(false);
+  const [lastSearchParams, setLastSearchParams] = useState<{
+    type: 'location' | 'username';
+    location?: any;
+    username?: string;
+    filters: FilterData;
+  } | null>(null);
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -169,18 +179,21 @@ export default function Page() {
 
   const handleUsernameSearch = async (username: string, filters: FilterData) => {
     setIsSearching(true);
+    setSearchPage(1);
+    setLastSearchParams({ type: 'username', username, filters });
     try {
       const response = await fetch('/api/vip/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ slug: username, page: 1, limit: 20 }),
+        body: JSON.stringify({ slug: username, filters, page: 1, limit: 20 }),
       });
 
       if (response.ok) {
         const data = await response.json();
         setSearchResults(data.creators || []);
+        setSearchTotalPages(data.totalPages || 1);
       }
     } catch (error) {
       console.error('Error searching creators:', error);
@@ -190,8 +203,85 @@ export default function Page() {
   };
 
   const handleLocationSearch = async (location: any, filters: FilterData) => {
-    // VIP doesn't use location-based search, redirect to username search
-    console.log('Location search not supported for VIP, please use username search');
+    if (!location?.coordinates) return;
+    
+    setIsSearching(true);
+    setSearchPage(1);
+    setLastSearchParams({ type: 'location', location, filters });
+    try {
+      const response = await fetch('/api/vip/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          longitude: location.coordinates[0],
+          latitude: location.coordinates[1],
+          filters,
+          page: 1, 
+          limit: 20 
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSearchResults(data.creators || []);
+        setSearchTotalPages(data.totalPages || 1);
+      }
+    } catch (error) {
+      console.error('Error searching creators:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const loadMoreSearchResults = async () => {
+    if (!lastSearchParams || isLoadingMoreSearch || searchPage >= searchTotalPages) return;
+
+    setIsLoadingMoreSearch(true);
+    const nextPage = searchPage + 1;
+
+    try {
+      let response;
+      if (lastSearchParams.type === 'location' && lastSearchParams.location) {
+        response = await fetch('/api/vip/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            longitude: lastSearchParams.location.coordinates[0],
+            latitude: lastSearchParams.location.coordinates[1],
+            filters: lastSearchParams.filters,
+            page: nextPage, 
+            limit: 20 
+          }),
+        });
+      } else if (lastSearchParams.type === 'username' && lastSearchParams.username) {
+        response = await fetch('/api/vip/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            slug: lastSearchParams.username, 
+            filters: lastSearchParams.filters,
+            page: nextPage, 
+            limit: 20 
+          }),
+        });
+      }
+
+      if (response && response.ok) {
+        const data = await response.json();
+        setSearchResults([...searchResults, ...(data.creators || [])]);
+        setSearchPage(nextPage);
+      }
+    } catch (error) {
+      console.error('Error loading more search results:', error);
+    } finally {
+      setIsLoadingMoreSearch(false);
+    }
   };
 
   const handleClearSearch = () => {
@@ -344,6 +434,52 @@ export default function Page() {
 
       {/* Features Section */}
       <div className="container mx-auto px-4 py-16">
+        {/* Search Results */}
+        {isSearching ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : searchResults.length > 0 ? (
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold mb-1">Search Results</h2>
+                <p className="text-muted-foreground">{searchResults.length} creator{searchResults.length !== 1 ? 's' : ''} found</p>
+              </div>
+              <Button variant="outline" onClick={handleClearSearch}>
+                Clear Search
+              </Button>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {searchResults.map((creator) => (
+                <CreatorCard key={creator.id} creator={creator} lang={lang as string} />
+              ))}
+            </div>
+            {searchPage < searchTotalPages && (
+              <div className="flex justify-center mt-8">
+                <Button
+                  onClick={loadMoreSearchResults}
+                  disabled={isLoadingMoreSearch}
+                  variant="outline"
+                  size="lg"
+                >
+                  {isLoadingMoreSearch ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load More'
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        {/* Only show features and featured creators if no search results */}
+        {searchResults.length === 0 && !isSearching && (
+          <>
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
           <div className="text-center space-y-3">
             <div className="w-14 h-14 mx-auto bg-purple-500/10 rounded-2xl flex items-center justify-center">
@@ -404,8 +540,10 @@ export default function Page() {
             </div>
           )}
         </div>
+          </>
+        )}
 
-        {/* CTA Section */}
+        {/* CTA Section - Always show */}
         <div className="mt-16 max-w-4xl mx-auto">
           <div className="relative overflow-hidden bg-linear-to-br from-purple-500 to-pink-500 rounded-2xl p-8 md:p-12 text-center text-white">
             <div className="relative z-10 space-y-6">
@@ -442,6 +580,8 @@ function FeedCard({
   onLike: () => void;
   lang: string;
 }) {
+  const [isBlurred, setIsBlurred] = useState(item.NSFW);
+
   return (
     <div className="bg-card border rounded-xl overflow-hidden">
       {/* Post Header */}
@@ -491,13 +631,16 @@ function FeedCard({
 
       {/* Image */}
       {item.type === 'IMAGE' && item.imageUrl && (
-        <div className="relative w-full">
+        <div 
+          className="relative w-full overflow-hidden"
+          onClick={() => item.NSFW && setIsBlurred(!isBlurred)}
+        >
           <img
             src={item.imageUrl}
             alt={item.caption || 'Content'}
             className={cn(
-              "w-full object-contain max-h-[600px]",
-              item.NSFW && "blur-xl hover:blur-0 transition-all duration-300 cursor-pointer"
+              "w-full object-contain max-h-[600px] transition-all duration-300",
+              isBlurred && "blur-xl cursor-pointer"
             )}
           />
           {item.NSFW && (
@@ -510,14 +653,17 @@ function FeedCard({
 
       {/* Video */}
       {item.type === 'VIDEO' && (
-        <div className="relative w-full bg-black group/video">
+        <div 
+          className="relative w-full bg-black overflow-hidden group/video"
+          onClick={() => item.NSFW && setIsBlurred(!isBlurred)}
+        >
           {item.thumbnailUrl ? (
             <img
               src={item.thumbnailUrl}
               alt="Video thumbnail"
               className={cn(
                 "w-full object-contain max-h-[600px] transition-all duration-300",
-                item.NSFW && "blur-xl group-hover/video:blur-0 cursor-pointer"
+                isBlurred && "blur-xl cursor-pointer"
               )}
             />
           ) : (
@@ -576,11 +722,21 @@ function FeedCard({
 }
 
 function CreatorCard({ creator, lang }: { creator: FeaturedCreator; lang: string }) {
+  const [isBlurred, setIsBlurred] = useState(creator.image?.NSFW || false);
+
   return (
     <Link href={`/${lang}/vip/${creator.slug}`}>
       <div className="bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
         {/* Profile Image */}
-        <div className="relative aspect-square bg-linear-to-br from-purple-500/20 to-pink-500/20">
+        <div 
+          className="relative aspect-square bg-linear-to-br from-purple-500/20 to-pink-500/20 overflow-hidden"
+          onClick={(e) => {
+            if (creator.image?.NSFW) {
+              e.preventDefault();
+              setIsBlurred(!isBlurred);
+            }
+          }}
+        >
           {creator.image ? (
             <>
               <img
@@ -588,7 +744,7 @@ function CreatorCard({ creator, lang }: { creator: FeaturedCreator; lang: string
                 alt={creator.slug}
                 className={cn(
                   "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300",
-                  creator.image.NSFW && "blur-xl hover:blur-0 transition-all duration-300 cursor-pointer"
+                  isBlurred && "blur-xl cursor-pointer"
                 )}
               />
               {creator.image.NSFW && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { redirect, useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { 
@@ -42,7 +42,6 @@ interface BillingStats {
 
 export default function BillingPage() {
   const { lang } = useParams<{ lang: string }>();
-  const router = useRouter();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<BillingStats>({
@@ -57,6 +56,8 @@ export default function BillingPage() {
   useEffect(() => {
     if (status === "authenticated") {
       fetchBillingData();
+    } else {
+      setLoading(false);
     }
   }, [status]);
 
@@ -113,15 +114,14 @@ export default function BillingPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Spinner className="w-8 h-8" />
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
+        <Spinner className="size-8 text-muted-foreground" />
       </div>
     );
   }
 
   if (status === "unauthenticated") {
-    router.push(`/${lang}/auth/signin?callbackUrl=/${lang}/dash/billing`);
-    return null;
+    redirect(`/${lang}`);
   }
 
   const incomeTransactions = transactions.filter(t => t.type === "income");

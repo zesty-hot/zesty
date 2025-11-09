@@ -257,6 +257,7 @@ const defaultFilters: FilterData = {
   age: [18, 100],
   bodyType: [],
   race: [],
+  sortBy: 'distance',
 };
 
 export default function Page() {

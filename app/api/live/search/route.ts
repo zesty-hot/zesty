@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma, withRetry } from '@/lib/prisma';
 import { calculateDistance } from '@/lib/calculate-distance';
+import { calculateAge } from '@/lib/calculate-age';
+import { Gender, BodyType, Race } from '@prisma/client';
+
+interface FilterData {
+  gender: string[];
+  age: [number, number];
+  bodyType: string[];
+  race: string[];
+  sortBy?: string;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +18,13 @@ export async function POST(request: NextRequest) {
       slug,
       longitude, 
       latitude,
+      filters = {
+        gender: [],
+        age: [18, 100],
+        bodyType: [],
+        race: [],
+        sortBy: 'distance'
+      },
       page = 1,
       limit = 8,
       liveOnly = false,  // Add parameter to filter only live streams
@@ -99,6 +116,45 @@ export async function POST(request: NextRequest) {
           some: { isLive: true },
         };
       }
+
+      // Build user filters
+      const userWhere: any = {};
+
+      // Apply gender filter
+      if (filters.gender && filters.gender.length > 0) {
+        userWhere.gender = {
+          in: filters.gender.map((g: string) => {
+            if (g === 'woman') return Gender.FEMALE;
+            if (g === 'man') return Gender.MALE;
+            if (g === 'trans') return Gender.TRANS;
+            return g.toUpperCase() as Gender;
+          })
+        };
+      }
+
+      // Apply body type filter
+      if (filters.bodyType && filters.bodyType.length > 0) {
+        userWhere.bodyType = {
+          in: filters.bodyType.map((bt: string) => {
+            if (bt === 'athlete') return BodyType.ATHLETE;
+            if (bt === 'regular') return BodyType.REGULAR;
+            if (bt === 'plus') return BodyType.PLUS;
+            return bt.toUpperCase() as BodyType;
+          })
+        };
+      }
+
+      // Apply race filter
+      if (filters.race && filters.race.length > 0) {
+        userWhere.race = {
+          in: filters.race.map((r: string) => r.toUpperCase() as Race)
+        };
+      }
+
+      // Add user filters to where clause if any exist
+      if (Object.keys(userWhere).length > 0) {
+        whereClause.user = userWhere;
+      }
       
       // Fetch all enabled channels
       const channels = await withRetry(() => prisma.liveStreamPage.findMany({
@@ -108,6 +164,7 @@ export async function POST(request: NextRequest) {
             select: {
               id: true,
               slug: true,
+              dob: true,
               suburb: true,
               location: true,
               verified: true,
@@ -140,6 +197,7 @@ export async function POST(request: NextRequest) {
               roomName: true,
               viewerCount: true,
               startedAt: true,
+              isLive: true,
             },
             take: 1,
           },
@@ -152,10 +210,18 @@ export async function POST(request: NextRequest) {
         },
       }));
 
-      // Calculate distances and filter
+      // Calculate distances, filter by age, and sort
       const channelsWithDistance = channels
         .map((channel) => {
           if (!channel.user.location) return null;
+
+          // Age filter
+          if (channel.user.dob && filters.age) {
+            const age = calculateAge(channel.user.dob);
+            if (age < filters.age[0] || age > filters.age[1]) {
+              return null;
+            }
+          }
 
           const [channelLat, channelLng] = channel.user.location
             .split(',')
@@ -177,7 +243,7 @@ export async function POST(request: NextRequest) {
           };
         })
         .filter((channel): channel is NonNullable<typeof channel> => channel !== null)
-        .sort((a, b) => a.distance - b.distance);
+        .sort((a, b) => a.distance - b.distance); // Always sort by distance for location-based search
 
       // Paginate
       const startIndex = (page - 1) * limit;

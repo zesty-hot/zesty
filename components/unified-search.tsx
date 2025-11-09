@@ -177,7 +177,8 @@ export default function UnifiedSearch({
     filters.gender.length +
     filters.bodyType.length +
     filters.race.length +
-    ((filters.age[0] !== 18 || filters.age[1] !== 100) ? 1 : 0);
+    ((filters.age[0] !== 18 || filters.age[1] !== 100) ? 1 : 0) +
+    ((filters.sortBy && filters.sortBy !== 'distance') ? 1 : 0);
 
   const handleFilterChange = (newFilters: FilterData) => {
     setFilters(newFilters);
@@ -186,11 +187,9 @@ export default function UnifiedSearch({
   const handleApplyFilters = () => {
     setIsDialogOpen(false);
     
-    // Re-trigger search with new filters
+    // Re-trigger search with new filters only if a location has been selected
     if (searchMode === 'location' && selectedLocation) {
       onLocationSearch(selectedLocation, filters);
-    } else if (searchMode === 'username' && selectedUsername) {
-      onUsernameSearch(selectedUsername, filters);
     }
   };
 
@@ -198,11 +197,9 @@ export default function UnifiedSearch({
     setFilters(defaultFilters);
     setIsDialogOpen(false);
     
-    // Re-trigger search with default filters
+    // Re-trigger search with default filters only if a location has been selected
     if (searchMode === 'location' && selectedLocation) {
       onLocationSearch(selectedLocation, defaultFilters);
-    } else if (searchMode === 'username' && selectedUsername) {
-      onUsernameSearch(selectedUsername, defaultFilters);
     }
   };
 
@@ -365,7 +362,7 @@ export default function UnifiedSearch({
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="relative" 
+                    className={`relative ${searchMode === 'username' ? 'cursor-not-allowed! pointer-events-auto!' : ''}`}
                     disabled={searchMode === 'username'}
                   >
                     <Settings />
@@ -389,6 +386,7 @@ export default function UnifiedSearch({
                 <FilterComponent
                   filterData={filters}
                   onFilterChange={handleFilterChange}
+                  pageType={searchType}
                 />
 
                 <DialogFooter className="md:gap-6">
