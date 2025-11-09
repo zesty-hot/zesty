@@ -26,9 +26,13 @@ export async function POST(request: NextRequest) {
     const dob = formData.get("dob") as string;
     const slug = formData.get("slug") as string;
     const image = formData.get("image") as File | null;
+    const ethnicity = formData.get("ethnicity") as string;
+    const gender = formData.get("gender") as string;
+    const bodyType = formData.get("bodyType") as string;
+    const suburb = formData.get("suburb") as string;
 
     // Validate required fields
-    if (!dob || !slug || !image) {
+    if (!dob || !slug || !image || !ethnicity || !gender || !bodyType || !suburb) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
@@ -135,6 +139,10 @@ export async function POST(request: NextRequest) {
         data: {
           dob: dobDate,
           slug: slug.toLowerCase(),
+          race: ethnicity as any, // ASIAN, AFRICAN, HISPANIC, WHITE, DESI, ARABIC
+          gender: gender as any, // MALE, FEMALE, TRANS
+          bodyType: bodyType as any, // REGULAR, PLUS, ATHLETE
+          suburb: suburb,
           onboardingCompleted: true,
         },
       })

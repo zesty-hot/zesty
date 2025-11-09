@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Settings, User, Bell, Lock, CreditCard, HelpCircle } from "lucide-react";
+import { ArrowLeft, Settings, User, Bell, Lock, CreditCard, HelpCircle, IdCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
@@ -88,6 +88,21 @@ export default function SettingsPage() {
                   <h3 className="font-semibold text-lg">Notifications</h3>
                   <p className="text-sm text-muted-foreground">
                     Manage email and push notification preferences
+                  </p>
+                </div>
+                <span className="text-xs text-muted-foreground">Coming Soon</span>
+              </div>
+            </Card>
+
+            <Card className="p-6 opacity-50">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-teal-300 to-cyan-500 flex items-center justify-center">
+                  <IdCard className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg">Verification</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Verify your identity to unlock special features
                   </p>
                 </div>
                 <span className="text-xs text-muted-foreground">Coming Soon</span>
