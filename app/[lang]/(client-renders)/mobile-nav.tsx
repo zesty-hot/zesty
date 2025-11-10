@@ -3,7 +3,7 @@
 import { Calendar, Camera, Clapperboard, Flame, Mail, Search, TvMinimalPlay } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { UnreadMessagesBadge } from "@/components/unread-messages-badge";
 import { useSession } from "next-auth/react";
 
@@ -12,6 +12,25 @@ export default function MobileNav() {
   const pathname = usePathname();
   const [clickedPath, setClickedPath] = useState<string | null>(null);
   const { data: session } = useSession();
+
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+
+  useEffect(() => {
+    // Detect PWA/standalone display mode (modern) or iOS navigator.standalone (legacy)
+    const standalone =
+      // display-mode media query
+      (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+      // iOS Safari PWA flag
+      // @ts-ignore
+      (typeof window !== "undefined" && (window.navigator as any)?.standalone === true);
+
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent || "" : "";
+    const isiOS = /iPhone|iPad|iPod/.test(ua) && !/Windows/.test(ua);
+
+    setIsStandalone(Boolean(standalone));
+    setIsIOS(Boolean(isiOS));
+  }, []);
 
   const handleClick = (path: string) => {
     setClickedPath(path);
@@ -42,8 +61,9 @@ export default function MobileNav() {
         borderTopLeftRadius: "0.375rem",
         borderTopRightRadius: "0.375rem",
         boxShadow: "0 -4px 6px -1px rgb(0 0 0 / 0.1), 0 -2px 4px -2px rgb(0 0 0 / 0.1)",
-        WebkitTransform: "translateZ(30)",
-        transform: "translateZ(30)",
+        // keep a 3D context and optionally nudge up in PWA standalone on iOS to avoid rounded-corner clipping
+        WebkitTransform: `translateZ(30)${isStandalone && isIOS ? " translateY(-8px)" : ""}`,
+        transform: `translateZ(30)${isStandalone && isIOS ? " translateY(-8px)" : ""}`,
         paddingBottom: "max(env(safe-area-inset-bottom, 0.5rem), 0.75rem)",
         paddingTop: "0.5rem"
       }}

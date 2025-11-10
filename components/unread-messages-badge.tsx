@@ -16,9 +16,6 @@ export function UnreadMessagesBadge({ className }: { className?: string }) {
   const { data: session } = useSession();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Debug: This should ALWAYS log when component renders
-  console.log('🔴 UNREAD BADGE RENDER - session:', session?.user ? 'logged in' : 'no session');
-
   useEffect(() => {
     if (!session?.user) return;
 

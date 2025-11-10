@@ -1,68 +1,90 @@
 "use client";
 
-import { redirect, useParams, useRouter } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Heart, Eye, Settings as SettingsIcon, MessageCircle } from "lucide-react";
+import { ArrowLeft, Heart, Eye, EyeOff, Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@/components/ui/spinner";
 
-interface DatingPage {
+interface DatingProfile {
   id: string;
   active: boolean;
-  bio: string;
-  interests: string[];
-  lookingFor: string;
-  matchCount: number;
+  lookingFor: string[];
+  ageRangeMin: number;
+  ageRangeMax: number;
+  createdAt: string;
 }
 
 export default function DatingManagementPage() {
   const { lang } = useParams<{ lang: string }>();
-  const router = useRouter();
   const { data: session, status } = useSession();
+  const [profile, setProfile] = useState<DatingProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [datingPage, setDatingPage] = useState<DatingPage | null>(null);
 
   useEffect(() => {
     if (status === "authenticated") {
-      fetchDatingPage();
+      fetchProfile();
     } else {
       setLoading(false);
     }
   }, [status]);
 
-  const fetchDatingPage = async () => {
+  const fetchProfile = async () => {
     try {
-      const response = await fetch("/api/dating/my-profile");
-      if (response.ok) {
-        const data = await response.json();
-        setDatingPage(data);
+      const res = await fetch("/api/dating/my-profile");
+      if (res.ok) {
+        const { profile } = await res.json();
+        setProfile(profile);
       }
-    } catch (error) {
-      console.error("Error fetching dating page:", error);
+    } catch (err) {
+      console.error("Error fetching dating profile:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleActive = async () => {
-    if (!datingPage) return;
-    
+  const [creating, setCreating] = useState(false);
+
+  const createProfile = async () => {
+    setCreating(true);
     try {
-      const response = await fetch("/api/dating/my-profile", {
-        method: "PATCH",
+      const res = await fetch('/api/dating/create', { method: 'POST' });
+      if (!res.ok) throw new Error('Failed to create profile');
+      const json = await res.json();
+      if (json?.profile) setProfile(json.profile);
+    } catch (err) {
+      console.error('createProfile error:', err);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const toggleActive = async (current: boolean) => {
+    if (!profile) return;
+
+    // optimistic update
+    const prev = profile.active;
+    setProfile({ ...profile, active: !prev });
+
+    try {
+      const res = await fetch("/api/dating/toggle-active", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ active: !datingPage.active }),
+        body: JSON.stringify({ active: !prev }),
       });
 
-      if (response.ok) {
-        setDatingPage({ ...datingPage, active: !datingPage.active });
+      if (!res.ok) {
+        throw new Error("Failed to toggle");
       }
-    } catch (error) {
-      console.error("Error toggling page:", error);
+    } catch (err) {
+      console.error("Toggle failed:", err);
+      // revert
+      setProfile({ ...profile, active: prev });
     }
   };
 
@@ -80,7 +102,6 @@ export default function DatingManagementPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="border-b bg-card/50 backdrop-blur">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
@@ -93,166 +114,83 @@ export default function DatingManagementPage() {
               </Link>
               <div>
                 <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-                  <Heart className="w-8 h-8 text-red-500" />
+                  <Heart className="w-8 h-8 text-rose-500" />
                   Dating Profile
                 </h1>
-                <p className="text-muted-foreground mt-1">
-                  Manage your dating profile and preferences
-                </p>
+                <p className="text-muted-foreground mt-1">Manage your dating profile</p>
               </div>
             </div>
-            {datingPage && (
-              <Link href={`/${lang}/dating`}>
-                <Button variant="outline">
-                  <Eye className="w-4 h-4 mr-2" />
-                  Browse Profiles
-                </Button>
-              </Link>
-            )}
+            <Button onClick={createProfile} disabled={creating}>
+              <Plus className="w-4 h-4 mr-2" />
+              {creating ? 'Creating...' : 'Create / Edit Profile'}
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        {!datingPage ? (
+        {!profile ? (
           <Card className="p-12 text-center">
             <Heart className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">Set Up Your Dating Profile</h2>
+            <h2 className="text-2xl font-semibold mb-2">No Dating Profile</h2>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              You haven't created a dating profile yet. Set up your profile to start matching with people who share your interests and find meaningful connections.
+              You don't have a dating profile yet. Create one to start matching.
             </p>
-            <Link href={`/${lang}/dating/setup`}>
-              <Button size="lg">
-                <Heart className="w-4 h-4 mr-2" />
-                Create Dating Profile
-              </Button>
-            </Link>
+            <Button size="lg" onClick={createProfile} disabled={creating}>
+              <Plus className="w-4 h-4 mr-2" />
+              {creating ? 'Creating...' : 'Create Your Profile'}
+            </Button>
           </Card>
         ) : (
-          <div className="space-y-6">
-            {/* Profile Status Card */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold mb-1">Profile Status</h3>
-                  <p className="text-muted-foreground text-sm">
-                    {datingPage.active 
-                      ? "Your profile is visible and you can receive matches" 
-                      : "Your profile is hidden and you won't receive new matches"}
-                  </p>
+          <Card className="p-6">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-xl font-semibold">Dating Profile</h3>
+                  <Badge variant={profile.active ? "default" : "secondary"}>
+                    {profile.active ? "Published" : "Draft"}
+                  </Badge>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-muted-foreground">
-                    {datingPage.active ? "Active" : "Inactive"}
-                  </span>
-                  <Switch
-                    checked={datingPage.active}
-                    onCheckedChange={toggleActive}
-                  />
+                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                  <span>🎉 Created {new Date(profile.createdAt).toLocaleDateString()}</span>
+                  <span>👀 Looking for: {profile.lookingFor.join(", ") || '—'}</span>
+                  <span>🎂 Age: {profile.ageRangeMin}–{profile.ageRangeMax}</span>
                 </div>
               </div>
-            </Card>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="p-6">
-                <div className="text-muted-foreground text-sm mb-1">Total Matches</div>
-                <div className="text-3xl font-bold flex items-center gap-2">
-                  <Heart className="w-6 h-6" />
-                  {datingPage.matchCount || 0}
+              <div className="flex flex-col items-end gap-3 ml-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{profile.active ? 'Published' : 'Unpublished'}</span>
+                  <Switch checked={profile.active} onCheckedChange={() => toggleActive(profile.active)} />
                 </div>
-              </Card>
-              <Card className="p-6">
-                <div className="text-muted-foreground text-sm mb-1">Profile Views</div>
-                <div className="text-3xl font-bold flex items-center gap-2">
-                  <Eye className="w-6 h-6" />
-                  0
+                <div className="flex gap-2">
+                  <Link href={`/${lang}/dating/${session?.user?.slug || ''}`}>
+                    <Button variant="outline" size="sm">
+                      {profile.active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </Button>
+                  </Link>
+                  <Link href={`/${lang}/dash/dating/create`}>
+                    <Button variant="outline" size="sm">
+                      <Pencil className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                  </Link>
                 </div>
-              </Card>
-              <Card className="p-6">
-                <div className="text-muted-foreground text-sm mb-1">Conversations</div>
-                <div className="text-3xl font-bold flex items-center gap-2">
-                  <MessageCircle className="w-6 h-6" />
-                  0
-                </div>
-              </Card>
+              </div>
             </div>
-
-            {/* Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Link href={`/${lang}/dating`}>
-                <Card className="p-6 hover:border-red-500 transition-colors cursor-pointer h-full">
-                  <Heart className="w-8 h-8 text-red-500 mb-3" />
-                  <h3 className="text-lg font-semibold mb-2">Find Matches</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Browse profiles and connect with people near you
-                  </p>
-                </Card>
-              </Link>
-
-              <Link href={`/${lang}/dating/settings`}>
-                <Card className="p-6 hover:border-red-500 transition-colors cursor-pointer h-full">
-                  <SettingsIcon className="w-8 h-8 text-red-500 mb-3" />
-                  <h3 className="text-lg font-semibold mb-2">Profile Settings</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Update your bio, photos, interests, and preferences
-                  </p>
-                </Card>
-              </Link>
-            </div>
-
-            {/* Profile Preview */}
-            <Card className="p-6">
-              <h3 className="text-xl font-semibold mb-3">About You</h3>
-              <p className="text-muted-foreground mb-4">
-                {datingPage.bio || "No bio set. Add a bio to help potential matches get to know you better."}
-              </p>
-              
-              {datingPage.interests && datingPage.interests.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="font-semibold text-sm mb-2">Interests</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {datingPage.interests.map((interest, i) => (
-                      <span 
-                        key={i} 
-                        className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
-                      >
-                        {interest}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {datingPage.lookingFor && (
-                <div>
-                  <h4 className="font-semibold text-sm mb-2">Looking For</h4>
-                  <p className="text-muted-foreground text-sm">{datingPage.lookingFor}</p>
-                </div>
-              )}
-
-              <Link href={`/${lang}/dating/settings`}>
-                <Button variant="link" className="mt-4 px-0">
-                  Edit Profile
-                </Button>
-              </Link>
-            </Card>
-          </div>
+          </Card>
         )}
 
-        {/* Tips */}
-        <Card className="mt-8 p-6 bg-gradient-to-r from-red-500/5 to-rose-500/10 border-red-500/20">
-          <h3 className="font-semibold text-lg mb-3">Dating Success Tips</h3>
+        <Card className="mt-8 p-6 bg-linear-to-r from-rose-500/5 to-pink-500/10 border-rose-500/20">
+          <h3 className="font-semibold text-lg mb-3">Tips</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>✓ Use recent, clear photos that show your personality</li>
-            <li>✓ Write an authentic bio that reflects who you really are</li>
-            <li>✓ Be specific about your interests and what you're looking for</li>
-            <li>✓ Respond to messages promptly to keep conversations flowing</li>
-            <li>✓ Stay safe by meeting in public places for first dates</li>
+            <li>✓ Use an honest, friendly bio to attract compatible matches</li>
+            <li>✓ Keep your photos clear and recent</li>
+            <li>✓ Update availability and preferences regularly</li>
           </ul>
         </Card>
       </div>
     </div>
   );
 }
+

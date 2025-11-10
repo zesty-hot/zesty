@@ -21,6 +21,22 @@ export default function CookieBanner() {
   const [isClosing, setIsClosing] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [mounted, setMounted] = useState<boolean>(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+
+  useEffect(() => {
+    // Detect PWA/standalone display mode or legacy iOS navigator.standalone
+    const standalone =
+      (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+      // @ts-ignore
+      (typeof window !== "undefined" && (window.navigator as any)?.standalone === true);
+
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent || "" : "";
+    const isiOS = /iPhone|iPad|iPod/.test(ua) && !/Windows/.test(ua);
+
+    setIsStandalone(Boolean(standalone));
+    setIsIOS(Boolean(isiOS));
+  }, []);
 
   // Only run cookie/storage checks on the client after mount to avoid
   // hydration mismatches between server and client HTML.
@@ -154,12 +170,16 @@ export default function CookieBanner() {
         id="cookie-banner"
         className={
           `fixed left-0 right-0 z-50 border px-4 py-3 shadow-lg bg-gray-100 dark:bg-neutral-900 transition-all duration-300 ${isClosing ? "opacity-0 translate-y-full" : "opacity-100 translate-y-0"}`
-          + `${isMobile ? "" : " bottom-0"}`
+          + " bottom-0"
         }
         style={{
-          bottom: isMobile ? "calc(env(safe-area-inset-bottom, 0px) + 0px)" : '',
+          // Keep bottom fixed to avoid Safari repaint; use paddingBottom to respect safe-area and add a small extra offset in standalone iOS PWAs
+          bottom: "0px",
+          paddingBottom: isMobile
+            ? `calc(env(safe-area-inset-bottom, 0px) + ${isStandalone && isIOS ? "8px" : "0px"})`
+            : undefined,
         }}>
-        <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center mx-10">
+  <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center mx-10 pb-2">
           <p className="text-sm mx-2">
             {dict.cookieMessage}
           </p>

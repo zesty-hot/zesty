@@ -150,8 +150,8 @@ export default function EscortsManagementPage() {
                       {ad.description}
                     </p>
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <span>� Created {new Date(ad.createdAt).toLocaleDateString()}</span>
-                      <span>� {ad.services.length} service{ad.services.length !== 1 ? 's' : ''}</span>
+                      <span>🏎️ Created {new Date(ad.createdAt).toLocaleDateString()}</span>
+                      <span>💰 {ad.services.length} service{ad.services.length !== 1 ? 's' : ''}</span>
                       {ad.extras.length > 0 && <span>➕ {ad.extras.length} extra{ad.extras.length !== 1 ? 's' : ''}</span>}
                       {ad.daysAvailable.length > 0 && <span>📆 {ad.daysAvailable.length} day{ad.daysAvailable.length !== 1 ? 's' : ''} available</span>}
                     </div>

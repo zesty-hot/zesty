@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { LiveStreamViewer, LiveStreamBroadcaster } from '../(client-renders)/livekit-components';
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
 import { profile } from "console";
+import { useSession } from "next-auth/react";
 
 interface LiveStreamChannelData {
   id: string;
@@ -74,15 +75,17 @@ interface LiveStreamChannelData {
 export default function LiveStreamPage() {
   const { slug, lang } = useParams();
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [channel, setChannel] = useState<LiveStreamChannelData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isTogglingStream, setIsTogglingStream] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
+    if (status === "loading") return;
     if (!slug) return;
     fetchChannelData();
-  }, [slug]);
+  }, [slug, status]);
 
   const fetchChannelData = async () => {
     try {
@@ -101,6 +104,7 @@ export default function LiveStreamPage() {
           setChannel({
             ...channelData,
             currentStream: channelData.streams?.[0] || null,
+            isOwner: channelData.user.slug === session?.user?.slug,
             followerCount: channelData._count?.followers || 0,
             isFollowing: false, // TODO: get from API
             pastStreams: [], // Will be loaded separately if needed
@@ -424,6 +428,21 @@ export default function LiveStreamPage() {
               <p className="text-muted-foreground text-sm sm:text-base px-4">
                 {channel.user.slug} is not currently streaming
               </p>
+                {channel.isOwner && (
+                  <Button
+                    onClick={startStream}
+                    className="mt-6"
+                    disabled={isTogglingStream || !channel.active}
+                    size="lg"
+                  >
+                    {isTogglingStream ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Power className="w-4 h-4 mr-2" />
+                    )}
+                    Go Live
+                  </Button>
+                )}
             </div>
 
             {/* Profile Information */}
@@ -513,21 +532,7 @@ export default function LiveStreamPage() {
                         Report Channel
                       </Button>
                     </>
-                  )}
-                  {channel.isOwner && (
-                    <Button
-                      onClick={startStream}
-                      disabled={isTogglingStream || !channel.active}
-                      size="lg"
-                    >
-                      {isTogglingStream ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <Power className="w-4 h-4 mr-2" />
-                      )}
-                      Go Live
-                    </Button>
-                  )}
+                    )}
                 </div>
               </div>
 

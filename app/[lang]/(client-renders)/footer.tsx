@@ -3,26 +3,12 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
-const MAIN_NAV_LINKS = [
-  { href: "#", label: "Home" },
-  { href: "#", label: "About" },
-  { href: "#", label: "Products" },
-  { href: "#", label: "Services" },
-  { href: "#", label: "Contact" },
-];
-
-const LEGAL_LINKS = [
-  { href: "#", label: "Privacy Policy" },
-  { href: "#", label: "Terms of Service" },
-  { href: "#", label: "Cookies Settings" },
-];
-
 export function Footer() {
   const { lang } = useParams<{ lang: string }>();
   
   return (
     <footer
-      className="bg-background text-sm pb-6 mt-6"
+      className="bg-background text-sm pb-10 mt-6"
       role="contentinfo"
       aria-label="Site footer"
     >
@@ -44,13 +30,13 @@ export function Footer() {
             aria-label="Legal links"
           >
             <Link
-              href={'#'}
+              href={`/${lang}/privacy`}
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Privacy Policy
             </Link>
             <Link
-              href={'#'}
+              href={`/${lang}/tos`}
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Terms of Service

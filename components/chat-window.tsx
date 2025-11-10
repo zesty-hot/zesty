@@ -12,6 +12,7 @@ import { formatDistanceToNow } from '@/lib/utils';
 import { RiSendPlaneFill } from '@remixicon/react';
 import { MakeOfferButton } from '@/components/make-offer-button';
 import { OfferCard } from '@/components/offer-card';
+import ProfileModal from '@/components/profile-modal';
 
 interface ChatUser {
   id: string;
@@ -72,16 +73,15 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [newMessage, setNewMessage] = useState('');
+  const [profileOpen, setProfileOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Debug: This should ALWAYS log when component renders
-  console.log('🔴 CHAT WINDOW RENDER - chatId:', chatId, 'session status:', status);
+
 
   useEffect(() => {
-    console.log(1);
     if (!session?.user || !chatId) return;
-    console.log(2);
 
     console.log('[CHAT WINDOW] Component mounted, chatId:', chatId);
 
@@ -310,7 +310,14 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
             </div>
           )}
         </Avatar>
-        <h2 className="font-semibold text-lg">{chat.otherUser.slug || 'Unknown User'}</h2>
+        <button
+          onClick={() => setProfileOpen(true)}
+          className="font-semibold text-lg text-left hover:underline focus:outline-none"
+          aria-label={`Open profile for ${chat.otherUser.slug || 'user'}`}
+        >
+          {chat.otherUser.slug || 'Unknown User'}
+        </button>
+        <ProfileModal slug={chat.otherUser.slug} open={profileOpen} onOpenChange={setProfileOpen} />
       </div>
 
       {/* Private Ad Banner */}

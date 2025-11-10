@@ -171,12 +171,6 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    console.log('[OFFER CREATE] Created offer:', offer.id);
-    console.log('[OFFER CREATE] Created message:', offerMessage.id);
-    console.log('[OFFER CREATE] Chat ID:', finalChatId);
-    console.log('[OFFER CREATE] Client ID:', userId);
-    console.log('[OFFER CREATE] Worker ID:', workerId);
-
     // Send push notification to worker
     const clientName = offer.client.slug || 'Someone';
     await Promise.all([

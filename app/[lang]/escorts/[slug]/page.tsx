@@ -356,6 +356,8 @@ export default function EscortSlugPage() {
                           </defs>
                         </svg>
                       </div>
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
                     </>
                   )}
                   {profile.averageRating >= 2.8 && profile.averageRating <= 3.2 && (
@@ -390,6 +392,7 @@ export default function EscortSlugPage() {
                           </defs>
                         </svg>
                       </div>
+                      <RiStarFill size={16} className="text-amber-500 opacity-40" />
                     </>
                   )}
                   {profile.averageRating >= 3.8 && profile.averageRating < 4.2 && (
