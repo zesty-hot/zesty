@@ -2,10 +2,10 @@
 
 import { redirect, useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Settings, User, Bell, Lock, CreditCard, HelpCircle, IdCard } from "lucide-react";
+import { ArrowLeft, Settings, User, Bell, Lock, CreditCard, HelpCircle, IdCard, DoorOpen, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { Spinner } from "@/components/ui/spinner";
 import { PushNotificationToggle } from "@/components/push-notification-toggle";
 
@@ -80,7 +80,7 @@ export default function SettingsPage() {
             </Card>
 
             <Card className="p-6">
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
                   <Bell className="w-6 h-6 text-white" />
                 </div>
@@ -91,6 +91,7 @@ export default function SettingsPage() {
                   </p>
                 </div>
               </div>
+              <div className="border-t border-gray-400 opacity-10"></div>
               <div className="pl-16">
                 <PushNotificationToggle />
               </div>
@@ -123,6 +124,24 @@ export default function SettingsPage() {
                   </p>
                 </div>
                 <span className="text-xs text-muted-foreground">Coming Soon</span>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                  <DoorOpen className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg">Logout</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Sign out of your account on this device
+                  </p>
+                </div>
+                <Button onClick={() => signOut()} variant="outline" size="lg" className="whitespace-nowrap">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
               </div>
             </Card>
 

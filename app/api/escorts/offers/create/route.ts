@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma, withRetry } from "@/lib/prisma";
 import { PrivateAdServiceCategory, DaysAvailable } from "@prisma/client";
-import { sendNewOfferNotification } from "@/lib/push-notifications";
+import { sendNewOfferNotification, sendNewMessageNotification } from "@/lib/push-notifications";
 
 export async function POST(req: NextRequest) {
   try {
@@ -62,6 +62,57 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Create or find chat between client and worker
+    let finalChatId = chatId;
+    
+    if (!finalChatId) {
+      // Check if a chat already exists between these users
+      // We need to find a chat where BOTH users are active
+      const allChats = await withRetry(() =>
+        prisma.chat.findMany({
+          where: {
+            activeUsers: {
+              some: {
+                id: userId,
+              },
+            },
+          },
+          include: {
+            activeUsers: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        })
+      );
+
+      // Find a chat that has exactly these two users
+      const existingChat = allChats.find(chat => {
+        const userIds = chat.activeUsers.map(u => u.id).sort();
+        const targetIds = [userId, workerId].sort();
+        return userIds.length === 2 && 
+               userIds[0] === targetIds[0] && 
+               userIds[1] === targetIds[1];
+      });
+
+      if (existingChat) {
+        finalChatId = existingChat.id;
+      } else {
+        // Create a new chat
+        const newChat = await withRetry(() =>
+          prisma.chat.create({
+            data: {
+              activeUsers: {
+                connect: [{ id: userId }, { id: workerId }],
+              },
+            },
+          })
+        );
+        finalChatId = newChat.id;
+      }
+    }
+
     // Create the offer
     const offer = await withRetry(() =>
       prisma.privateOffer.create({
@@ -76,7 +127,7 @@ export async function POST(req: NextRequest) {
           dayRequested: dayRequested as DaysAvailable | null,
           isAsap: isAsap || false,
           amount: Number.parseInt(amount),
-          chatId: chatId || null,
+          chatId: finalChatId,
           status: "OFFER",
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
         },
@@ -109,11 +160,33 @@ export async function POST(req: NextRequest) {
       })
     );
 
+    // Create a chat message to notify the worker about the new offer
+    const offerMessage = await withRetry(() =>
+      prisma.chatMessage.create({
+        data: {
+          content: `📋 New offer received: ${service.replace(/_/g, " ")} for $${amount}`,
+          senderId: userId,
+          chatId: finalChatId,
+        },
+      })
+    );
+
+    console.log('[OFFER CREATE] Created offer:', offer.id);
+    console.log('[OFFER CREATE] Created message:', offerMessage.id);
+    console.log('[OFFER CREATE] Chat ID:', finalChatId);
+    console.log('[OFFER CREATE] Client ID:', userId);
+    console.log('[OFFER CREATE] Worker ID:', workerId);
+
     // Send push notification to worker
     const clientName = offer.client.slug || 'Someone';
-    await sendNewOfferNotification(workerId, clientName, offer.amount).catch(err => {
-      console.error('Failed to send push notification:', err);
-    });
+    await Promise.all([
+      sendNewOfferNotification(workerId, clientName, offer.amount).catch(err => {
+        console.error('Failed to send offer push notification:', err);
+      }),
+      sendNewMessageNotification(workerId, clientName, offerMessage.content).catch(err => {
+        console.error('Failed to send message push notification:', err);
+      })
+    ]);
 
     return NextResponse.json({ offer }, { status: 201 });
   } catch (error) {

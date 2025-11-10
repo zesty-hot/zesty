@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { formatDistanceToNow } from '@/lib/utils';
 import { RiSendPlaneFill } from '@remixicon/react';
 import { MakeOfferButton } from '@/components/make-offer-button';
+import { OfferCard } from '@/components/offer-card';
 
 interface ChatUser {
   id: string;
@@ -37,10 +38,27 @@ interface Message {
   sender: ChatUser;
 }
 
+interface Offer {
+  id: string;
+  amount: number;
+  service: string;
+  durationMin: number;
+  extras: string[];
+  scheduledFor: Date | null;
+  isAsap: boolean;
+  status: string;
+  createdAt: Date;
+  clientId: string;
+  workerId: string;
+  client: ChatUser;
+  worker: ChatUser;
+}
+
 interface ChatData {
   id: string;
   otherUser: ChatUser;
   messages: Message[];
+  offers?: Offer[];
   otherUserAd?: PrivateAd | null;
 }
 
@@ -49,7 +67,7 @@ interface ChatWindowProps {
 }
 
 export function ChatWindow({ chatId }: ChatWindowProps) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [chat, setChat] = useState<ChatData | null>(null);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -57,8 +75,15 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
+  // Debug: This should ALWAYS log when component renders
+  console.log('🔴 CHAT WINDOW RENDER - chatId:', chatId, 'session status:', status);
+
   useEffect(() => {
+    console.log(1);
     if (!session?.user || !chatId) return;
+    console.log(2);
+
+    console.log('[CHAT WINDOW] Component mounted, chatId:', chatId);
 
     // Fetch initial messages
     fetchMessages();
@@ -78,6 +103,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
           filter: `chatId=eq.${chatId}`,
         },
         (payload) => {
+          console.log('[CHAT WINDOW] New message received via realtime:', payload);
           // Add new message to the list
           const newMsg = payload.new as any;
           setChat((prevChat) => {
@@ -110,12 +136,29 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
           scrollToBottom();
         }
       )
-      .subscribe();
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'PrivateOffer',
+          filter: `chatId=eq.${chatId}`,
+        },
+        (payload) => {
+          console.log('[CHAT WINDOW] Offer changed via realtime:', payload);
+          // Refresh chat data when offers change (created, updated, etc.)
+          fetchMessages();
+        }
+      )
+      .subscribe((status) => {
+        console.log('[CHAT WINDOW] Subscription status:', status);
+      });
 
     return () => {
+      console.log('[CHAT WINDOW] Unsubscribing from chat:', chatId);
       supabase.removeChannel(channel);
     };
-  }, [session, chatId]);
+  }, [session, chatId, status]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -134,6 +177,12 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
       if (!response.ok) throw new Error('Failed to fetch messages');
 
       const data = await response.json();
+      console.log('[CHAT WINDOW] Fetched chat data:', {
+        chatId: data.id,
+        messagesCount: data.messages?.length || 0,
+        offersCount: data.offers?.length || 0,
+        offers: data.offers
+      });
       setChat(data);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -159,7 +208,32 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
 
     setSending(true);
     const messageContent = newMessage.trim();
+    const tempId = `temp-${Date.now()}`;
     setNewMessage(''); // Clear input immediately
+
+    // Optimistically add the message to the UI
+    const optimisticMessage: Message = {
+      id: tempId,
+      content: messageContent,
+      createdAt: new Date(),
+      senderId: (session?.user as any)?.id,
+      sender: {
+        id: (session?.user as any)?.id,
+        slug: (session?.user as any)?.slug || null,
+        images: [],
+      },
+    };
+
+    setChat((prevChat) => {
+      if (!prevChat) return prevChat;
+      return {
+        ...prevChat,
+        messages: [...prevChat.messages, optimisticMessage],
+      };
+    });
+
+    // Scroll to bottom immediately
+    scrollToBottom();
 
     try {
       const response = await fetch(`/api/messages/${chatId}`, {
@@ -172,10 +246,30 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
 
       if (!response.ok) throw new Error('Failed to send message');
 
-      // Message will be added via realtime subscription
+      const actualMessage = await response.json();
+      
+      // Replace the optimistic message with the real one
+      setChat((prevChat) => {
+        if (!prevChat) return prevChat;
+        return {
+          ...prevChat,
+          messages: prevChat.messages.map(msg => 
+            msg.id === tempId ? { ...actualMessage, sender: optimisticMessage.sender } : msg
+          ),
+        };
+      });
     } catch (error) {
       console.error('Error sending message:', error);
+      // Remove the optimistic message on error
+      setChat((prevChat) => {
+        if (!prevChat) return prevChat;
+        return {
+          ...prevChat,
+          messages: prevChat.messages.filter(msg => msg.id !== tempId),
+        };
+      });
       setNewMessage(messageContent); // Restore message on error
+      alert('Failed to send message. Please try again.');
     } finally {
       setSending(false);
     }
@@ -244,72 +338,84 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
 
       {/* Messages */}
       <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4">
-        {chat.messages.length === 0 ? (
+        {chat.messages.length === 0 && (!chat.offers || chat.offers.length === 0) ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-gray-500">No messages yet. Start the conversation!</p>
           </div>
         ) : (
-          chat.messages.map((message) => {
-            const isOwn = message.senderId === (session?.user as any)?.id;
+          (() => {
+            // Combine messages and offers, then sort by createdAt
+            const items: Array<{ type: 'message' | 'offer'; data: Message | Offer; createdAt: Date }> = [
+              ...(chat.messages || []).map(msg => ({ 
+                type: 'message' as const, 
+                data: msg, 
+                createdAt: new Date(msg.createdAt) 
+              })),
+              ...(chat.offers || []).map(offer => ({ 
+                type: 'offer' as const, 
+                data: offer, 
+                createdAt: new Date(offer.createdAt) 
+              })),
+            ].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 
-            return (
-              <div
-                key={message.id}
-                className={`flex w-full mt-2 space-x-3 max-w-xs ${isOwn ? 'ml-auto justify-end' : ''
-                  }`}
-              >
-                {/* {!isOwn && ( */}
-                <div className="shrink-0 h-10 w-10 rounded-full bg-gray-300 overflow-hidden">
-                  {message.sender.images?.[0]?.url ? (
-                    <img
-                      src={message.sender.images[0].url}
-                      alt="User"
-                      className="h-full w-full object-cover"
+            return items.map((item, index) => {
+              if (item.type === 'offer') {
+                const offer = item.data as Offer;
+                const isSent = offer.clientId === (session?.user as any)?.id;
+                
+                return (
+                  <div key={`offer-${offer.id}`} className="my-4">
+                    <OfferCard 
+                      offer={offer} 
+                      type={isSent ? 'sent' : 'received'}
+                      onUpdate={fetchMessages}
                     />
-                  ) : (
-                    <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                      <span className="text-xs font-semibold">
-                        {message.sender.slug?.[0]?.toUpperCase() || '?'}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                {/* )} */}
+                  </div>
+                );
+              } else {
+                const message = item.data as Message;
+                const isOwn = message.senderId === (session?.user as any)?.id;
 
-                <div>
+                return (
                   <div
-                    className={`p-3 ${isOwn
-                        ? 'bg-blue-600 text-white rounded-l-lg rounded-br-lg'
-                        : 'bg-gray-300 rounded-r-lg rounded-bl-lg'
+                    key={`message-${message.id}`}
+                    className={`flex w-full mt-2 space-x-3 max-w-xs ${isOwn ? 'ml-auto justify-end' : ''
                       }`}
                   >
-                    <p className="text-sm">{message.content}</p>
-                  </div>
-                  <span className="text-xs text-gray-500 leading-none">
-                    {formatDistanceToNow(new Date(message.createdAt))}
-                  </span>
-                </div>
+                    <div className="shrink-0 h-10 w-10 rounded-full bg-gray-300 overflow-hidden">
+                      {message.sender.images?.[0]?.url ? (
+                        <img
+                          src={message.sender.images[0].url}
+                          alt="User"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full bg-gray-300 flex items-center justify-center">
+                          <span className="text-xs font-semibold">
+                            {message.sender.slug?.[0]?.toUpperCase() || '?'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
-                {/* {isOwn && (
-                  <div className="shrink-0 h-10 w-10 rounded-full bg-gray-300 overflow-hidden">
-                    {(session?.user as any)?.images?.[0]?.url ? (
-                      <img
-                        src={(session?.user as any).images[0].url}
-                        alt="You"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-xs font-semibold">
-                          {(session?.user as any)?.slug?.[0]?.toUpperCase() || '?'}
-                        </span>
+                    <div>
+                      <div
+                        className={`p-3 ${isOwn
+                            ? 'bg-blue-600 text-white rounded-l-lg rounded-br-lg'
+                            : 'bg-gray-300 rounded-r-lg rounded-bl-lg'
+                          }`}
+                      >
+                        <p className="text-sm">{message.content}</p>
                       </div>
-                    )}
+                      <span className="text-xs text-gray-500 leading-none">
+                        {formatDistanceToNow(new Date(message.createdAt))}
+                      </span>
+                    </div>
                   </div>
-                )} */}
-              </div>
-            );
-          })
+                );
+              }
+            });
+          })()
         )}
         <div ref={messagesEndRef} />
       </div>

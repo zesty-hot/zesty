@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma, withRetry } from "@/lib/prisma";
-import { sendOfferConfirmedNotification } from "@/lib/push-notifications";
+import { sendOfferConfirmedNotification, sendNewMessageNotification } from "@/lib/push-notifications";
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,6 +31,8 @@ export async function POST(req: NextRequest) {
           workerId: true,
           clientId: true,
           status: true,
+          chatId: true,
+          service: true,
         },
       })
     );
@@ -96,6 +98,24 @@ export async function POST(req: NextRequest) {
     await sendOfferConfirmedNotification(offer.clientId, workerName).catch(err => {
       console.error('Failed to send push notification:', err);
     });
+
+    // Create a chat message about the completion
+    if (offer.chatId) {
+      const completeMessage = await withRetry(() =>
+        prisma.chatMessage.create({
+          data: {
+            content: `🎉 Service (${offer.service.replace(/_/g, " ")}) marked as complete! Payment will be released in 48 hours if no dispute is raised.`,
+            senderId: userId,
+            chatId: offer.chatId!,
+          },
+        })
+      );
+
+      // Send message notification
+      await sendNewMessageNotification(offer.clientId, workerName, completeMessage.content).catch(err => {
+        console.error('Failed to send message notification:', err);
+      });
+    }
 
     return NextResponse.json({ offer: updatedOffer });
   } catch (error) {

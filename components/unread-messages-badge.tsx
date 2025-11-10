@@ -16,8 +16,13 @@ export function UnreadMessagesBadge({ className }: { className?: string }) {
   const { data: session } = useSession();
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Debug: This should ALWAYS log when component renders
+  console.log('🔴 UNREAD BADGE RENDER - session:', session?.user ? 'logged in' : 'no session');
+
   useEffect(() => {
     if (!session?.user) return;
+
+    console.log('[UNREAD BADGE] Component mounted');
 
     // Fetch initial unread count
     fetchUnreadCount();
@@ -32,14 +37,18 @@ export function UnreadMessagesBadge({ className }: { className?: string }) {
           schema: 'public',
           table: 'ChatMessage',
         },
-        () => {
+        (payload) => {
+          console.log('[UNREAD BADGE] New message detected via realtime:', payload);
           // Refresh count when new message arrives
           fetchUnreadCount();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[UNREAD BADGE] Subscription status:', status);
+      });
 
     return () => {
+      console.log('[UNREAD BADGE] Unsubscribing');
       supabase.removeChannel(channel);
     };
   }, [session]);
@@ -50,6 +59,7 @@ export function UnreadMessagesBadge({ className }: { className?: string }) {
       if (!response.ok) return;
       
       const data = await response.json();
+      console.log('[UNREAD BADGE] Fetched unread count:', data);
       setUnreadCount(data.totalUnread || 0);
     } catch (error) {
       console.error('Error fetching unread count:', error);

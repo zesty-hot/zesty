@@ -82,21 +82,21 @@ export function OfferCard({ offer, type, onUpdate }: OfferCardProps) {
   const getStatusBadge = () => {
     switch (offer.status) {
       case "OFFER":
-        return <Badge variant="outline">Pending Response</Badge>;
+        return <Badge variant="outline" size="lg">Pending Response</Badge>;
       case "PENDING":
-        return <Badge variant="default">Accepted</Badge>;
+        return <Badge variant="default" size="lg">Accepted</Badge>;
       case "CONFIRMED":
-        return <Badge className="bg-green-600">Completed</Badge>;
+        return <Badge className="bg-green-600" size="lg">Completed</Badge>;
       case "DISPUTED":
-        return <Badge variant="destructive">Disputed</Badge>;
+        return <Badge variant="destructive" size="lg">Disputed</Badge>;
       case "RELEASED":
-        return <Badge className="bg-blue-600">Released</Badge>;
+        return <Badge className="bg-blue-600" size="lg">Released</Badge>;
       case "REJECTED":
-        return <Badge variant="secondary">Rejected</Badge>;
+        return <Badge variant="secondary" size="lg">Rejected</Badge>;
       case "CANCELLED":
-        return <Badge variant="secondary">Cancelled</Badge>;
+        return <Badge variant="secondary" size="lg">Cancelled</Badge>;
       default:
-        return <Badge variant="outline">{offer.status}</Badge>;
+        return <Badge variant="outline" size="lg">{offer.status}</Badge>;
     }
   };
 

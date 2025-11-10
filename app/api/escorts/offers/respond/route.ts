@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma, withRetry } from "@/lib/prisma";
-import { sendOfferAcceptedNotification, sendOfferRejectedNotification } from "@/lib/push-notifications";
+import { sendOfferAcceptedNotification, sendOfferRejectedNotification, sendNewMessageNotification } from "@/lib/push-notifications";
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,6 +37,8 @@ export async function POST(req: NextRequest) {
           clientId: true,
           status: true,
           amount: true,
+          chatId: true,
+          service: true,
         },
       })
     );
@@ -102,6 +104,24 @@ export async function POST(req: NextRequest) {
         console.error('Failed to send push notification:', err);
       });
 
+      // Create a chat message about the rejection
+      if (offer.chatId) {
+        const rejectMessage = await withRetry(() =>
+          prisma.chatMessage.create({
+            data: {
+              content: `❌ Offer for ${offer.service.replace(/_/g, " ")} was declined`,
+              senderId: userId,
+              chatId: offer.chatId!,
+            },
+          })
+        );
+
+        // Send message notification
+        await sendNewMessageNotification(offer.clientId, workerName, rejectMessage.content).catch(err => {
+          console.error('Failed to send message notification:', err);
+        });
+      }
+
       return NextResponse.json({ offer: updatedOffer });
     }
 
@@ -156,6 +176,24 @@ export async function POST(req: NextRequest) {
     await sendOfferAcceptedNotification(offer.clientId, workerName).catch(err => {
       console.error('Failed to send push notification:', err);
     });
+
+    // Create a chat message about the acceptance
+    if (offer.chatId) {
+      const acceptMessage = await withRetry(() =>
+        prisma.chatMessage.create({
+          data: {
+            content: `✅ Offer for ${offer.service.replace(/_/g, " ")} was accepted! Payment of $${offer.amount} is being processed.`,
+            senderId: userId,
+            chatId: offer.chatId!,
+          },
+        })
+      );
+
+      // Send message notification
+      await sendNewMessageNotification(offer.clientId, workerName, acceptMessage.content).catch(err => {
+        console.error('Failed to send message notification:', err);
+      });
+    }
 
     return NextResponse.json({ offer: updatedOffer });
   } catch (error) {

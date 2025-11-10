@@ -6,6 +6,7 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 enum Role {
@@ -466,6 +467,7 @@ model PrivateOffer {
   @@index([clientId, status])
   @@index([workerId, status])
   @@index([status, completedAt])
+  @@index([chatId])
 }
 
 model Chat {
@@ -495,6 +497,9 @@ model ChatMessage {
   chatId String
 
   readBy    MessageRead[]
+
+  @@index([chatId, createdAt])
+  @@index([senderId])
 }
 
 model MessageRead {

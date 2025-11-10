@@ -5,6 +5,52 @@ description: "CRITICAL database protection rules and user privacy requirements"
 
 # 🚨 CRITICAL: DATABASE PROTECTION RULES 🚨
 
+## 🚨 PRISMA MIGRATION RULES - NEVER BREAK THESE 🚨
+
+### ABSOLUTE RULES:
+1. ❌ **NEVER use `prisma db push`**
+2. ❌ **NEVER edit existing migration files** - Once applied, they are immutable
+3. ❌ **NEVER modify the `prisma/migrations/` directory manually**
+4. ✅ **ALWAYS use `prisma migrate dev --name descriptive_name`** for schema changes
+5. ✅ **ALWAYS create a NEW migration** for any schema changes, never modify old ones
+
+### IF SCHEMA CHANGES ARE NEEDED:
+- **Step 1:** Edit `prisma/schema.prisma`
+- **Step 2:** Run `npx prisma migrate dev --name descriptive_name`
+- **Step 3:** Verify the generated migration looks correct
+- **Step 4:** Commit both schema.prisma AND the new migration directory
+
+### POSTGRESQL ENUM GOTCHA:
+When adding enum values that are immediately used as defaults or in column changes, you MUST split the migration into two transactions:
+```sql
+-- Step 1: Add enum value
+ALTER TYPE "EnumName" ADD VALUE IF NOT EXISTS 'NEW_VALUE';
+COMMIT;
+BEGIN;
+-- Step 2: Use the enum value
+ALTER TABLE "TableName" ALTER COLUMN "column" SET DEFAULT 'NEW_VALUE';
+```
+
+### CUSTOM SQL MIGRATIONS:
+When you need to add database features that Prisma can't express (triggers, custom indexes, check constraints, etc.):
+1. **Create empty migration:** `npx prisma migrate dev --name add_custom_feature --create-only`
+2. **Write custom SQL** in the generated `migration.sql` file
+3. **Apply migration:** `npx prisma migrate dev`
+4. **Commit the migration file** along with schema.prisma
+
+Common use cases: CHECK constraints, partial indexes, triggers, GIN/GIST indexes, RLS policies, materialized views.
+
+### NEVER DO THIS:
+- `npx prisma db push`
+- Editing files in `prisma/migrations/*/migration.sql`
+- `npx prisma migrate resolve` without explicit user permission
+- `npx prisma migrate reset` without explicit user permission (see database protection rules)
+
+### IF DRIFT IS DETECTED:
+- **ASK THE USER FIRST** before running any commands
+- Explain the situation and options
+- Let the user decide whether to reset, baseline, or manually fix
+
 ## ⛔ ABSOLUTE PROHIBITION - NEVER RUN PRISMA MIGRATE RESET
 
 **THIS IS A DESTRUCTIVE COMMAND THAT DROPS THE ENTIRE DATABASE AND DESTROYS ALL DATA**
@@ -22,7 +68,6 @@ description: "CRITICAL database protection rules and user privacy requirements"
 3. **SUGGEST NON-DESTRUCTIVE SOLUTIONS:**
    - Manually write and run SQL ALTER TABLE commands
    - Create a new migration: `prisma migrate dev --name descriptive_name`
-   - Use `prisma db push` in development (but ASK FIRST)
    - Provide the exact SQL needed and let user decide how to apply it
 4. **WAIT FOR USER DECISION** - Never make destructive changes automatically
 

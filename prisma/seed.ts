@@ -708,24 +708,30 @@ async function main() {
     const adMeta = adsData.find(d => d.userId === ad.workerId);
     if (!adMeta) continue;
     
-    // Create services for this ad
-    for (let i = 0; i < adMeta.numServices; i++) {
-      const category = randomElement([
-        PrivateAdServiceCategory.IN_CALL,
-        PrivateAdServiceCategory.OUT_CALL,
-        PrivateAdServiceCategory.MASSAGE,
-        PrivateAdServiceCategory.MEET_AND_GREET,
-      ]);
-      
-      // Create descriptive label based on category
-      const labels: Record<PrivateAdServiceCategory, string> = {
-        [PrivateAdServiceCategory.VIDEO_CHAT]: 'Video Chat Session',
-        [PrivateAdServiceCategory.IN_CALL]: 'Incall Service',
-        [PrivateAdServiceCategory.OUT_CALL]: 'Outcall Service',
-        [PrivateAdServiceCategory.MASSAGE]: 'Massage Session',
-        [PrivateAdServiceCategory.MEET_AND_GREET]: 'Meet & Greet',
-      };
-      
+    // Create descriptive label based on category
+    const labels: Record<PrivateAdServiceCategory, string> = {
+      [PrivateAdServiceCategory.VIDEO_CHAT]: 'Video Chat Session',
+      [PrivateAdServiceCategory.IN_CALL]: 'Incall Service',
+      [PrivateAdServiceCategory.OUT_CALL]: 'Outcall Service',
+      [PrivateAdServiceCategory.MASSAGE]: 'Massage Session',
+      [PrivateAdServiceCategory.MEET_AND_GREET]: 'Meet & Greet',
+    };
+    
+    // Create services for this ad - ensure unique categories
+    const availableCategories = [
+      PrivateAdServiceCategory.IN_CALL,
+      PrivateAdServiceCategory.OUT_CALL,
+      PrivateAdServiceCategory.MASSAGE,
+      PrivateAdServiceCategory.MEET_AND_GREET,
+      PrivateAdServiceCategory.VIDEO_CHAT,
+    ];
+    
+    // Shuffle and take unique categories based on numServices
+    const selectedCategories = availableCategories
+      .sort(() => Math.random() - 0.5)
+      .slice(0, Math.min(adMeta.numServices, availableCategories.length));
+    
+    for (const category of selectedCategories) {
       servicesToCreate.push({
         privateAdId: ad.id,
         category,

@@ -46,6 +46,7 @@ export function PushNotificationToggle() {
         </p>
       </div>
       <Button
+        size="lg"
         onClick={handleToggle}
         disabled={isLoading || permission === 'denied'}
         variant={isSubscribed ? 'default' : 'outline'}

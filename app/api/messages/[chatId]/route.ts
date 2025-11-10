@@ -84,11 +84,46 @@ export async function GET(
       });
     }
 
+    // Fetch offers related to this chat
+    const offers = await prisma.privateOffer.findMany({
+      where: {
+        chatId: chatId,
+      },
+      include: {
+        client: {
+          select: {
+            id: true,
+            slug: true,
+            verified: true,
+            images: {
+              where: { default: true },
+              select: { url: true },
+            },
+          },
+        },
+        worker: {
+          select: {
+            id: true,
+            slug: true,
+            verified: true,
+            images: {
+              where: { default: true },
+              select: { url: true },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
     return NextResponse.json({
       id: chat.id,
       otherUser,
       messages: chat.messages,
       otherUserAd,
+      offers,
     });
   } catch (error) {
     console.error("Error fetching messages:", error);
