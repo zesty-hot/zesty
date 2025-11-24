@@ -28,6 +28,7 @@ import { LiveStreamViewer, LiveStreamBroadcaster } from '../(client-renders)/liv
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
 import { profile } from "console";
 import { useSupabaseSession } from "@/lib/supabase/client";
+import ProfileModal from "@/components/profile-modal";
 
 interface LiveStreamChannelData {
   id: string;
@@ -77,9 +78,10 @@ export default function LiveStreamPage() {
   const router = useRouter();
   const { data: session, status, user } = useSupabaseSession();
   const [channel, setChannel] = useState<LiveStreamChannelData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isTogglingStream, setIsTogglingStream] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isTogglingStream, setIsTogglingStream] = useState<boolean>(false);
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+  const [profileOpen, setProfileOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -299,7 +301,12 @@ export default function LiveStreamPage() {
 
                 {/* Streamer Info */}
                 <div className="flex flex-col md:flex-row lg:flex-col xl:flex-row md:items-center lg:items-baseline xl:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
-                  <Link href={`/${lang}/vip/${channel.user.slug}`} className="flex items-center gap-3 pb-4 md:pb-0 lg:pb-4 xl:pb-0">
+
+                  <button
+                    onClick={() => setProfileOpen(true)}
+                    className="flex items-center gap-3 pb-4 md:pb-0 lg:pb-4 xl:pb-0 hover:underline"
+                    aria-label={`Open profile for ${channel.user.slug || 'user'}`}
+                  >
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
                       {channel.user.images[0]?.url ? (
                         <img
@@ -322,12 +329,40 @@ export default function LiveStreamPage() {
                         </p>
                       )}
                     </div>
-                  </Link>
+                  </button>
+                  <ProfileModal slug={channel.user.slug} open={profileOpen} onOpenChange={setProfileOpen} />
+
+
+
+                  {/* <Link href={`/${lang}/vip/${channel.user.slug}`} className="flex items-center gap-3 pb-4 md:pb-0 lg:pb-4 xl:pb-0">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
+                      {channel.user.images[0]?.url ? (
+                        <img
+                          src={channel.user.images[0].url}
+                          alt={channel.user.slug || 'Streamer'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center font-bold">
+                          {channel.user.slug?.[0]?.toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-semibold">{channel.user.slug}</p>
+                      {channel.user.suburb && (
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {channel.user.suburb}
+                        </p>
+                      )}
+                    </div>
+                  </Link> */}
 
                   {!channel.isOwner && (
                     <div className="flex gap-2 flex-wrap w-full md:w-auto lg:w-full xl:w-auto"
                     >
-                      <div className="flex gap-2 flex-col w-full md:w-auto lg:w-full xl:w-auto">
+                      {/* <div className="flex gap-2 flex-col w-full md:w-auto lg:w-full xl:w-auto">
                         {(channel.user.vipPage || channel.user.privateAds.length > 0) && (
                           <Menu>
                             <MenuTrigger render={
@@ -366,7 +401,7 @@ export default function LiveStreamPage() {
                             </MenuPopup>
                           </Menu>
                         )}
-                      </div>
+                      </div> */}
 
 
                       <Button onClick={toggleFollow} className="px-4 sm:px-6 flex-1 md:flex-initial lg:flex-1 xl:flex-initial" variant={isFollowing ? "outline" : "default"}>
@@ -428,21 +463,21 @@ export default function LiveStreamPage() {
               <p className="text-muted-foreground text-sm sm:text-base px-4">
                 {channel.user.slug} is not currently streaming
               </p>
-                {channel.isOwner && (
-                  <Button
-                    onClick={startStream}
-                    className="mt-6"
-                    disabled={isTogglingStream || !channel.active}
-                    size="lg"
-                  >
-                    {isTogglingStream ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Power className="w-4 h-4 mr-2" />
-                    )}
-                    Go Live
-                  </Button>
-                )}
+              {channel.isOwner && (
+                <Button
+                  onClick={startStream}
+                  className="mt-6"
+                  disabled={isTogglingStream || !channel.active}
+                  size="lg"
+                >
+                  {isTogglingStream ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Power className="w-4 h-4 mr-2" />
+                  )}
+                  Go Live
+                </Button>
+              )}
             </div>
 
             {/* Profile Information */}
@@ -532,7 +567,7 @@ export default function LiveStreamPage() {
                         Report Channel
                       </Button>
                     </>
-                    )}
+                  )}
                 </div>
               </div>
 

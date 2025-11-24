@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   const supaBase = await serverSupabase();
   const { data: session } = await supaBase.auth.getUser();
 
-  const user = await withRetry(() => prisma.user.findFirst({
+  const user = await withRetry(() => prisma.user.findUnique({
     where: { supabaseId: session?.user?.id },
     include: {
       vipPage: true

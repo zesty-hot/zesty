@@ -81,6 +81,7 @@ export default function Page() {
   }, []);
 
   const fetchProfiles = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch('/api/dating/discover', {
         method: 'POST',
@@ -317,7 +318,7 @@ export default function Page() {
           {/* How It Works */}
           <div className="mt-24 text-center max-w-4xl mx-auto space-y-12">
             <h2 className="text-4xl font-bold">How It Works</h2>
-            
+
             <div className="grid md:grid-cols-3 gap-8 text-left">
               <div className="space-y-3">
                 <div className="w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-lg">
@@ -368,176 +369,176 @@ export default function Page() {
   }
 
   if (isLoading) {
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <Flame className="w-16 h-16 mx-auto mb-4 text-rose-500 animate-pulse" />
-            <p className="text-muted-foreground">Finding matches...</p>
-          </div>
-        </div>
-      );
-    }
-
-    if (!currentProfile || currentIndex >= profiles.length) {
-      return (
-        <div className="flex items-center justify-center min-h-screen p-4">
-          <div className="text-center max-w-md space-y-6">
-            <div className="w-24 h-24 mx-auto bg-muted flex items-center justify-center">
-              <Users className="w-12 h-12 text-muted-foreground" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">No More Profiles</h2>
-              <p className="text-muted-foreground">
-                You've seen everyone in your area. Check back later for new members!
-              </p>
-            </div>
-            <div className="flex gap-3 justify-center">
-              <Button onClick={() => {
-                setCurrentIndex(0);
-                fetchProfiles();
-              }}>
-                Refresh
-              </Button>
-              <Link href={`/${lang}/dating/matches`}>
-                <Button variant="outline">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  View Matches
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // Auto-skip profiles without images
-    if (!currentProfile.images || currentProfile.images.length === 0) {
-      // Automatically skip to next profile
-      setTimeout(() => {
-        setCurrentIndex(currentIndex + 1);
-        if (currentIndex >= profiles.length - 3) {
-          fetchProfiles();
-        }
-      }, 0);
-      
-      // Return empty while skipping
-      return null;
-    }
-
-    const currentImage = currentProfile.images[currentImageIndex] || currentProfile.images[0];
-    const rotation = dragOffset.x * 0.05;
-    const opacity = 1 - Math.abs(dragOffset.x) / 300;
-
     return (
-      <div className="min-h-screen bg-background pb-20">
-        {/* Header */}
-        <div className="border-b bg-background/95 backdrop-blur-sm z-40">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Flame className="w-6 h-6 text-rose-500" />
-              <h1 className="text-xl font-bold">Zesty Dating</h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link href={`/${lang}/dating/profile`}>
-                <Button variant="ghost" size="lg">
-                  <Settings className="w-5 h-5" />
-                </Button>
-              </Link>
-            </div>
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
+        <div className="text-center">
+          <Flame className="w-16 h-16 mx-auto mb-4 text-rose-500 animate-pulse" />
+          <p className="text-muted-foreground">Finding matches...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentProfile || currentIndex >= profiles.length) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52 p-4">
+        <div className="text-center max-w-md space-y-6">
+          <div className="w-24 h-24 mx-auto bg-muted flex items-center justify-center">
+            <Users className="w-12 h-12 text-muted-foreground" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold mb-2">No More Profiles</h2>
+            <p className="text-muted-foreground">
+              You've seen everyone in your area. Check back later for new members!
+            </p>
+          </div>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => {
+              setCurrentIndex(0);
+              fetchProfiles();
+            }}>
+              Refresh
+            </Button>
+            <Link href={`/${lang}/dating/matches`}>
+              <Button variant="outline">
+                <MessageCircle className="w-4 h-4 mr-2" />
+                View Matches
+              </Button>
+            </Link>
           </div>
         </div>
+      </div>
+    );
+  }
 
-        {/* Main Swipe Area */}
-        <div className="container mx-auto px-4 py-6 max-w-2xl">
-          <div className="relative h-[600px] md:h-[700px]">
-            
-            {/* Rules Card - Shows before profiles */}
-            {showRulesDialog && (
-              <div className="absolute inset-0 rounded-3xl overflow-hidden border-4 border-background shadow-2xl bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-                <div className="relative w-full h-full flex flex-col">
-                  {/* Header with icon */}
-                  <div className="bg-gradient-to-r from-rose-500 to-pink-500 p-4 text-white">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                        <Heart className="w-6 h-6 text-white fill-current" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold">Welcome to Dating</h2>
-                        <p className="text-sm text-white/90">Please read our guidelines</p>
-                      </div>
+  // Auto-skip profiles without images
+  if (!currentProfile.images || currentProfile.images.length === 0) {
+    // Automatically skip to next profile
+    setTimeout(() => {
+      setCurrentIndex(currentIndex + 1);
+      if (currentIndex >= profiles.length - 3) {
+        fetchProfiles();
+      }
+    }, 0);
+
+    // Return empty while skipping
+    return null;
+  }
+
+  const currentImage = currentProfile.images[currentImageIndex] || currentProfile.images[0];
+  const rotation = dragOffset.x * 0.05;
+  const opacity = 1 - Math.abs(dragOffset.x) / 300;
+
+  return (
+    <div className="min-h-screen bg-background pb-20">
+      {/* Header */}
+      <div className="border-b bg-background/95 backdrop-blur-sm z-40">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Flame className="w-6 h-6 text-rose-500" />
+            <h1 className="text-xl font-bold">Zesty Dating</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href={`/${lang}/dating/profile`}>
+              <Button variant="ghost" size="lg">
+                <Settings className="w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Swipe Area */}
+      <div className="container mx-auto px-4 py-6 max-w-2xl">
+        <div className="relative h-[600px] md:h-[700px]">
+
+          {/* Rules Card - Shows before profiles */}
+          {showRulesDialog && (
+            <div className="absolute inset-0 rounded-3xl overflow-hidden border-4 border-background shadow-2xl bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+              <div className="relative w-full h-full flex flex-col">
+                {/* Header with icon */}
+                <div className="bg-gradient-to-r from-rose-500 to-pink-500 p-4 text-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                      <Heart className="w-6 h-6 text-white fill-current" />
                     </div>
-                  </div>
-
-                  {/* Scrollable content */}
-                  <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                    <div className="space-y-4">
-                      <div className="flex gap-3 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
-                        <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center shrink-0">
-                          <Heart className="w-5 h-5 text-green-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-base mb-1">For Genuine Connections Only</h4>
-                          <p className="text-sm text-muted-foreground">
-                            This platform is designed for people to meet each other, make friends, date, or find relationships.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-3 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
-                        <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center shrink-0">
-                          <X className="w-5 h-5 text-red-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-base mb-1">No Commercial Services</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Advertising paid services, escort services, or any commercial activities is strictly prohibited and will result in immediate termination.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-3 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
-                          <Shield className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-base mb-1">Respect & Safety</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Treat everyone with respect. Harassment, hate speech, or inappropriate behavior will not be tolerated.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-3 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
-                        <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center shrink-0">
-                          <UserCheck className="w-5 h-5 text-purple-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-base mb-1">Be Authentic</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Use real photos and honest information. Fake profiles and catfishing are prohibited.
-                          </p>
-                        </div>
-                      </div>
+                    <div>
+                      <h2 className="text-xl font-bold">Welcome to Dating</h2>
+                      <p className="text-sm text-white/90">Please read our guidelines</p>
                     </div>
-                  </div>
-
-                  {/* Action button at bottom */}
-                  <div className="p-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-t border-border">
-                    <Button 
-                      size="lg"
-                      onClick={handleAcceptRules}
-                      className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white text-lg py-4"
-                    >
-                      <Heart className="w-5 h-5 mr-2" />
-                      I Understand & Agree
-                    </Button>
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* Card Stack */}
-            {!showRulesDialog && (
+                {/* Scrollable content */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                  <div className="space-y-4">
+                    <div className="flex gap-3 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+                      <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center shrink-0">
+                        <Heart className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-base mb-1">For Genuine Connections Only</h4>
+                        <p className="text-sm text-muted-foreground">
+                          This platform is designed for people to meet each other, make friends, date, or find relationships.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+                      <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center shrink-0">
+                        <X className="w-5 h-5 text-red-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-base mb-1">No Commercial Services</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Advertising paid services, escort services, or any commercial activities is strictly prohibited and will result in immediate termination.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
+                        <Shield className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-base mb-1">Respect & Safety</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Treat everyone with respect. Harassment, hate speech, or inappropriate behavior will not be tolerated.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+                      <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center shrink-0">
+                        <UserCheck className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-base mb-1">Be Authentic</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Use real photos and honest information. Fake profiles and catfishing are prohibited.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action button at bottom */}
+                <div className="p-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-t border-border">
+                  <Button
+                    size="lg"
+                    onClick={handleAcceptRules}
+                    className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white text-lg py-4"
+                  >
+                    <Heart className="w-5 h-5 mr-2" />
+                    I Understand & Agree
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Card Stack */}
+          {!showRulesDialog && (
             <div className="absolute inset-0">
               {/* Next card (behind) */}
               {profiles[currentIndex + 1] && (
@@ -582,7 +583,7 @@ export default function Page() {
 
                   {/* NSFW Warning Badge - Clickable Overlay */}
                   {currentImage.NSFW && !unblurredImages.has(currentImage.url) && (
-                    <div 
+                    <div
                       className="absolute inset-0 flex items-center justify-center cursor-pointer z-20"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -718,11 +719,11 @@ export default function Page() {
                 </div>
               </div>
             </div>
-            )}
-          </div>
+          )}
+        </div>
 
-          {/* Action buttons - Hidden when rules dialog is showing */}
-          {!showRulesDialog && (
+        {/* Action buttons - Hidden when rules dialog is showing */}
+        {!showRulesDialog && (
           <div className="flex items-center justify-center gap-4 mt-8">
             <Button
               size="lg"
@@ -754,15 +755,15 @@ export default function Page() {
               <Heart className="w-8 h-8 text-green-500" />
             </Button>
           </div>
-          )}
+        )}
 
-          {/* Stats - Hidden when rules dialog is showing */}
-          {!showRulesDialog && (
+        {/* Stats - Hidden when rules dialog is showing */}
+        {!showRulesDialog && (
           <div className="text-center mt-6 text-sm text-muted-foreground">
             {profiles.slice(currentIndex).filter(p => p.images && p.images.length > 0).length} profiles remaining
           </div>
-          )}
-        </div>
+        )}
       </div>
-    );
+    </div>
+  );
 }

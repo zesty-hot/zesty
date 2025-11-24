@@ -143,11 +143,15 @@ export async function POST(
   try {
     const supaBase = await serverSupabase();
     const { data: session } = await supaBase.auth.getUser();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const user = await withRetry(() => prisma.user.findUnique({
-      where: { supabaseId: session?.user?.id },
+      where: { supabaseId: session.user.id },
       select: { zesty_id: true },
     }));
-    
+
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -207,7 +211,7 @@ export async function POST(
     }));
 
     const recipientId = chatWithUsers?.activeUsers.find((chatUser) => chatUser.zesty_id !== user.zesty_id)?.zesty_id;
-    
+
     if (recipientId) {
       // Send push notification to recipient
       const senderName = message.sender.slug || 'Someone';

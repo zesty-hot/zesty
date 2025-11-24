@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     const supaBase = await serverSupabase();
     const { data: session } = await supaBase.auth.getUser();
-    
+
     const user = await withRetry(() => prisma.user.findUnique({
       where: { supabaseId: session?.user?.id },
     }));
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     // Check if this is the stream owner by finding the active stream session
     const stream = await withRetry(() => prisma.liveStream.findUnique({
       where: { roomName },
-      select: { 
+      select: {
         channel: {
           select: { zesty_id: true },
         },

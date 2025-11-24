@@ -28,40 +28,40 @@ export async function POST(req: NextRequest) {
 
     // Step 4: fetch VIP page
     let vipPage = await withRetry(() => prisma.vIPPage.findFirst({
-        where: {
-          user: { slug: decodedSlug },
-          active: true,
-        },
-        include: {
-          user: {
-            select: {
-              zesty_id: true,
-              title: true,
-              slug: true,
-              bio: true,
-              location: true,
-              suburb: true,
-              verified: true,
-              lastActive: true,
-              createdAt: true,
-              images: {
-                where: { default: true },
-                select: { url: true },
-                take: 1,
-              },
+      where: {
+        user: { slug: decodedSlug },
+        active: true,
+      },
+      include: {
+        user: {
+          select: {
+            zesty_id: true,
+            title: true,
+            slug: true,
+            bio: true,
+            location: true,
+            suburb: true,
+            verified: true,
+            lastActive: true,
+            createdAt: true,
+            images: {
+              where: { default: true },
+              select: { url: true },
+              take: 1,
             },
           },
-          discountOffers: {
-            where: {
-              active: true,
-              validFrom: { lte: new Date() },
-              OR: [{ validUntil: null }, { validUntil: { gte: new Date() } }],
-            },
-            orderBy: { createdAt: 'desc' },
-            take: 1,
-          },
-          _count: { select: { content: true } },
         },
+        discountOffers: {
+          where: {
+            active: true,
+            validFrom: { lte: new Date() },
+            OR: [{ validUntil: null }, { validUntil: { gte: new Date() } }],
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        _count: { select: { content: true } },
+      },
     }));
 
     if (!vipPage) {
@@ -96,14 +96,14 @@ export async function POST(req: NextRequest) {
     try {
       const contentQuery: any = {
         where: { vipPageId: vipPage.id },
-        include: { 
-          _count: { 
-            select: { 
-              likes: true, 
-              comments: true 
-            } 
-          }, 
-          likes: user?.zesty_id ? { where: { zesty_id: user.zesty_id }, select: { id: true } } : false 
+        include: {
+          _count: {
+            select: {
+              likes: true,
+              comments: true
+            }
+          },
+          likes: user?.zesty_id ? { where: { zesty_id: user.zesty_id }, select: { id: true } } : false
         },
         orderBy: { createdAt: 'desc' },
         take: limit + 1,
@@ -140,18 +140,18 @@ export async function POST(req: NextRequest) {
       },
       select: {
         id: true,
-          streams: {
-            where: { isLive: true },
-            select: {
-              id: true,
-              title: true,
-              roomName: true,
-              viewerCount: true,
-              startedAt: true,
-              isLive: true,
-            },
-            take: 1,
+        streams: {
+          where: { isLive: true },
+          select: {
+            id: true,
+            title: true,
+            roomName: true,
+            viewerCount: true,
+            startedAt: true,
+            isLive: true,
           },
+          take: 1,
+        },
       },
     }));
 

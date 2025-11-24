@@ -9,17 +9,22 @@ export async function POST(req: NextRequest) {
     const supaBase = await serverSupabase();
     const { data: session } = await supaBase.auth.getUser();
 
-    let user = await withRetry(() =>
-      prisma.user.findFirst({
-        where: {
-          supabaseId: session?.user?.id,
-        },
-        select: { zesty_id: true },
-      })
-    );
 
     // If user is logged in, fetch their subscription feed
-    if (user) {
+    if (session?.user?.id) {
+      let user = await withRetry(() =>
+        prisma.user.findUnique({
+          where: {
+            supabaseId: session?.user?.id,
+          },
+          select: { zesty_id: true },
+        })
+      );
+
+      if (!user) {
+        return NextResponse.json({ error: "Account not found" }, { status: 401 });
+      }
+
       // Get user's active subscriptions
       const subscriptions = await withRetry(() =>
         prisma.vIPSubscription.findMany({
@@ -90,7 +95,7 @@ export async function POST(req: NextRequest) {
         contentQuery.skip = 1;
       }
 
-      const rawContent = await withRetry(() => 
+      const rawContent = await withRetry(() =>
         prisma.vIPContent.findMany(contentQuery)
       );
 
@@ -152,7 +157,7 @@ export async function POST(req: NextRequest) {
     if (totalPages > 8) {
       // Get random offset
       const randomOffset = Math.floor(Math.random() * Math.max(0, totalPages - 8));
-      
+
       featuredPages = await withRetry(() =>
         prisma.vIPPage.findMany({
           where: {

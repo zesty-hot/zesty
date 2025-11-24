@@ -28,7 +28,7 @@ export interface EscortProfileData {
     acceptsBodyType: BodyType[];
     acceptsAgeRange: number[];
     daysAvailable: PrivateAdDaysAvailable[];
-    followers: [];
+    followers: any[];
     services: ({
       options: {
         id: string;
@@ -352,7 +352,7 @@ export default function Page() {
                 ))}
               </div>
 
-              <Skeleton className="h-14 rounded-lg w-full"/>
+              <Skeleton className="h-14 rounded-lg w-full" />
             </div>
           ) : !featuredProfile ? (
             <div className="text-center py-12">

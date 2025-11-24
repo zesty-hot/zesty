@@ -74,7 +74,7 @@ export default function EventsManagementPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="border-b bg-card/50 backdrop-blur">
+      <div className="border-b backdrop-blur">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -95,7 +95,7 @@ export default function EventsManagementPage() {
               </div>
             </div>
             <Link href={`/${lang}/dash/events/setup`}>
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
+              <Button className="bg-indigo-600 hover:bg-indigo-700 border-indigo-300 text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Event
               </Button>

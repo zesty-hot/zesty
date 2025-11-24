@@ -13,7 +13,8 @@ type Props = {
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, lang } = await params;
-  
+  const decodedSlug = decodeURIComponent(slug);
+
   try {
     // Fetch the live stream page data
     const streamPage = await withRetry(() =>
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         where: {
           active: true,
           user: {
-            slug: slug,
+            slug: decodedSlug,
           },
         },
         select: {
@@ -89,28 +90,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     // Truncate description
     const liveStatus = isLive
-      ? `🔴 LIVE NOW - ${currentStream.viewerCount} viewers! ${
-          currentStream.title ? `"${currentStream.title}"` : ""
-        }`
+      ? `🔴 LIVE NOW - ${currentStream.viewerCount} viewers! ${currentStream.title ? `"${currentStream.title}"` : ""
+      }`
       : "";
 
     const description = liveStatus
-      ? `${liveStatus} ${
-          streamPage.description
-            ? streamPage.description.substring(0, 100)
-            : ""
-        }`
+      ? `${liveStatus} ${streamPage.description
+        ? streamPage.description.substring(0, 100)
+        : ""
+      }`
       : streamPage.description
-      ? streamPage.description.length > 155
-        ? `${streamPage.description.substring(0, 152)}...`
-        : streamPage.description
-      : streamPage.user.bio
-      ? streamPage.user.bio.length > 155
-        ? `${streamPage.user.bio.substring(0, 152)}...`
+        ? streamPage.description.length > 155
+          ? `${streamPage.description.substring(0, 152)}...`
+          : streamPage.description
         : streamPage.user.bio
-      : `Live streams from ${streamPage.user.title || streamPage.user.slug}. ${
-          streamPage._count.followers
-        } followers. Watch live adult entertainment now!`;
+          ? streamPage.user.bio.length > 155
+            ? `${streamPage.user.bio.substring(0, 152)}...`
+            : streamPage.user.bio
+          : `Live streams from ${streamPage.user.title || streamPage.user.slug}. ${streamPage._count.followers
+          } followers. Watch live adult entertainment now!`;
 
     // Build title
     const titleParts = [];

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   try {
     const {
       slug,
-      longitude, 
+      longitude,
       latitude,
       filters = {
         gender: [],
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     } = await request.json();
 
     let decodedSlug = decodeURIComponent(slug);
-  
+
     // Search by username/slug - return the channel (even if not live)
     if (slug) {
       const channel = await withRetry(() => prisma.liveStreamPage.findFirst({
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
       const whereClause: any = {
         active: true,
       };
-      
+
       // Optionally filter for live streams only
       if (liveOnly) {
         whereClause.streams = {
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
       if (Object.keys(userWhere).length > 0) {
         whereClause.user = userWhere;
       }
-      
+
       // Fetch all enabled channels
       const channels = await withRetry(() => prisma.liveStreamPage.findMany({
         where: whereClause,
@@ -237,7 +237,7 @@ export async function POST(request: NextRequest) {
           return {
             ...channel,
             distance,
-            distanceText: distance < 1 
+            distanceText: distance < 1
               ? `${Math.round(distance * 1000)}m away`
               : `${distance.toFixed(1)}km away`,
           };
@@ -259,19 +259,19 @@ export async function POST(request: NextRequest) {
 
     // Default: return channels with pagination
     const skip = (page - 1) * limit;
-    
+
     // Build where clause
     const whereClause: any = {
       active: true,
     };
-    
+
     // Optionally filter for live streams only
     if (liveOnly) {
       whereClause.streams = {
         some: { isLive: true },
       };
     }
-    
+
     const [channels, total] = await Promise.all([
       withRetry(() => prisma.liveStreamPage.findMany({
         where: whereClause,
@@ -289,6 +289,9 @@ export async function POST(request: NextRequest) {
                 take: 1,
               },
               vipPage: {
+                where: {
+                  active: true,
+                },
                 select: {
                   active: true,
                 },

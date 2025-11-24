@@ -13,7 +13,8 @@ type Props = {
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, lang } = await params;
-  
+  const decodedSlug = decodeURIComponent(slug);
+
   try {
     // Fetch the VIP page data
     const vipPage = await withRetry(() =>
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         where: {
           active: true,
           user: {
-            slug: slug,
+            slug: decodedSlug,
           },
         },
         select: {
@@ -86,13 +87,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ? `${vipPage.description.substring(0, 152)}...`
         : vipPage.description
       : vipPage.user.bio
-      ? vipPage.user.bio.length > 155
-        ? `${vipPage.user.bio.substring(0, 152)}...`
-        : vipPage.user.bio
-      : `Exclusive VIP content from ${vipPage.user.title || vipPage.user.slug}. ${
-          vipPage.isFree
-            ? "Free to follow!"
-            : `Subscribe for $${(vipPage.subscriptionPrice / 100).toFixed(2)}/month.`
+        ? vipPage.user.bio.length > 155
+          ? `${vipPage.user.bio.substring(0, 152)}...`
+          : vipPage.user.bio
+        : `Exclusive VIP content from ${vipPage.user.title || vipPage.user.slug}. ${vipPage.isFree
+          ? "Free to follow!"
+          : `Subscribe for $${(vipPage.subscriptionPrice / 100).toFixed(2)}/month.`
         } ${vipPage._count.content} posts available.`;
 
     // Build title

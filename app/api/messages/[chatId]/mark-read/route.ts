@@ -10,12 +10,12 @@ export async function POST(
   try {
     const supaBase = await serverSupabase();
     const { data: session } = await supaBase.auth.getUser();
-    
+
     const user = await withRetry(() => prisma.user.findUnique({
       where: { supabaseId: session?.user?.id },
       select: { zesty_id: true },
     }));
-    
+
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

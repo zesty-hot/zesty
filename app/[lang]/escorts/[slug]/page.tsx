@@ -24,6 +24,7 @@ import { EscortProfileData } from "../page";
 import { cn } from "@/lib/utils";
 import { RiStarFill } from "@remixicon/react";
 import { StartChatButton } from "@/components/start-chat-button";
+import { toastManager } from "@/components/ui/toast";
 
 export default function EscortSlugPage() {
   const { lang, slug } = useParams();
@@ -154,6 +155,22 @@ export default function EscortSlugPage() {
 
       if (!res.ok) {
         throw new Error("Failed to add to favourites");
+      } else {
+
+        if (profile) {
+          if (profile?.ad.followers?.length > 0) {
+            profile.ad.followers = [];
+            toastManager.add({
+              title: "Removed from favourites",
+            });
+          } else {
+            profile.ad.followers = [{ user: true }];
+            toastManager.add({
+              title: "Added to favourites",
+              description: "You can find this companion in your favourites page.",
+            });
+          }
+        }
       }
     } catch (err) {
       throw err;
@@ -464,14 +481,14 @@ export default function EscortSlugPage() {
               </div>
             </div>
             <div className="flex flex-col gap-2 mt-4">
-              <Button 
+              <Button
                 disabled={favouriting}
                 onClick={() => handleAddToFavourites(profile.slug)}
-                variant="outline" 
-                size="sm" 
+                variant="outline"
+                size="sm"
                 className="w-full opacity-70 hover:opacity-100"
               >
-                {favouriting ? 'Adding to favourites...' : profile.ad.followers.length > 0 ? (<><BookmarkCheck />Favourited</>) : (<><Bookmark />Add to favourites</>)}
+                {favouriting ? 'Saving changes...' : profile.ad.followers?.length > 0 ? (<><BookmarkCheck />Favourited</>) : (<><Bookmark />Add to favourites</>)}
               </Button>
               <div className="flex flex-row gap-2">
                 <Link href={`/${lang}/vip/${profile.slug}`} className={`flex w-full ${profile.vip ? 'pointer-events-auto cursor-pointer opacity-80 hover:opacity-100' : 'pointer-events-none opacity-40'}`}><Button variant="outline" size="sm" className="w-full"><Camera />VIP content</Button></Link>
@@ -518,10 +535,10 @@ export default function EscortSlugPage() {
                         <img
                           src={image.url}
                           alt={`${profile.slug} - Photo ${index + 1}`}
-                          className={`w-full h-full object-cover hover:scale-105 transition-all duration-300 ${image.NSFW === true ? 'blur-xl group-hover:blur-0' : ''
+                          className={`w-full h-full object-cover hover:scale-105 transition-all duration-300 ${(image.NSFW === true && false) ? 'blur-xl group-hover:blur-0' : ''
                             }`}
                         />
-                        {image.NSFW === true && (
+                        {(image.NSFW === true && false) && (
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity duration-300">
                             <div className="bg-black/60 text-white px-3 py-1.5 rounded-lg backdrop-blur-sm text-xs font-medium">
                               NSFW

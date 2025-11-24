@@ -50,7 +50,7 @@ export default function JobsManagementPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="border-b bg-card/50 backdrop-blur">
+      <div className="border-b backdrop-blur">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
             <Link href={`/${lang}/dash`}>

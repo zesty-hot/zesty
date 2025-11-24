@@ -14,12 +14,13 @@ type Props = {
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, lang } = await params;
-  
+  const decodedSlug = decodeURIComponent(slug);
+
   try {
     // Fetch the escort profile data
     const profile = await withRetry(() =>
       prisma.user.findUnique({
-        where: { slug: slug },
+        where: { slug: decodedSlug },
         select: {
           zesty_id: true,
           slug: true,
@@ -101,9 +102,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ad.description.length > 155
         ? `${ad.description.substring(0, 152)}...`
         : ad.description
-      : `${ad.title}. ${location ? `Located in ${location}.` : ""} ${
-          startingPrice ? `From $${startingPrice}.` : ""
-        } Book now for premium escort services.`;
+      : `${ad.title}. ${location ? `Located in ${location}.` : ""} ${startingPrice ? `From $${startingPrice}.` : ""
+      } Book now for premium escort services.`;
 
     // Build title
     const titleParts = [];

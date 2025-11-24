@@ -6,7 +6,7 @@ export async function POST(request: Request) {
   try {
     const supaBase = await serverSupabase();
     const { data: session } = await supaBase.auth.getUser();
-    
+
     const user = await withRetry(() => prisma.user.findUnique({
       where: { supabaseId: session.user?.id },
       select: { zesty_id: true, location: true, dob: true },
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       id: {
         notIn: swipedIds, // Exclude already swiped profiles by DatingPage ID
       },
-      userId: {
+      zesty_id: {
         not: user.zesty_id, // Exclude self
       },
       active: true,
@@ -118,10 +118,10 @@ export async function POST(request: Request) {
     let filteredProfiles = profiles;
     if (datingPage.maxDistance && user.location) {
       const userCoords = user.location.split(',').map(Number);
-      
+
       filteredProfiles = profiles.filter((profile) => {
         if (!profile.user.location) return false;
-        
+
         const profileCoords = profile.user.location.split(',').map(Number);
         const distance = calculateDistance(
           userCoords[0],
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
           profileCoords[0],
           profileCoords[1]
         );
-        
+
         return distance <= datingPage.maxDistance;
       });
     }
@@ -137,7 +137,7 @@ export async function POST(request: Request) {
     // Map to response format
     const formattedProfiles = filteredProfiles.map((profile) => ({
       id: profile.id,
-      userId: profile.zesty_id,
+      zesty_id: profile.zesty_id,
       title: profile.user.title || profile.user.slug || 'Anonymous',
       bio: profile.user.bio || '',
       lookingFor: profile.lookingFor,
@@ -151,9 +151,9 @@ export async function POST(request: Request) {
         : null,
       distance: profile.user.location && user.location
         ? calculateDistance(
-            ...user.location.split(',').map(Number) as [number, number],
-            ...profile.user.location.split(',').map(Number) as [number, number]
-          )
+          ...user.location.split(',').map(Number) as [number, number],
+          ...profile.user.location.split(',').map(Number) as [number, number]
+        )
         : null,
       suburb: profile.user.suburb,
     }));
@@ -180,11 +180,11 @@ function calculateAge(dateOfBirth: Date): number {
   const birthDate = new Date(dateOfBirth);
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
-  
+
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
     age--;
   }
-  
+
   return age;
 }
 
@@ -193,11 +193,11 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   const R = 6371; // Earth's radius in km
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-  
+
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }

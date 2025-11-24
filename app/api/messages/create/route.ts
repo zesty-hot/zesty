@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }));
 
     const userSlug = user?.slug;
-    
+
     if (!userSlug) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

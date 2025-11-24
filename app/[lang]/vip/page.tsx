@@ -73,7 +73,7 @@ const defaultFilters: FilterData = {
 export default function Page() {
   const { lang } = useParams();
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [feedContent, setFeedContent] = useState<FeedContentItem[]>([]);
@@ -204,7 +204,7 @@ export default function Page() {
 
   const handleLocationSearch = async (location: any, filters: FilterData) => {
     if (!location?.coordinates) return;
-    
+
     setIsSearching(true);
     setSearchPage(1);
     setLastSearchParams({ type: 'location', location, filters });
@@ -214,12 +214,12 @@ export default function Page() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           longitude: location.coordinates[0],
           latitude: location.coordinates[1],
           filters,
-          page: 1, 
-          limit: 20 
+          page: 1,
+          limit: 20
         }),
       });
 
@@ -249,12 +249,12 @@ export default function Page() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             longitude: lastSearchParams.location.coordinates[0],
             latitude: lastSearchParams.location.coordinates[1],
             filters: lastSearchParams.filters,
-            page: nextPage, 
-            limit: 20 
+            page: nextPage,
+            limit: 20
           }),
         });
       } else if (lastSearchParams.type === 'username' && lastSearchParams.username) {
@@ -263,11 +263,11 @@ export default function Page() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ 
-            slug: lastSearchParams.username, 
+          body: JSON.stringify({
+            slug: lastSearchParams.username,
             filters: lastSearchParams.filters,
-            page: nextPage, 
-            limit: 20 
+            page: nextPage,
+            limit: 20
           }),
         });
       }
@@ -480,66 +480,66 @@ export default function Page() {
         {/* Only show features and featured creators if no search results */}
         {searchResults.length === 0 && !isSearching && (
           <>
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
-          <div className="text-center space-y-3">
-            <div className="w-14 h-14 mx-auto bg-purple-500/10 rounded-2xl flex items-center justify-center">
-              <Lock className="w-7 h-7 text-purple-500" />
-            </div>
-            <h3 className="text-xl font-semibold">Exclusive Content</h3>
-            <p className="text-muted-foreground">
-              Access premium photos, videos, and updates not available anywhere else
-            </p>
-          </div>
+            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
+              <div className="text-center space-y-3">
+                <div className="w-14 h-14 mx-auto bg-purple-500/10 rounded-2xl flex items-center justify-center">
+                  <Lock className="w-7 h-7 text-purple-500" />
+                </div>
+                <h3 className="text-xl font-semibold">Exclusive Content</h3>
+                <p className="text-muted-foreground">
+                  Access premium photos, videos, and updates not available anywhere else
+                </p>
+              </div>
 
-          <div className="text-center space-y-3">
-            <div className="w-14 h-14 mx-auto bg-pink-500/10 rounded-2xl flex items-center justify-center">
-              <MessageCircle className="w-7 h-7 text-pink-500" />
-            </div>
-            <h3 className="text-xl font-semibold">Direct Interaction</h3>
-            <p className="text-muted-foreground">
-              Message creators, comment on posts, and be part of an exclusive community
-            </p>
-          </div>
+              <div className="text-center space-y-3">
+                <div className="w-14 h-14 mx-auto bg-pink-500/10 rounded-2xl flex items-center justify-center">
+                  <MessageCircle className="w-7 h-7 text-pink-500" />
+                </div>
+                <h3 className="text-xl font-semibold">Direct Interaction</h3>
+                <p className="text-muted-foreground">
+                  Message creators, comment on posts, and be part of an exclusive community
+                </p>
+              </div>
 
-          <div className="text-center space-y-3">
-            <div className="w-14 h-14 mx-auto bg-rose-500/10 rounded-2xl flex items-center justify-center">
-              <Sparkles className="w-7 h-7 text-rose-500" />
+              <div className="text-center space-y-3">
+                <div className="w-14 h-14 mx-auto bg-rose-500/10 rounded-2xl flex items-center justify-center">
+                  <Sparkles className="w-7 h-7 text-rose-500" />
+                </div>
+                <h3 className="text-xl font-semibold">Support Creators</h3>
+                <p className="text-muted-foreground">
+                  Directly support the creators you love and help them create more content
+                </p>
+              </div>
             </div>
-            <h3 className="text-xl font-semibold">Support Creators</h3>
-            <p className="text-muted-foreground">
-              Directly support the creators you love and help them create more content
-            </p>
-          </div>
-        </div>
 
-        {/* Featured Creators */}
-        <div>
-          <div className="flex items-center justify-between mb-6">
+            {/* Featured Creators */}
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold mb-1">Featured Creators</h2>
-              <p className="text-muted-foreground">Discover popular creators with free content</p>
-            </div>
-            <Link href={`/${lang}/vip/discover`}>
-              <Button variant="outline">
-                View All
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-          </div>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold mb-1">Featured Creators</h2>
+                  <p className="text-muted-foreground">Discover popular creators with free content</p>
+                </div>
+                <Link href={`/${lang}/vip/discover`}>
+                  <Button variant="outline">
+                    View All
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
 
-          {featuredCreators.length === 0 ? (
-            <div className="text-center py-16 border rounded-xl bg-muted/30">
-              <Users className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-              <p className="text-muted-foreground">No featured creators available yet</p>
+              {featuredCreators.length === 0 ? (
+                <div className="text-center py-16 border rounded-xl bg-muted/30">
+                  <Users className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                  <p className="text-muted-foreground">No featured creators available yet</p>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {featuredCreators.map((creator) => (
+                    <CreatorCard key={creator.id} creator={creator} lang={lang as string} />
+                  ))}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {featuredCreators.map((creator) => (
-                <CreatorCard key={creator.id} creator={creator} lang={lang as string} />
-              ))}
-            </div>
-          )}
-        </div>
           </>
         )}
 
@@ -631,7 +631,7 @@ function FeedCard({
 
       {/* Image */}
       {item.type === 'IMAGE' && item.imageUrl && (
-        <div 
+        <div
           className="relative w-full overflow-hidden"
           onClick={() => item.NSFW && setIsBlurred(!isBlurred)}
         >
@@ -653,7 +653,7 @@ function FeedCard({
 
       {/* Video */}
       {item.type === 'VIDEO' && (
-        <div 
+        <div
           className="relative w-full bg-black overflow-hidden group/video"
           onClick={() => item.NSFW && setIsBlurred(!isBlurred)}
         >
@@ -728,7 +728,7 @@ function CreatorCard({ creator, lang }: { creator: FeaturedCreator; lang: string
     <Link href={`/${lang}/vip/${creator.slug}`}>
       <div className="bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
         {/* Profile Image */}
-        <div 
+        <div
           className="relative aspect-square bg-linear-to-br from-purple-500/20 to-pink-500/20 overflow-hidden"
           onClick={(e) => {
             if (creator.image?.NSFW) {

@@ -17,16 +17,16 @@ enum Role {
 }
 
 model Images {
-  id        String   @id @default(cuid())
-  url       String
-  width     Int
-  height    Int
-  altText   String?
-  default   Boolean @default(false)
-  NSFW      Boolean @default(false)
+  id      String  @id @default(cuid())
+  url     String
+  width   Int
+  height  Int
+  altText String?
+  default Boolean @default(false)
+  NSFW    Boolean @default(false)
 
-  user      User?    @relation(fields: [zesty_id], references: [zesty_id])
-  zesty_id    String?
+  user     User?   @relation(fields: [zesty_id], references: [zesty_id])
+  zesty_id String?
 
   createdAt DateTime @default(now())
 
@@ -62,86 +62,87 @@ enum Gender {
 }
 
 model User {
-  zesty_id    String @id @default(cuid())
-  supabaseId  String   @unique  // FK to auth.users.id in Supabase
+  zesty_id   String @id @default(cuid())
+  supabaseId String @unique // FK to auth.users.id in Supabase
 
-  title       String? @db.VarChar(200) // Unified title across all pages
-  bio         String? @db.VarChar(1000)
-  slug        String? @unique
-  webRole     Role    @default(USER)
-  dob         DateTime?
-  stripeId    String?
-  verified    Boolean @default(false)
-  onboardingCompleted Boolean @default(false)
-  location    String? @db.VarChar(100) // Latitude, Longitude
-  suburb      String? @db.VarChar(100) // Suburb/City name
-  bodyType    BodyType?
-  race        Race?
-  gender      Gender?
+  title               String?   @db.VarChar(200) // Unified title across all pages
+  bio                 String?   @db.VarChar(1000)
+  slug                String?   @unique
+  webRole             Role      @default(USER)
+  dob                 DateTime?
+  stripeId            String?
+  verified            Boolean   @default(false)
+  onboardingCompleted Boolean   @default(false)
+  location            String?   @db.VarChar(100) // Latitude, Longitude
+  suburb              String?   @db.VarChar(100) // Suburb/City name
+  bodyType            BodyType?
+  race                Race?
+  gender              Gender?
 
-  privateAds             PrivateAd[]
-  images                 Images[]
-  privateOffersSent      PrivateOffer[] @relation("offersSent")
-  privateOffersReceived  PrivateOffer[] @relation("offersReceived")
+  privateAds            PrivateAd[]
+  images                Images[]
+  privateOffersSent     PrivateOffer[] @relation("offersSent")
+  privateOffersReceived PrivateOffer[] @relation("offersReceived")
 
-  vipPage             VIPPage?
-  vipSubscriptions    VIPSubscription[] @relation("vipSubscriber")
-  vipLikes            VIPLike[] @relation("vipLikes")
-  vipComments         VIPComment[] @relation("vipComments")
+  vipPage          VIPPage?
+  vipSubscriptions VIPSubscription[] @relation("vipSubscriber")
+  vipLikes         VIPLike[]         @relation("vipLikes")
+  vipComments      VIPComment[]      @relation("vipComments")
 
   liveStreamPage      LiveStreamPage?
   liveStreamFollows   LiveStreamFollower[]
   liveStreamDonations LiveStreamDonation[]
 
-  eventsOrganized     Event[] @relation("eventOrganizer")
-  eventsAttending     EventAttendee[] @relation("eventAttendee")
-  eventPosts          EventPost[] @relation("eventPostAuthor")
-  eventComments       EventComment[] @relation("eventCommentAuthor")
+  eventsOrganized Event[]         @relation("eventOrganizer")
+  eventsAttending EventAttendee[] @relation("eventAttendee")
+  eventPosts      EventPost[]     @relation("eventPostAuthor")
+  eventComments   EventComment[]  @relation("eventCommentAuthor")
 
-  studiosOwned        Studio[] @relation("studioOwner")
-  studioAdmins        StudioAdmin[] @relation("studioAdminUser")
-  jobApplications     JobApplication[] @relation("jobApplicant")
-  studioReviews       StudioReview[] @relation("studioReviewer")
+  studiosOwned    Studio[]         @relation("studioOwner")
+  studioAdmins    StudioAdmin[]    @relation("studioAdminUser")
+  jobApplications JobApplication[] @relation("jobApplicant")
+  studioReviews   StudioReview[]   @relation("studioReviewer")
 
   messagesSent ChatMessage[] @relation("sender")
   messagesRead MessageRead[] @relation("messageReads")
-  activeChats  Chat[] @relation("activeChat")
-  hiddenChats  Chat[] @relation("hiddenChat")
+  activeChats  Chat[]        @relation("activeChat")
+  hiddenChats  Chat[]        @relation("hiddenChat")
 
   reviewsGiven    Review[] @relation("reviewer")
   reviewsReceived Review[] @relation("reviewee")
 
   pushSubscriptions PushSubscription[] @relation("pushSubscriptions")
-  
+
   favouritedEscorts PrivateAd[] @relation("escortFollowers")
-  
+
   datingPages DatingPage[]
 
-  lastActive      DateTime? @default(now())
-  createdAt       DateTime @default(now())
+  lastActive DateTime? @default(now())
+  createdAt  DateTime  @default(now())
+
   @@map("zesty_user")
 }
 
 model VIPPage {
-  id              String @id @default(cuid())
+  id String @id @default(cuid())
 
-  description     String @db.VarChar(3000)
-  bannerUrl       String? // Banner image for the VIP page
-  active          Boolean @default(true)
-  
+  description String  @db.VarChar(3000)
+  bannerUrl   String? // Banner image for the VIP page
+  active      Boolean @default(true)
+
   // Pricing
-  subscriptionPrice Int @default(999) // Price in cents (e.g., 999 = $9.99)
+  subscriptionPrice Int     @default(999) // Price in cents (e.g., 999 = $9.99)
   isFree            Boolean @default(false)
 
-  user            User @relation(fields: [zesty_id], references: [zesty_id])
-  zesty_id        String
+  user     User   @relation(fields: [zesty_id], references: [zesty_id])
+  zesty_id String
 
-  content         VIPContent[]
-  subscriptions   VIPSubscription[]
-  discountOffers  VIPDiscountOffer[]
+  content        VIPContent[]
+  subscriptions  VIPSubscription[]
+  discountOffers VIPDiscountOffer[]
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([zesty_id])
   @@map("vip_pages")
@@ -156,56 +157,56 @@ enum VIPContentType {
 }
 
 model VIPContent {
-  id          String @id @default(cuid())
-  
-  type        VIPContentType
-  caption     String? @db.VarChar(1000)
-  
+  id String @id @default(cuid())
+
+  type    VIPContentType
+  caption String?        @db.VarChar(1000)
+
   // For images
   imageUrl    String?
   imageWidth  Int?
   imageHeight Int?
-  
+
   // For videos
-  videoUrl    String?
+  videoUrl     String?
   thumbnailUrl String?
-  duration    Int? // Duration in seconds
-  
+  duration     Int? // Duration in seconds
+
   // For status updates
-  statusText  String? @db.VarChar(5000)
-  
-  NSFW        Boolean @default(false)
-  
-  vipPage     VIPPage @relation(fields: [vipPageId], references: [id], onDelete: Cascade)
-  vipPageId   String
-  
-  likes       VIPLike[]
-  comments    VIPComment[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  statusText String? @db.VarChar(5000)
+
+  NSFW Boolean @default(false)
+
+  vipPage   VIPPage @relation(fields: [vipPageId], references: [id], onDelete: Cascade)
+  vipPageId String
+
+  likes    VIPLike[]
+  comments VIPComment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([vipPageId, createdAt])
   @@map("vip_content")
 }
 
 model VIPSubscription {
-  id          String @id @default(cuid())
-  
-  subscriber  User @relation("vipSubscriber", fields: [subscriberId], references: [zesty_id])
+  id String @id @default(cuid())
+
+  subscriber   User   @relation("vipSubscriber", fields: [subscriberId], references: [zesty_id])
   subscriberId String
-  
-  vipPage     VIPPage @relation(fields: [vipPageId], references: [id], onDelete: Cascade)
-  vipPageId   String
-  
-  active      Boolean @default(true)
-  expiresAt   DateTime? // Null for lifetime/free subscriptions
-  
-  amountPaid  Int // Amount in cents
+
+  vipPage   VIPPage @relation(fields: [vipPageId], references: [id], onDelete: Cascade)
+  vipPageId String
+
+  active    Boolean   @default(true)
+  expiresAt DateTime? // Null for lifetime/free subscriptions
+
+  amountPaid           Int // Amount in cents
   stripeSubscriptionId String?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([subscriberId, vipPageId])
   @@index([subscriberId])
@@ -214,34 +215,34 @@ model VIPSubscription {
 }
 
 model VIPDiscountOffer {
-  id          String @id @default(cuid())
-  
-  vipPage     VIPPage @relation(fields: [vipPageId], references: [id], onDelete: Cascade)
-  vipPageId   String
-  
+  id String @id @default(cuid())
+
+  vipPage   VIPPage @relation(fields: [vipPageId], references: [id], onDelete: Cascade)
+  vipPageId String
+
   discountPercent Int // 0-100
   discountedPrice Int // Price in cents after discount
-  
-  active      Boolean @default(true)
-  validFrom   DateTime @default(now())
-  validUntil  DateTime?
-  
-  createdAt   DateTime @default(now())
+
+  active     Boolean   @default(true)
+  validFrom  DateTime  @default(now())
+  validUntil DateTime?
+
+  createdAt DateTime @default(now())
 
   @@index([vipPageId, active])
   @@map("vip_discount_offers")
 }
 
 model VIPLike {
-  id          String @id @default(cuid())
-  
-  user        User @relation("vipLikes", fields: [zesty_id], references: [zesty_id])
-  zesty_id      String
-  
-  content     VIPContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
-  contentId   String
-  
-  createdAt   DateTime @default(now())
+  id String @id @default(cuid())
+
+  user     User   @relation("vipLikes", fields: [zesty_id], references: [zesty_id])
+  zesty_id String
+
+  content   VIPContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  contentId String
+
+  createdAt DateTime @default(now())
 
   @@unique([zesty_id, contentId])
   @@index([contentId])
@@ -249,38 +250,39 @@ model VIPLike {
 }
 
 model VIPComment {
-  id          String @id @default(cuid())
-  
-  user        User @relation("vipComments", fields: [zesty_id], references: [zesty_id])
-  zesty_id      String
-  
-  content     VIPContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
-  contentId   String
-  
-  text        String @db.VarChar(1000)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id String @id @default(cuid())
+
+  user     User   @relation("vipComments", fields: [zesty_id], references: [zesty_id])
+  zesty_id String
+
+  content   VIPContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  contentId String
+
+  text String @db.VarChar(1000)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([contentId, createdAt])
   @@map("vip_content_comments")
 }
 
 model Review {
-  id          String @id @default(cuid())
-  comment     String? @db.VarChar(1000)
-  rating      Int @db.SmallInt
+  id      String  @id @default(cuid())
+  comment String? @db.VarChar(1000)
+  rating  Int     @db.SmallInt
 
-  reviewer    User @relation("reviewer", fields: [reviewerId], references: [zesty_id])
-  reviewerId  String
+  reviewer   User   @relation("reviewer", fields: [reviewerId], references: [zesty_id])
+  reviewerId String
 
-  reviewee    User @relation("reviewee", fields: [revieweeId], references: [zesty_id])
-  revieweeId  String
- 
-  offer       PrivateOffer? @relation(fields: [offerId], references: [id])
-  offerId     Int?
+  reviewee   User   @relation("reviewee", fields: [revieweeId], references: [zesty_id])
+  revieweeId String
 
-  createdAt   DateTime @default(now())
+  offer   PrivateOffer? @relation(fields: [offerId], references: [id])
+  offerId Int?
+
+  createdAt DateTime @default(now())
+
   @@map("reviews")
 }
 
@@ -336,129 +338,130 @@ enum PrivateAdDaysAvailable {
 }
 
 model PrivateAdService {
-  id            String @id @default(cuid())
+  id String @id @default(cuid())
 
-  privateAd     PrivateAd @relation(fields: [privateAdId], references: [id])
-  privateAdId   String
+  privateAd   PrivateAd @relation(fields: [privateAdId], references: [id])
+  privateAdId String
 
-  category      PrivateAdServiceCategory // IN_CALL, OUT_CALL, NON_SEXUAL, OVERNIGHT
-  label         String? // optional display name, e.g. “Public meet-up”
+  category PrivateAdServiceCategory // IN_CALL, OUT_CALL, NON_SEXUAL, OVERNIGHT
+  label    String? // optional display name, e.g. “Public meet-up”
 
-  options       PrivateAdServiceOption[] // durations and prices
+  options PrivateAdServiceOption[] // durations and prices
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([privateAdId, category])
   @@map("private_ad_services")
 }
 
 model PrivateAdServiceOption {
-  id            String @id @default(cuid())
-  service       PrivateAdService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  serviceId     String
+  id        String           @id @default(cuid())
+  service   PrivateAdService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId String
 
-  durationMin   Int      // 15, 30, 60
-  price         Int      // price in dollars
+  durationMin Int // 15, 30, 60
+  price       Int // price in dollars
 
   @@map("private_ad_service_options")
 }
 
 model PrivateAdExtra {
-  id            String @id @default(cuid())
-  privateAd     PrivateAd @relation(fields: [privateAdId], references: [id])
-  privateAdId   String
+  id          String    @id @default(cuid())
+  privateAd   PrivateAd @relation(fields: [privateAdId], references: [id])
+  privateAdId String
 
-  name          PrivateAdExtraType // BJ, ANAL, BDSM, FILMING
-  price         Int
-  active        Boolean @default(true)
+  name   PrivateAdExtraType // BJ, ANAL, BDSM, FILMING
+  price  Int
+  active Boolean            @default(true)
+
   @@map("private_ad_extras")
 }
 
 model PrivateAd {
-  id              String @id @default(cuid())
+  id String @id @default(cuid())
 
-  title           String @db.VarChar(200)
-  description     String @db.VarChar(3000)
-  active          Boolean @default(true)
+  title       String  @db.VarChar(200)
+  description String  @db.VarChar(3000)
+  active      Boolean @default(true)
 
   services        PrivateAdService[]
   acceptsGender   PrivateAdCustomerCategory[]
   acceptsRace     Race[]
   acceptsBodyType BodyType[]
-  acceptsAgeRange Int[]  // [minAge, maxAge]
+  acceptsAgeRange Int[] // [minAge, maxAge]
   extras          PrivateAdExtra[]
   daysAvailable   PrivateAdDaysAvailable[]
-  followers       User[] @relation("escortFollowers")
+  followers       User[]                      @relation("escortFollowers")
 
-  worker          User @relation(fields: [workerId], references: [zesty_id])
-  workerId        String
+  worker   User   @relation(fields: [workerId], references: [zesty_id])
+  workerId String
 
-  createdAt       DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([workerId])
   @@map("private_ads")
 }
 
 enum PrivateOfferStatus {
-  OFFER         // Initial offer made
-  PENDING       // Offer accepted, payment held
-  CONFIRMED     // Service completed by worker
-  DISPUTED      // Dispute raised by client
-  RELEASED      // Payment released to worker
-  REJECTED      // Offer rejected by worker
-  CANCELLED     // Offer cancelled
+  OFFER // Initial offer made
+  PENDING // Offer accepted, payment held
+  CONFIRMED // Service completed by worker
+  DISPUTED // Dispute raised by client
+  RELEASED // Payment released to worker
+  REJECTED // Offer rejected by worker
+  CANCELLED // Offer cancelled
 
   @@map("private_offer_status")
 }
 
 model PrivateOffer {
-  id            Int @id @default(autoincrement())
-  amount        Int                      // Total price for the service
-  adId          String
+  id     Int    @id @default(autoincrement())
+  amount Int // Total price for the service
+  adId   String
 
   // Service details
-  service       PrivateAdServiceCategory // Type of service (IN_CALL, OUT_CALL, etc.)
-  durationMin   Int                      // Duration in minutes
-  extras        String[]                 // Array of extra service IDs/names selected
-  
+  service     PrivateAdServiceCategory // Type of service (IN_CALL, OUT_CALL, etc.)
+  durationMin Int // Duration in minutes
+  extras      String[] // Array of extra service IDs/names selected
+
   // Scheduling
-  scheduledFor  DateTime?                // When service is scheduled (null for ASAP)
-  dayRequested  PrivateAdDaysAvailable?           // Day of week requested
-  isAsap        Boolean @default(false)  // True if "Now/ASAP"
+  scheduledFor DateTime? // When service is scheduled (null for ASAP)
+  dayRequested PrivateAdDaysAvailable? // Day of week requested
+  isAsap       Boolean                 @default(false) // True if "Now/ASAP"
 
   // Status and timeline
-  status        PrivateOfferStatus @default(OFFER)
-  expiresAt     DateTime?                // When offer expires if not accepted
-  
-  acceptedAt    DateTime?                // When offer was accepted
-  completedAt   DateTime?                // When worker marked as complete
-  releasedAt    DateTime?                // When payment was released (48h after completedAt or dispute resolved)
-  
+  status    PrivateOfferStatus @default(OFFER)
+  expiresAt DateTime? // When offer expires if not accepted
+
+  acceptedAt  DateTime? // When offer was accepted
+  completedAt DateTime? // When worker marked as complete
+  releasedAt  DateTime? // When payment was released (48h after completedAt or dispute resolved)
+
   // Dispute handling
-  disputeReason String? @db.VarChar(1000)
-  disputeRaisedAt DateTime?
+  disputeReason     String?   @db.VarChar(1000)
+  disputeRaisedAt   DateTime?
   disputeResolvedAt DateTime?
 
   // Payment tracking
-  creditFeePaid Boolean @default(false)  // $5 non-refundable fee paid when offer accepted
-  platformFeePaid Boolean @default(false) // 10% platform fee paid when released
-  stripePaymentIntentId String?          // Stripe payment intent for holding funds
-  stripeTransferId String?               // Stripe transfer ID when released to worker
+  creditFeePaid         Boolean @default(false) // $5 non-refundable fee paid when offer accepted
+  platformFeePaid       Boolean @default(false) // 10% platform fee paid when released
+  stripePaymentIntentId String? // Stripe payment intent for holding funds
+  stripeTransferId      String? // Stripe transfer ID when released to worker
 
   // Relations
-  client        User @relation("offersSent", fields: [clientId], references: [zesty_id])
-  clientId      String
-  worker        User @relation("offersReceived", fields: [workerId], references: [zesty_id])
-  workerId      String
+  client   User   @relation("offersSent", fields: [clientId], references: [zesty_id])
+  clientId String
+  worker   User   @relation("offersReceived", fields: [workerId], references: [zesty_id])
+  workerId String
 
-  chat          Chat? @relation(fields: [chatId], references: [id])
-  chatId        String?
+  chat   Chat?   @relation(fields: [chatId], references: [id])
+  chatId String?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   Review Review[]
-  
+
   @@index([clientId, status])
   @@index([workerId, status])
   @@index([status, completedAt])
@@ -467,8 +470,8 @@ model PrivateOffer {
 }
 
 model Chat {
-  id        String @id @default(cuid())
-  messages  ChatMessage[]
+  id       String        @id @default(cuid())
+  messages ChatMessage[]
 
   createdAt DateTime @default(now())
 
@@ -477,24 +480,25 @@ model Chat {
 
   PrivateOffer PrivateOffer[]
   datingMatch  DatingMatch?
+
   @@map("chats")
 }
 
 model ChatMessage {
-  id        Int @id @default(autoincrement())
-  slug      String @unique @default(uuid())
+  id   Int    @id @default(autoincrement())
+  slug String @unique @default(uuid())
 
-  sender    User    @relation("sender", fields: [senderId], references: [zesty_id])
-  senderId  String
+  sender   User   @relation("sender", fields: [senderId], references: [zesty_id])
+  senderId String
 
-  content   String @db.VarChar(1000)
+  content String @db.VarChar(1000)
 
   createdAt DateTime @default(now())
 
-  chat Chat @relation(fields: [chatId], references: [id])
+  chat   Chat   @relation(fields: [chatId], references: [id])
   chatId String
 
-  readBy    MessageRead[]
+  readBy MessageRead[]
 
   @@index([chatId, createdAt])
   @@index([senderId])
@@ -502,15 +506,15 @@ model ChatMessage {
 }
 
 model MessageRead {
-  id        String @id @default(cuid())
+  id String @id @default(cuid())
 
   message   ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
   messageId Int
 
-  user      User @relation("messageReads", fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
-  zesty_id    String
+  user     User   @relation("messageReads", fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
+  zesty_id String
 
-  readAt    DateTime @default(now())
+  readAt DateTime @default(now())
 
   @@unique([messageId, zesty_id])
   @@index([zesty_id])
@@ -519,29 +523,29 @@ model MessageRead {
 }
 
 model DatingPage {
-  id              String @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Preferences
-  lookingFor      String[] @default([])      // What they're looking for: "dating", "friends", "hookup", "relationship"
-  ageRangeMin     Int @default(18)
-  ageRangeMax     Int @default(100)
-  maxDistance     Int @default(50)           // Max distance in km
-  showGender      Gender[] @default([])      // What genders to show
-  
-  active          Boolean @default(true)     // Profile enabled/disabled
-  verified        Boolean @default(false)    // Verified dating profile
-  
+  lookingFor  String[] @default([]) // What they're looking for: "dating", "friends", "hookup", "relationship"
+  ageRangeMin Int      @default(18)
+  ageRangeMax Int      @default(100)
+  maxDistance Int      @default(50) // Max distance in km
+  showGender  Gender[] @default([]) // What genders to show
+
+  active   Boolean @default(true) // Profile enabled/disabled
+  verified Boolean @default(false) // Verified dating profile
+
   // Relations
-  user            User @relation(fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
-  zesty_id          String
-  
-  swipesGiven     DatingSwipe[] @relation("swiper")
-  swipesReceived  DatingSwipe[] @relation("swiped")
-  matchesAsUser1  DatingMatch[] @relation("user1")
-  matchesAsUser2  DatingMatch[] @relation("user2")
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  user     User   @relation(fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
+  zesty_id String
+
+  swipesGiven    DatingSwipe[] @relation("swiper")
+  swipesReceived DatingSwipe[] @relation("swiped")
+  matchesAsUser1 DatingMatch[] @relation("user1")
+  matchesAsUser2 DatingMatch[] @relation("user2")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([zesty_id])
   @@index([active, createdAt])
@@ -550,18 +554,18 @@ model DatingPage {
 
 // Swipe actions (like/pass)
 model DatingSwipe {
-  id              String @id @default(cuid())
-  
-  swiperId        String             // User who swiped
-  swiper          DatingPage @relation("swiper", fields: [swiperId], references: [id], onDelete: Cascade)
-  
-  swipedId        String             // User who was swiped on
-  swiped          DatingPage @relation("swiped", fields: [swipedId], references: [id], onDelete: Cascade)
-  
-  direction       SwipeDirection     // Like or Pass
-  superLike       Boolean @default(false)
-  
-  createdAt       DateTime @default(now())
+  id String @id @default(cuid())
+
+  swiperId String // User who swiped
+  swiper   DatingPage @relation("swiper", fields: [swiperId], references: [id], onDelete: Cascade)
+
+  swipedId String // User who was swiped on
+  swiped   DatingPage @relation("swiped", fields: [swipedId], references: [id], onDelete: Cascade)
+
+  direction SwipeDirection // Like or Pass
+  superLike Boolean        @default(false)
+
+  createdAt DateTime @default(now())
 
   @@unique([swiperId, swipedId])
   @@index([swiperId, createdAt])
@@ -571,22 +575,22 @@ model DatingSwipe {
 
 // Matches (when both users like each other)
 model DatingMatch {
-  id              String @id @default(cuid())
-  
-  user1Id         String
-  user1           DatingPage @relation("user1", fields: [user1Id], references: [id], onDelete: Cascade)
-  
-  user2Id         String
-  user2           DatingPage @relation("user2", fields: [user2Id], references: [id], onDelete: Cascade)
-  
+  id String @id @default(cuid())
+
+  user1Id String
+  user1   DatingPage @relation("user1", fields: [user1Id], references: [id], onDelete: Cascade)
+
+  user2Id String
+  user2   DatingPage @relation("user2", fields: [user2Id], references: [id], onDelete: Cascade)
+
   // Chat for this match
-  chatId          String? @unique
-  chat            Chat? @relation(fields: [chatId], references: [id], onDelete: SetNull)
-  
-  unmatchedBy     String?            // If unmatched, who unmatched
-  unmatchedAt     DateTime?
-  
-  createdAt       DateTime @default(now())
+  chatId String? @unique
+  chat   Chat?   @relation(fields: [chatId], references: [id], onDelete: SetNull)
+
+  unmatchedBy String? // If unmatched, who unmatched
+  unmatchedAt DateTime?
+
+  createdAt DateTime @default(now())
 
   @@unique([user1Id, user2Id])
   @@index([user1Id, createdAt])
@@ -604,26 +608,26 @@ enum SwipeDirection {
 // LiveStreamPage is a channel/profile for livestreaming (like a sub-account)
 // It can be enabled/disabled and has its own followers
 model LiveStreamPage {
-  id              String @id @default(cuid())
-  
-  description     String? @db.VarChar(3000)
-  bannerUrl       String?          // Banner image for the channel
-  
-  active          Boolean @default(false)  // Channel enabled/disabled
-  
+  id String @id @default(cuid())
+
+  description String? @db.VarChar(3000)
+  bannerUrl   String? // Banner image for the channel
+
+  active Boolean @default(false) // Channel enabled/disabled
+
   // RTMP/Stream key for broadcasting (persistent per channel)
-  ingressId       String?          // LiveKit ingress ID for RTMP/WHIP
-  streamKey       String?          // Stream key for broadcasting
-  
+  ingressId String? // LiveKit ingress ID for RTMP/WHIP
+  streamKey String? // Stream key for broadcasting
+
   // Relations
-  user            User @relation(fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
-  zesty_id          String
-  
-  followers       LiveStreamFollower[]
-  streams         LiveStream[]     // Individual streaming sessions
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  user     User   @relation(fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
+  zesty_id String
+
+  followers LiveStreamFollower[]
+  streams   LiveStream[] // Individual streaming sessions
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([zesty_id])
   @@index([active, createdAt])
@@ -632,24 +636,24 @@ model LiveStreamPage {
 
 // Individual live stream sessions within a channel
 model LiveStream {
-  id              String @id @default(cuid())
-  
-  title           String? @db.VarChar(200)  // Optional custom title for this session
-  
-  isLive          Boolean @default(true)    // Currently streaming
-  roomName        String @unique            // LiveKit room for this session
-  
-  viewerCount     Int @default(0)           // Current/peak viewers
-  
-  startedAt       DateTime @default(now())
-  endedAt         DateTime?
-  
+  id String @id @default(cuid())
+
+  title String? @db.VarChar(200) // Optional custom title for this session
+
+  isLive   Boolean @default(true) // Currently streaming
+  roomName String  @unique // LiveKit room for this session
+
+  viewerCount Int @default(0) // Current/peak viewers
+
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+
   // Relations
-  channel         LiveStreamPage @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  channelId       String
-  
-  donations       LiveStreamDonation[]
-  
+  channel   LiveStreamPage @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId String
+
+  donations LiveStreamDonation[]
+
   @@index([channelId, isLive])
   @@index([isLive, startedAt])
   @@map("live_streams")
@@ -657,15 +661,15 @@ model LiveStream {
 
 // Followers for livestream channels
 model LiveStreamFollower {
-  id              String @id @default(cuid())
-  
-  user            User @relation(fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
-  zesty_id          String
-  
-  channel         LiveStreamPage @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  channelId       String
-  
-  createdAt       DateTime @default(now())
+  id String @id @default(cuid())
+
+  user     User   @relation(fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
+  zesty_id String
+
+  channel   LiveStreamPage @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId String
+
+  createdAt DateTime @default(now())
 
   @@unique([zesty_id, channelId])
   @@index([channelId])
@@ -675,18 +679,18 @@ model LiveStreamFollower {
 
 // Donations/tips to live streams
 model LiveStreamDonation {
-  id              String @id @default(cuid())
-  
-  amount          Int              // Amount in cents
-  message         String? @db.VarChar(500)
-  
-  donor           User? @relation(fields: [donorId], references: [zesty_id])
-  donorId         String?
-  
-  stream          LiveStream @relation(fields: [streamId], references: [id], onDelete: Cascade)
-  streamId        String
-  
-  createdAt       DateTime @default(now())
+  id String @id @default(cuid())
+
+  amount  Int // Amount in cents
+  message String? @db.VarChar(500)
+
+  donor   User?   @relation(fields: [donorId], references: [zesty_id])
+  donorId String?
+
+  stream   LiveStream @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  streamId String
+
+  createdAt DateTime @default(now())
 
   @@index([streamId, createdAt])
   @@map("live_stream_donations")
@@ -695,46 +699,46 @@ model LiveStreamDonation {
 // ==================== EVENTS ====================
 
 enum EventStatus {
-  OPEN                // Anyone can join
-  INVITE_ONLY        // Only invited users can join
-  PAY_TO_JOIN        // Payment required to join
-  REQUEST_TO_JOIN    // Users request, host approves
+  OPEN // Anyone can join
+  INVITE_ONLY // Only invited users can join
+  PAY_TO_JOIN // Payment required to join
+  REQUEST_TO_JOIN // Users request, host approves
 
   @@map("event_status")
 }
 
 model Event {
-  id              String @id @default(cuid())
-  
-  title           String @db.VarChar(200)
-  description     String? @db.Text
-  slug            String @unique
-  
+  id String @id @default(cuid())
+
+  title       String  @db.VarChar(200)
+  description String? @db.Text
+  slug        String  @unique
+
   // Location
-  location        String? @db.VarChar(100)  // Latitude, Longitude
-  suburb          String? @db.VarChar(100)  // Suburb/City name
-  venue           String? @db.VarChar(200)  // Venue name/address
-  
+  location String? @db.VarChar(100) // Latitude, Longitude
+  suburb   String? @db.VarChar(100) // Suburb/City name
+  venue    String? @db.VarChar(200) // Venue name/address
+
   // Images
-  coverImage      String?
-  
+  coverImage String?
+
   // Event details
-  startTime       DateTime
-  endTime         DateTime?
-  status          EventStatus @default(OPEN)
-  price           Int? // Price in cents (if PAY_TO_JOIN)
-  maxAttendees    Int? // Maximum number of attendees
-  
+  startTime    DateTime
+  endTime      DateTime?
+  status       EventStatus @default(OPEN)
+  price        Int? // Price in cents (if PAY_TO_JOIN)
+  maxAttendees Int? // Maximum number of attendees
+
   // Organizer
-  organizer       User @relation("eventOrganizer", fields: [organizerId], references: [zesty_id], onDelete: Cascade)
-  organizerId     String
-  
+  organizer   User   @relation("eventOrganizer", fields: [organizerId], references: [zesty_id], onDelete: Cascade)
+  organizerId String
+
   // Relations
-  attendees       EventAttendee[]
-  posts           EventPost[]
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  attendees EventAttendee[]
+  posts     EventPost[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([organizerId])
   @@index([startTime])
@@ -744,19 +748,19 @@ model Event {
 }
 
 model EventAttendee {
-  id              String @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Attendee status
-  status          EventAttendeeStatus @default(PENDING)
-  
-  event           Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId         String
-  
-  user            User @relation("eventAttendee", fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
-  zesty_id          String
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  status EventAttendeeStatus @default(PENDING)
+
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String
+
+  user     User   @relation("eventAttendee", fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
+  zesty_id String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([eventId, zesty_id])
   @@index([eventId, status])
@@ -765,29 +769,30 @@ model EventAttendee {
 }
 
 enum EventAttendeeStatus {
-  PENDING         // Requested to join (for REQUEST_TO_JOIN events)
-  GOING           // Confirmed attendance
-  MAYBE           // Interested/maybe going
-  DECLINED        // Declined invitation
-  INVITED         // Invited but not responded (for INVITE_ONLY)
+  PENDING // Requested to join (for REQUEST_TO_JOIN events)
+  GOING // Confirmed attendance
+  MAYBE // Interested/maybe going
+  DECLINED // Declined invitation
+  INVITED // Invited but not responded (for INVITE_ONLY)
+
   @@map("event_attendee_status")
 }
 
 model EventPost {
-  id              String @id @default(cuid())
-  
-  content         String @db.Text
-  
-  event           Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId         String
-  
-  author          User @relation("eventPostAuthor", fields: [authorId], references: [zesty_id], onDelete: Cascade)
-  authorId        String
-  
-  comments        EventComment[]
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id String @id @default(cuid())
+
+  content String @db.Text
+
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String
+
+  author   User   @relation("eventPostAuthor", fields: [authorId], references: [zesty_id], onDelete: Cascade)
+  authorId String
+
+  comments EventComment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([eventId, createdAt])
   @@index([authorId])
@@ -795,18 +800,18 @@ model EventPost {
 }
 
 model EventComment {
-  id              String @id @default(cuid())
-  
-  content         String @db.Text
-  
-  post            EventPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId          String
-  
-  author          User @relation("eventCommentAuthor", fields: [authorId], references: [zesty_id], onDelete: Cascade)
-  authorId        String
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id String @id @default(cuid())
+
+  content String @db.Text
+
+  post   EventPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+
+  author   User   @relation("eventCommentAuthor", fields: [authorId], references: [zesty_id], onDelete: Cascade)
+  authorId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([postId, createdAt])
   @@index([authorId])
@@ -816,66 +821,69 @@ model EventComment {
 // ==================== STUDIOS & JOBS ====================
 
 enum JobType {
-  ACTOR              // Adult film actor/performer
-  DIRECTOR           // Director
-  CAMERA_OPERATOR    // Camera/photography
-  EDITOR             // Video editor
-  PRODUCTION_STAFF   // General production
-  MODEL              // Photo/video model
-  OTHER              // Other roles
+  ACTOR // Adult film actor/performer
+  DIRECTOR // Director
+  CAMERA_OPERATOR // Camera/photography
+  EDITOR // Video editor
+  PRODUCTION_STAFF // General production
+  MODEL // Photo/video model
+  OTHER // Other roles
+
   @@map("job_type")
 }
 
 enum JobStatus {
-  OPEN               // Currently accepting applications
-  CLOSED             // No longer accepting applications
-  FILLED             // Position has been filled
-  CANCELLED          // Job posting cancelled
-  @@map("job_status") 
+  OPEN // Currently accepting applications
+  CLOSED // No longer accepting applications
+  FILLED // Position has been filled
+  CANCELLED // Job posting cancelled
+
+  @@map("job_status")
 }
 
 enum ApplicationStatus {
-  PENDING            // Application submitted, awaiting review
-  ACCEPTED           // Application accepted
-  REJECTED           // Application rejected
-  WITHDRAWN          // Applicant withdrew
+  PENDING // Application submitted, awaiting review
+  ACCEPTED // Application accepted
+  REJECTED // Application rejected
+  WITHDRAWN // Applicant withdrew
+
   @@map("application_status")
 }
 
 model Studio {
-  id              String @id @default(cuid())
-  
-  name            String @db.VarChar(200)
-  slug            String @unique
-  description     String? @db.Text
-  
+  id String @id @default(cuid())
+
+  name        String  @db.VarChar(200)
+  slug        String  @unique
+  description String? @db.Text
+
   // Images
-  logo            String?
-  coverImage      String?
-  
+  logo       String?
+  coverImage String?
+
   // Location
-  location        String? @db.VarChar(100)  // Latitude, Longitude
-  suburb          String? @db.VarChar(100)  // Suburb/City name
-  
+  location String? @db.VarChar(100) // Latitude, Longitude
+  suburb   String? @db.VarChar(100) // Suburb/City name
+
   // Contact
-  website         String? @db.VarChar(200)
-  email           String? @db.VarChar(100)
-  
+  website String? @db.VarChar(200)
+  email   String? @db.VarChar(100)
+
   // Verification
-  verified        Boolean @default(false)
-  active          Boolean @default(true)
-  
+  verified Boolean @default(false)
+  active   Boolean @default(true)
+
   // Owner (creator of the studio)
-  owner           User @relation("studioOwner", fields: [ownerId], references: [zesty_id], onDelete: Cascade)
-  ownerId         String
-  
+  owner   User   @relation("studioOwner", fields: [ownerId], references: [zesty_id], onDelete: Cascade)
+  ownerId String
+
   // Relations
-  admins          StudioAdmin[]
-  jobs            Job[]
-  reviews         StudioReview[]
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  admins  StudioAdmin[]
+  jobs    Job[]
+  reviews StudioReview[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([ownerId])
   @@index([slug])
@@ -885,20 +893,20 @@ model Studio {
 }
 
 model StudioAdmin {
-  id              String @id @default(cuid())
-  
-  studio          Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
-  studioId        String
-  
-  user            User @relation("studioAdminUser", fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
-  zesty_id          String
-  
+  id String @id @default(cuid())
+
+  studio   Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  studioId String
+
+  user     User   @relation("studioAdminUser", fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
+  zesty_id String
+
   // Permissions (can be expanded later)
   canPostJobs     Boolean @default(true)
   canManageJobs   Boolean @default(true)
   canInviteAdmins Boolean @default(false)
-  
-  createdAt       DateTime @default(now())
+
+  createdAt DateTime @default(now())
 
   @@unique([studioId, zesty_id])
   @@index([studioId])
@@ -907,51 +915,51 @@ model StudioAdmin {
 }
 
 model Job {
-  id              String @id @default(cuid())
-  
-  title           String @db.VarChar(200)
-  slug            String @unique
-  description     String @db.Text
-  
+  id String @id @default(cuid())
+
+  title       String @db.VarChar(200)
+  slug        String @unique
+  description String @db.Text
+
   // Job type
-  type            JobType
-  
+  type JobType
+
   // Pay
-  payAmount       Int                    // Amount in cents
-  payType         String @default("FIXED") // FIXED, HOURLY, DAILY, etc.
-  
+  payAmount Int // Amount in cents
+  payType   String @default("FIXED") // FIXED, HOURLY, DAILY, etc.
+
   // Duration
-  lengthHours     Int?                   // Duration in hours
-  lengthDays      Int?                   // Or duration in days
-  
+  lengthHours Int? // Duration in hours
+  lengthDays  Int? // Or duration in days
+
   // Location
-  location        String? @db.VarChar(100)  // Latitude, Longitude
-  suburb          String? @db.VarChar(100)  // Suburb/City name
-  venue           String? @db.VarChar(200)  // Specific location/studio address
-  
+  location String? @db.VarChar(100) // Latitude, Longitude
+  suburb   String? @db.VarChar(100) // Suburb/City name
+  venue    String? @db.VarChar(200) // Specific location/studio address
+
   // Filming dates
-  startDate       DateTime
-  endDate         DateTime?
-  
+  startDate DateTime
+  endDate   DateTime?
+
   // Requirements
-  requirements    String? @db.Text       // Additional requirements/qualifications
-  
+  requirements String? @db.Text // Additional requirements/qualifications
+
   // Images
-  coverImage      String?
-  
+  coverImage String?
+
   // Status
-  status          JobStatus @default(OPEN)
-  maxApplicants   Int?                   // Maximum number of applicants
-  
+  status        JobStatus @default(OPEN)
+  maxApplicants Int? // Maximum number of applicants
+
   // Studio
-  studio          Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
-  studioId        String
-  
+  studio   Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  studioId String
+
   // Relations
-  applications    JobApplication[]
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  applications JobApplication[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([studioId])
   @@index([slug])
@@ -962,22 +970,22 @@ model Job {
 }
 
 model JobApplication {
-  id              String @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Application details
-  coverLetter     String? @db.Text
-  status          ApplicationStatus @default(PENDING)
-  
+  coverLetter String?           @db.Text
+  status      ApplicationStatus @default(PENDING)
+
   // Job
-  job             Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  jobId           String
-  
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId String
+
   // Applicant
-  applicant       User @relation("jobApplicant", fields: [applicantId], references: [zesty_id], onDelete: Cascade)
-  applicantId     String
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  applicant   User   @relation("jobApplicant", fields: [applicantId], references: [zesty_id], onDelete: Cascade)
+  applicantId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([jobId, applicantId])
   @@index([jobId, status])
@@ -986,25 +994,25 @@ model JobApplication {
 }
 
 model StudioReview {
-  id              String @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Review content
-  rating          Int @db.SmallInt       // 1-5 stars
-  comment         String? @db.VarChar(1000)
-  
+  rating  Int     @db.SmallInt // 1-5 stars
+  comment String? @db.VarChar(1000)
+
   // Would work again?
-  wouldWorkAgain  Boolean @default(true)
-  
+  wouldWorkAgain Boolean @default(true)
+
   // Studio
-  studio          Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
-  studioId        String
-  
+  studio   Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  studioId String
+
   // Reviewer (person who worked for the studio)
-  reviewer        User @relation("studioReviewer", fields: [reviewerId], references: [zesty_id], onDelete: Cascade)
-  reviewerId      String
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  reviewer   User   @relation("studioReviewer", fields: [reviewerId], references: [zesty_id], onDelete: Cascade)
+  reviewerId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([studioId, createdAt])
   @@index([reviewerId])
@@ -1014,27 +1022,26 @@ model StudioReview {
 // ==================== PUSH NOTIFICATIONS ====================
 
 model PushSubscription {
-  id              String @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Web Push subscription details
-  endpoint        String @unique
-  keys            String // JSON string containing p256dh and auth keys
-  
+  endpoint String @unique
+  keys     String // JSON string containing p256dh and auth keys
+
   // User agent and device info for management
-  userAgent       String?
-  
+  userAgent String?
+
   // User
-  user            User @relation("pushSubscriptions", fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
-  zesty_id          String
-  
+  user     User   @relation("pushSubscriptions", fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
+  zesty_id String
+
   // Subscription status
-  active          Boolean @default(true)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([zesty_id, active])
   @@index([endpoint])
   @@map("push_subscriptions")
 }
-

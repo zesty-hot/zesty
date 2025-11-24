@@ -111,7 +111,7 @@ export default function DatingManagementPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b bg-card/50 backdrop-blur">
+      <div className="border-b backdrop-blur">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
