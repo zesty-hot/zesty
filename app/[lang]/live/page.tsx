@@ -17,6 +17,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 interface LiveChannel {
   id: string;
@@ -281,10 +282,8 @@ export default function Page() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-        </div>
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
+        <Spinner className="size-8" />
       </div>
     );
   }

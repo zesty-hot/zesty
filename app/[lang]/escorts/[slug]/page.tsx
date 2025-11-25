@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { RiStarFill } from "@remixicon/react";
 import { StartChatButton } from "@/components/start-chat-button";
 import { toastManager } from "@/components/ui/toast";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function EscortSlugPage() {
   const { lang, slug } = useParams();
@@ -101,8 +102,8 @@ export default function EscortSlugPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-10 md:px-4 py-4">
-        <p className="text-center text-muted-foreground">Loading...</p>
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
+        <Spinner className="size-8" />
       </div>
     );
   }
@@ -206,7 +207,7 @@ export default function EscortSlugPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Display default image - Hero section */}
         {defaultImage && (
-          <div className="lg:col-span-2 m-auto lg:m-0">
+          <div className="lg:col-span-2 mx-auto lg:m-0 mt-auto! mb-auto!">
             <div
               className="relative aspect-3/4 md:aspect-video max-h-[400px] lg:max-h-[600px] overflow-hidden rounded-xl bg-muted shadow-lg cursor-pointer hover:shadow-2xl transition-shadow group"
               onClick={() => setSelectedImage(defaultImage.url)}
@@ -214,10 +215,10 @@ export default function EscortSlugPage() {
               <img
                 src={defaultImage.url}
                 alt={`${profile.slug} - Profile Photo`}
-                className={`w-full h-full object-cover transition-all duration-300 ${defaultImage.NSFW === true ? 'blur-xl group-hover:blur-0' : ''
+                className={`w-full h-full object-cover transition-all duration-300 ${(defaultImage.NSFW === true && false) ? 'blur-xl group-hover:blur-0' : ''
                   }`}
               />
-              {defaultImage.NSFW === true && (
+              {(defaultImage.NSFW === true && false) && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity duration-300">
                   <div className="bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
                     <p className="text-sm font-medium">Click to reveal</p>

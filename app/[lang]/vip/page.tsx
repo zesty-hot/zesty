@@ -115,6 +115,7 @@ export default function Page() {
 
         if (data.isLoggedIn) {
           setFeedContent(data.content || []);
+          setFeaturedCreators(data.featuredCreators || []);
           setCursor(data.nextCursor);
           setHasMore(data.hasMore);
         } else {
@@ -303,23 +304,41 @@ export default function Page() {
   if (isLoggedIn) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">Your VIP Feed</h1>
-            <p className="text-muted-foreground">Latest content from your subscriptions</p>
+        {/* Header / Hero Section */}
+        <div className="relative overflow-hidden bg-linear-to-br from-purple-500/5 via-pink-500/5 to-rose-500/5 border-b">
+          <div className="container mx-auto px-4 py-8 md:py-12">
+            <div className="max-w-4xl mx-auto text-center space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-background/50 backdrop-blur-sm rounded-full border text-xs font-medium text-purple-600">
+                <Crown className="w-3 h-3" />
+                <span>VIP Access</span>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+                Your Exclusive Feed
+              </h1>
+              <p className="text-muted-foreground max-w-xl mx-auto">
+                Catch up on the latest content from your favorite creators
+              </p>
+
+              {/* Unified Search Bar */}
+              <div className="max-w-2xl mx-auto pt-4">
+                <UnifiedSearch
+                  defaultFilters={defaultFilters}
+                  onLocationSearch={handleLocationSearch}
+                  onUsernameSearch={handleUsernameSearch}
+                  onClearSearch={handleClearSearch}
+                  searchType="vip"
+                  lang={lang as string}
+                />
+              </div>
+            </div>
           </div>
 
-          {/* Unified Search Bar */}
-          <UnifiedSearch
-            defaultFilters={defaultFilters}
-            onLocationSearch={handleLocationSearch}
-            onUsernameSearch={handleUsernameSearch}
-            onClearSearch={handleClearSearch}
-            searchType="vip"
-            lang={lang as string}
-          />
+          {/* Decorative Elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        </div>
 
+        <div className="container mx-auto px-4 py-8">
           {/* Search Results */}
           {isSearching ? (
             <div className="flex items-center justify-center py-16">
@@ -327,7 +346,12 @@ export default function Page() {
             </div>
           ) : searchResults.length > 0 ? (
             <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">Search Results</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">Search Results</h2>
+                <Button variant="outline" onClick={handleClearSearch}>
+                  Clear Search
+                </Button>
+              </div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {searchResults.map((creator) => (
                   <CreatorCard key={creator.id} creator={creator} lang={lang as string} />
@@ -337,52 +361,80 @@ export default function Page() {
           ) : null}
 
           {/* Feed Content */}
-          {feedContent.length === 0 ? (
-            <div className="max-w-2xl mx-auto text-center py-16">
-              <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h2 className="text-2xl font-semibold mb-2">No subscriptions yet</h2>
-              <p className="text-muted-foreground mb-6">
-                Start following creators to see their exclusive content here
-              </p>
-              <Link href={`/${lang}/vip/discover`}>
-                <Button size="lg">
-                  Discover Creators
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
+          <div className="max-w-2xl mx-auto">
+            <div className="flex items-center gap-2 mb-6 pb-2 border-b">
+              <TrendingUp className="w-5 h-5 text-muted-foreground" />
+              <h2 className="text-lg font-semibold">Latest Updates</h2>
             </div>
-          ) : (
-            <div className="max-w-2xl mx-auto space-y-6">
-              {feedContent.map((item) => (
-                <FeedCard
-                  key={item.id}
-                  item={item}
-                  onLike={() => handleLike(item.id)}
-                  lang={lang as string}
-                />
-              ))}
-            </div>
-          )}
 
-          {/* Load More Button */}
-          {hasMore && feedContent.length > 0 && (
-            <div className="mt-8 flex justify-center">
-              <Button
-                onClick={loadMore}
-                disabled={isLoadingMore}
-                variant="outline"
-                size="lg"
-                className="min-w-[200px]"
-              >
-                {isLoadingMore ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Loading...
-                  </>
-                ) : (
-                  'Load More'
-                )}
-              </Button>
+            {feedContent.length === 0 ? (
+              <div className="text-center py-16 border rounded-xl bg-muted/30">
+                <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <h2 className="text-xl font-semibold mb-2">No subscriptions yet</h2>
+                <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                  Start following creators to see their exclusive content here
+                </p>
+                <Link href={`/${lang}/vip/discover`}>
+                  <Button>
+                    Discover Creators
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {feedContent.map((item) => (
+                  <FeedCard
+                    key={item.id}
+                    item={item}
+                    onLike={() => handleLike(item.id)}
+                    lang={lang as string}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Load More Button */}
+            {hasMore && feedContent.length > 0 && (
+              <div className="mt-8 flex justify-center">
+                <Button
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  variant="outline"
+                  size="lg"
+                  className="min-w-[200px]"
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load More'
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Featured Creators Section */}
+          {!isSearching && searchResults.length === 0 && featuredCreators.length > 0 && (
+            <div className="mt-16 mb-12">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-purple-500" />
+                  <h2 className="text-xl font-bold">Featured Creators</h2>
+                </div>
+                <Link href={`/${lang}/vip/discover`}>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                    View All <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {featuredCreators.slice(0, 4).map((creator) => (
+                  <CreatorCard key={creator.id} creator={creator} lang={lang as string} />
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -640,10 +692,10 @@ function FeedCard({
             alt={item.caption || 'Content'}
             className={cn(
               "w-full object-contain max-h-[600px] transition-all duration-300",
-              isBlurred && "blur-xl cursor-pointer"
+              (isBlurred && false) && "blur-xl cursor-pointer"
             )}
           />
-          {item.NSFW && (
+          {(item.NSFW && false) && (
             <div className="absolute top-4 right-4">
               <Badge variant="destructive">NSFW</Badge>
             </div>
@@ -663,7 +715,7 @@ function FeedCard({
               alt="Video thumbnail"
               className={cn(
                 "w-full object-contain max-h-[600px] transition-all duration-300",
-                isBlurred && "blur-xl cursor-pointer"
+                (isBlurred && false) && "blur-xl cursor-pointer"
               )}
             />
           ) : (
@@ -681,7 +733,7 @@ function FeedCard({
               {Math.floor(item.duration / 60)}:{(item.duration % 60).toString().padStart(2, '0')}
             </div>
           )}
-          {item.NSFW && (
+          {(item.NSFW && false) && (
             <div className="absolute top-4 right-4">
               <Badge variant="destructive">NSFW</Badge>
             </div>
@@ -744,10 +796,10 @@ function CreatorCard({ creator, lang }: { creator: FeaturedCreator; lang: string
                 alt={creator.slug}
                 className={cn(
                   "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300",
-                  isBlurred && "blur-xl cursor-pointer"
+                  (isBlurred && false) && "blur-xl cursor-pointer"
                 )}
               />
-              {creator.image.NSFW && (
+              {(creator.image.NSFW && false) && (
                 <div className="absolute top-4 right-4">
                   <Badge variant="destructive">NSFW</Badge>
                 </div>

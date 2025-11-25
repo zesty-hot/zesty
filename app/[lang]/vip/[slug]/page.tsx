@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { StartChatButton } from "@/components/start-chat-button";
+import { Spinner } from "@/components/ui/spinner";
 
 interface VIPProfileData {
   liveStreamPage: boolean;
@@ -187,8 +188,8 @@ export default function VIPProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <p className="text-center text-muted-foreground">Loading...</p>
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
+        <Spinner className="size-8" />
       </div>
     );
   }
@@ -196,7 +197,7 @@ export default function VIPProfilePage() {
   if (!profile) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <p className="text-center text-muted-foreground">VIP page not found</p>
+        <p className="text-center text-muted-foreground">Content creator not found</p>
       </div>
     );
   }
@@ -249,7 +250,7 @@ export default function VIPProfilePage() {
                 </div>
               )}
             </div>
-            
+
             {/* Live Badge - Top Right */}
             {profile.isLive && (
               <Link href={`/${lang}/live/${profile.user.slug}`} className="absolute -top-2 -right-2 group">
@@ -263,7 +264,7 @@ export default function VIPProfilePage() {
                 </div>
               </Link>
             )}
-            
+
             {/* Online Status - Bottom Right */}
             {profile.user.lastActive && (Date.now() - new Date(profile.user.lastActive).getTime()) < 3600000 && (
               <div className="absolute bottom-2 right-2 w-8 h-8 bg-background rounded-full flex items-center justify-center">
@@ -575,7 +576,7 @@ function FeedCard({
 
           {/* Image */}
           {item.type === 'IMAGE' && item.imageUrl && (
-            <div 
+            <div
               className="relative w-full overflow-hidden"
               onClick={() => item.NSFW && setIsBlurred(!isBlurred)}
             >
@@ -584,10 +585,10 @@ function FeedCard({
                 alt={item.caption || 'Content'}
                 className={cn(
                   "w-full object-contain max-h-[600px] transition-all duration-300",
-                  isBlurred && "blur-xl cursor-pointer"
+                  (isBlurred && false) && "blur-xl cursor-pointer"
                 )}
               />
-              {item.NSFW && (
+              {(item.NSFW && false) && (
                 <div className="absolute top-4 right-4">
                   <Badge variant="destructive">NSFW</Badge>
                 </div>
@@ -597,7 +598,7 @@ function FeedCard({
 
           {/* Video */}
           {item.type === 'VIDEO' && (
-            <div 
+            <div
               className="relative w-full bg-black overflow-hidden group/video"
               onClick={() => item.NSFW && setIsBlurred(!isBlurred)}
             >
@@ -607,7 +608,7 @@ function FeedCard({
                   alt="Video thumbnail"
                   className={cn(
                     "w-full object-contain max-h-[600px] transition-all duration-300",
-                    isBlurred && "blur-xl cursor-pointer"
+                    (isBlurred && false) && "blur-xl cursor-pointer"
                   )}
                 />
               ) : (
@@ -617,7 +618,7 @@ function FeedCard({
               )}
               <div className={cn(
                 "absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity duration-300",
-                item.NSFW && "group-hover/video:opacity-100 opacity-0"
+                (item.NSFW && false) && "group-hover/video:opacity-100 opacity-0"
               )}>
                 <div className="bg-white/90 rounded-full p-4">
                   <Video className="w-8 h-8 text-black" />
@@ -628,7 +629,7 @@ function FeedCard({
                   {Math.floor(item.duration / 60)}:{(item.duration % 60).toString().padStart(2, '0')}
                 </div>
               )}
-              {item.NSFW && (
+              {(item.NSFW && false) && (
                 <div className="absolute top-4 right-4 transition-opacity duration-300 group-hover/video:opacity-0">
                   <Badge variant="destructive">NSFW</Badge>
                 </div>

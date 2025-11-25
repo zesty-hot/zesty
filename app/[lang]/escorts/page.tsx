@@ -371,12 +371,12 @@ export default function Page() {
                     className={cn(
                       "absolute inset-0 w-full h-full object-cover transition-all duration-500",
                       isTransitioning ? 'opacity-0' : 'opacity-100',
-                      rotatedImages[0].NSFW === true ? 'blur-xl group-hover:blur-0' : ''
+                      (rotatedImages[0].NSFW === true && false) ? 'blur-xl group-hover:blur-0' : ''
                     )}
                     src={rotatedImages[0].url}
                     alt={featuredProfile.slug}
                   />
-                  {rotatedImages[0].NSFW === true && (
+                  {(rotatedImages[0].NSFW === true && false) && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity duration-300">
                       <div className="bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
                         <p className="text-sm font-medium">NSFW</p>
@@ -397,12 +397,12 @@ export default function Page() {
                       <img
                         className={cn(
                           "absolute inset-0 w-full h-full object-cover transition-all duration-500",
-                          image.NSFW === true ? 'blur-xl group-hover:blur-0' : ''
+                          (image.NSFW === true && false) ? 'blur-xl group-hover:blur-0' : ''
                         )}
                         src={image.url}
                         alt={`${featuredProfile.slug} - Image ${index + 2}`}
                       />
-                      {image.NSFW === true && (
+                      {(image.NSFW === true && false) && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity duration-300">
                           <div className="bg-black/60 text-white px-2 py-1 rounded-lg backdrop-blur-sm text-xs font-medium">
                             NSFW
@@ -483,12 +483,12 @@ export default function Page() {
                           <img
                             className={cn(
                               "w-full h-full object-cover transition-all duration-300",
-                              defaultImage?.NSFW === true ? 'blur-xl group-hover:blur-0' : ''
+                              (defaultImage?.NSFW === true && false) ? 'blur-xl group-hover:blur-0' : ''
                             )}
                             src={defaultImage?.url}
                             alt={profile.slug}
                           />
-                          {defaultImage?.NSFW === true && (
+                          {(defaultImage?.NSFW === true && false) && (
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity duration-300">
                               <div className="bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
                                 <p className="text-sm font-medium">NSFW</p>
