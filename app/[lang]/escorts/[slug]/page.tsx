@@ -209,7 +209,7 @@ export default function EscortSlugPage() {
         {defaultImage && (
           <div className="lg:col-span-2 mx-auto lg:m-0 mt-auto! mb-auto!">
             <div
-              className="relative aspect-3/4 md:aspect-video max-h-[400px] lg:max-h-[600px] overflow-hidden rounded-xl bg-muted shadow-lg cursor-pointer hover:shadow-2xl transition-shadow group"
+              className="relative aspect-video max-h-[400px] lg:max-h-[600px] overflow-hidden rounded-xl bg-muted shadow-lg cursor-pointer hover:shadow-2xl transition-shadow group"
               onClick={() => setSelectedImage(defaultImage.url)}
             >
               <img

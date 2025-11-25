@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
             select: {
               user: {
                 select: {
-                  id: true,
+                  zesty_id: true,
                   slug: true,
                   images: {
                     where: { default: true },
@@ -189,7 +189,7 @@ export async function POST(req: NextRequest) {
             }
           },
           likes: {
-            where: { userId: user.zesty_id },
+            where: { zesty_id: user.zesty_id },
             select: { id: true },
           }
         },
@@ -227,7 +227,7 @@ export async function POST(req: NextRequest) {
         createdAt: item.createdAt,
         isLiked: item.likes && item.likes.length > 0,
         creator: {
-          id: item.vipPage.user.id,
+          id: item.vipPage.user.zesty_id,
           slug: item.vipPage.user.slug,
           image: item.vipPage.user.images?.[0]?.url || null,
         }

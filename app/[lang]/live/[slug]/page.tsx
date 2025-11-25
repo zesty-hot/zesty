@@ -108,10 +108,10 @@ export default function LiveStreamPage() {
             currentStream: channelData.streams?.[0] || null,
             isOwner: channelData.user.slug === user?.slug,
             followerCount: channelData._count?.followers || 0,
-            isFollowing: false, // TODO: get from API
+            isFollowing: channelData.isFollowing,
             pastStreams: [], // Will be loaded separately if needed
           });
-          setIsFollowing(false); // TODO: get actual follow status
+          setIsFollowing(channelData.isFollowing);
         }
       }
     } catch (error) {
@@ -171,6 +171,10 @@ export default function LiveStreamPage() {
   const toggleFollow = async () => {
     if (!channel) return;
 
+    // Optimistic update
+    const previousState = isFollowing;
+    setIsFollowing(!previousState);
+
     try {
       const response = await fetch('/api/live/follow', {
         method: 'POST',
@@ -184,10 +188,14 @@ export default function LiveStreamPage() {
         const data = await response.json();
         setIsFollowing(data.following);
         // Optionally refresh to get updated follower count
-        await fetchChannelData();
+        // await fetchChannelData();
+      } else {
+        // Revert on error
+        setIsFollowing(previousState);
       }
     } catch (error) {
       console.error('Error toggling follow:', error);
+      setIsFollowing(previousState);
     }
   };
 
@@ -302,12 +310,12 @@ export default function LiveStreamPage() {
                 {/* Streamer Info */}
                 <div className="flex flex-col md:flex-row lg:flex-col xl:flex-row md:items-center lg:items-baseline xl:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
 
-                  <button
-                    onClick={() => setProfileOpen(true)}
-                    className="flex items-center gap-3 pb-4 md:pb-0 lg:pb-4 xl:pb-0 hover:underline"
+                  {/* <button
+                    className="flex items-center gap-3 pb-4 md:pb-0 lg:pb-4 xl:pb-0"
                     aria-label={`Open profile for ${channel.user.slug || 'user'}`}
-                  >
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
+                  > */}
+                  <div className="flex md:pb-0 lg:pb-4 xl:pb-0 gap-3">
+                    <div onClick={() => setProfileOpen(true)} className="w-12 h-12 rounded-full overflow-hidden bg-muted  cursor-pointer">
                       {channel.user.images[0]?.url ? (
                         <img
                           src={channel.user.images[0].url}
@@ -321,15 +329,16 @@ export default function LiveStreamPage() {
                       )}
                     </div>
                     <div>
-                      <p className="font-semibold">{channel.user.slug}</p>
+                      <p onClick={() => setProfileOpen(true)} className="font-semibold hover:underline cursor-pointer">{channel.user.slug}</p>
                       {channel.user.suburb && (
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <p className="text-sm hover:no-underline! text-muted-foreground flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
                           {channel.user.suburb}
                         </p>
                       )}
                     </div>
-                  </button>
+                  </div>
+                  {/* </button> */}
                   <ProfileModal slug={channel.user.slug} open={profileOpen} onOpenChange={setProfileOpen} />
 
 

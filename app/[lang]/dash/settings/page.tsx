@@ -9,11 +9,12 @@ import { Spinner } from "@/components/ui/spinner";
 import { PushNotificationToggle } from "@/components/push-notification-toggle";
 import { toastManager } from "@/components/ui/toast";
 import { useSupabaseSession } from "@/lib/supabase/client";
+import { ProfileSettings } from "@/components/settings/profile-settings";
 
 export default function SettingsPage() {
   const { lang } = useParams<{ lang: string }>();
   const { status, supabase } = useSupabaseSession();
-  const router = useRouter(); 
+  const router = useRouter();
 
   if (status === "loading") {
     return (
@@ -61,30 +62,17 @@ export default function SettingsPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
-          <Card className="p-12 text-center">
+          {/* <Card className="p-12 text-center">
             <Settings className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
             <h2 className="text-2xl font-semibold mb-2">Settings Coming Soon</h2>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               This settings page is currently under development. Here you'll be able to manage your account preferences, notifications, privacy, and more.
             </p>
-          </Card>
+          </Card> */}
 
           {/* Planned Settings Sections */}
-          <div className="mt-8 grid gap-4">
-            <Card className="p-6 opacity-50">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                  <User className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg">Profile Settings</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Update your name, bio, photos, location, and profile information
-                  </p>
-                </div>
-                <span className="text-xs text-muted-foreground">Coming Soon</span>
-              </div>
-            </Card>
+          <div className="grid gap-4">
+            <ProfileSettings />
 
             <Card className="p-6">
               <div className="flex items-center gap-4 mb-4">
@@ -101,6 +89,10 @@ export default function SettingsPage() {
               <div className="border-t border-gray-400 opacity-10"></div>
               <div className="pl-16">
                 <PushNotificationToggle />
+              </div>
+              <div className="pl-16 text-muted-foreground">
+                Email notifications
+                <p className="text-sm">Coming soon</p>
               </div>
             </Card>
 
@@ -121,13 +113,13 @@ export default function SettingsPage() {
 
             <Card className="p-6 opacity-50">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center">
-                  <Lock className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center">
+                  <HelpCircle className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg">Privacy & Security</h3>
+                  <h3 className="font-semibold text-lg">Help & Support</h3>
                   <p className="text-sm text-muted-foreground">
-                    Control your privacy settings and account security
+                    Get help, view FAQs, and contact support
                   </p>
                 </div>
                 <span className="text-xs text-muted-foreground">Coming Soon</span>
@@ -149,21 +141,6 @@ export default function SettingsPage() {
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
                 </Button>
-              </div>
-            </Card>
-
-            <Card className="p-6 opacity-50">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center">
-                  <HelpCircle className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg">Help & Support</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Get help, view FAQs, and contact support
-                  </p>
-                </div>
-                <span className="text-xs text-muted-foreground">Coming Soon</span>
               </div>
             </Card>
           </div>

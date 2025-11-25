@@ -39,6 +39,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { StartChatButton } from "@/components/start-chat-button";
 import { Spinner } from "@/components/ui/spinner";
+import { VIPFollowButton } from "@/components/vip/vip-follow-button";
 
 interface VIPProfileData {
   liveStreamPage: boolean;
@@ -362,48 +363,16 @@ export default function VIPProfilePage() {
               )}
 
               {/* Subscription Buttons */}
-              {profile.hasActiveSubscription ? (
-                <>
-                  <Button
-                    size="lg"
-                    variant={isHoveringSubscribed ? "destructive" : "outline"}
-                    className="w-full md:w-auto relative overflow-hidden transition-colors"
-                    onMouseEnter={() => setIsHoveringSubscribed(true)}
-                    onMouseLeave={() => setIsHoveringSubscribed(false)}
-                  >
-                    <span className={cn(
-                      "flex items-center transition-all duration-300",
-                      isHoveringSubscribed ? "opacity-0 -translate-x-2" : "opacity-100 translate-x-0"
-                    )}>
-                      <CheckCircle2 className="w-4 h-4 mr-2" />
-                      Subscribed
-                    </span>
-                    <span className={cn(
-                      "absolute inset-0 flex items-center justify-center transition-all duration-300",
-                      isHoveringSubscribed ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2"
-                    )}>
-                      <X className="w-4 h-4 mr-2" />
-                      Unsubscribe
-                    </span>
-                  </Button>
-                  <StartChatButton otherUserSlug={profile.user.slug as string} lang={lang as string} size="lg" />
-                </>
-              ) : profile.isFree ? (
-                <Button size="lg" className="w-full md:w-auto">
-                  Follow for Free
-                </Button>
-              ) : (
-                <div className="space-y-2">
-                  <Button size="lg" className="w-full md:w-auto bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-                    Subscribe ${(displayPrice / 100).toFixed(2)}/month
-                  </Button>
-                  {profile.activeDiscount && (
-                    <p className="text-xs text-muted-foreground text-center">
-                      <span className="line-through">${(profile.subscriptionPrice / 100).toFixed(2)}</span>
-                      {' '}Save {profile.activeDiscount.discountPercent}%
-                    </p>
-                  )}
-                </div>
+              {!profile.isOwnPage && (
+                <VIPFollowButton
+                  vipPageId={profile.id}
+                  isFree={profile.isFree}
+                  price={profile.subscriptionPrice}
+                  isSubscribed={profile.hasActiveSubscription}
+                  creatorName={profile.user.slug || profile.title}
+                  activeDiscount={profile.activeDiscount}
+                  onSubscriptionChange={() => fetchProfileData()}
+                />
               )}
 
               {/* Report Button */}

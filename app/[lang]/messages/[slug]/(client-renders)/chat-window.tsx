@@ -11,6 +11,7 @@ import { RiSendPlaneFill } from '@remixicon/react';
 import { MakeOfferButton } from '@/components/make-offer-button';
 import { OfferCard } from '@/components/offer-card';
 import ProfileModal from '@/components/profile-modal';
+import { AlertTriangle, TriangleAlert } from 'lucide-react';
 
 interface ChatUser {
   id: string;
@@ -296,7 +297,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
-        <Spinner className="size-8 text-muted-foreground" />
+        <Spinner className="size-8" />
       </div>
     );
   }
@@ -310,32 +311,43 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-12rem)] bg-white border border-gray-200 rounded-lg overflow-hidden">
       {/* Header */}
-      <div className="border-b p-4 flex items-center gap-3">
-        <Avatar className="h-10 w-10">
-          {chat.otherUser.images?.[0]?.url ? (
-            <img
-              src={chat.otherUser.images[0].url}
-              alt="User"
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-              <span className="font-semibold">
-                {chat.otherUser.slug?.[0]?.toUpperCase() || '?'}
-              </span>
-            </div>
-          )}
-        </Avatar>
-        <button
-          onClick={() => setProfileOpen(true)}
-          className="font-semibold text-lg text-left hover:underline focus:outline-none"
-          aria-label={`Open profile for ${chat.otherUser.slug || 'user'}`}
-        >
-          {chat.otherUser.slug || 'Unknown User'}
-        </button>
-        <ProfileModal slug={chat.otherUser.slug} open={profileOpen} onOpenChange={setProfileOpen} />
+      <div className="flex flex-row border-b p-4">
+        <div className="flex-1  items-center gap-3">
+          <Avatar className="h-10 w-10" onClick={() => setProfileOpen(true)}>
+            {chat.otherUser?.images?.[0]?.url ? (
+              <img
+                src={chat.otherUser.images[0].url}
+                alt="User"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full bg-gray-300 flex items-center justify-center">
+                <span className="font-semibold">
+                  {chat.otherUser?.slug?.[0]?.toUpperCase() || '?'}
+                </span>
+              </div>
+            )}
+          </Avatar>
+          <button
+            onClick={() => setProfileOpen(true)}
+            className="ml-3 font-semibold text-left hover:underline focus:outline-none"
+            aria-label={`Open profile for ${chat.otherUser?.slug || 'user'}`}
+          >
+            {chat.otherUser?.slug || 'Unknown User'}
+          </button>
+          <ProfileModal slug={chat.otherUser?.slug} open={profileOpen} onOpenChange={setProfileOpen} />
+        </div>
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="lg"
+            title="Report channel"
+          >
+            <TriangleAlert className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Private Ad Banner */}

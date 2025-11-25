@@ -111,7 +111,7 @@ export function ChatList() {
 
   if (chats.length === 0) {
     return (
-      <div className="flex flex-col h-full bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="flex flex-col bg-white border border-gray-200 rounded-lg overflow-hidden h-[calc(100vh-12rem)]">
         <div className="border-b border-gray-200 p-4 bg-white">
           <h1 className="text-2xl font-bold text-gray-800">Messages</h1>
         </div>
@@ -126,7 +126,7 @@ export function ChatList() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div className="flex flex-col bg-white border border-gray-200 rounded-lg overflow-hidden h-[calc(100vh-12rem)]">
       <div className="border-b border-gray-200 p-4 bg-white">
         <h1 className="text-2xl font-bold text-gray-800">Messages</h1>
       </div>
@@ -140,7 +140,7 @@ export function ChatList() {
           >
             <div className="flex items-center gap-3 p-4">
               <div className="shrink-0 h-12 w-12 rounded-full bg-gray-300 overflow-hidden">
-                {chat.otherUser.images?.[0]?.url ? (
+                {chat.otherUser?.images?.[0]?.url ? (
                   <img
                     src={chat.otherUser.images[0].url}
                     alt="User"
@@ -149,7 +149,7 @@ export function ChatList() {
                 ) : (
                   <div className="h-full w-full bg-gray-300 flex items-center justify-center">
                     <span className="text-lg font-semibold text-gray-700">
-                      {chat.otherUser.slug?.[0]?.toUpperCase() || '?'}
+                      {chat.otherUser?.slug?.[0]?.toUpperCase() || '?'}
                     </span>
                   </div>
                 )}
@@ -158,7 +158,7 @@ export function ChatList() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline justify-between gap-2">
                   <h3 className="font-semibold truncate text-gray-800">
-                    {chat.otherUser.slug || 'Unknown User'}
+                    {chat.otherUser?.slug || 'Unknown User'}
                   </h3>
                   <div className="flex items-center gap-2">
                     {unreadCounts[chat.id] > 0 && (

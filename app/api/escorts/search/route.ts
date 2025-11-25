@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma, withRetry } from '@/lib/prisma';
-import { Gender, BodyType, Race, PrivateAdDaysAvailable } from '@prisma/client';
+import { Gender, BodyType, Race, PrivateAdDaysAvailable } from '@/prisma/generated/client';
 import { calculateDistance } from '@/lib/calculate-distance';
 import { calculateAge } from '@/lib/calculate-age';
 
@@ -169,8 +169,8 @@ export async function POST(request: NextRequest) {
     // Create a map for quick lookup
     const ratingsMap = new Map(
       ratingsData.map(r => [
-        r.revieweeId, 
-        { 
+        r.revieweeId,
+        {
           averageRating: r._avg.rating ?? 0,
         }
       ])

@@ -1,7 +1,19 @@
-import { PrismaClient, Gender, BodyType, Race, PrivateAdCustomerCategory, PrivateAdServiceCategory, PrivateAdExtraType, PrivateAdDaysAvailable, VIPContentType, EventStatus, EventAttendeeStatus, JobType, JobStatus, ApplicationStatus, SwipeDirection } from '@prisma/client';
+import { PrismaClient, Gender, BodyType, Race, PrivateAdCustomerCategory, PrivateAdServiceCategory, PrivateAdExtraType, PrivateAdDaysAvailable, VIPContentType, EventStatus, EventAttendeeStatus, JobType, JobStatus, ApplicationStatus, SwipeDirection } from '@/prisma/generated/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 import { randomUUID } from 'crypto';
 
-const prisma = new PrismaClient();
+// Strip sslmode from connection string to allow programmatic SSL config
+const connectionString = process.env.DATABASE_URL?.replace(/[?&]sslmode=[^&]+/, '') || '';
+
+const pool = new Pool({
+  connectionString,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 // Australian cities with coordinates
 const locations = [
@@ -944,6 +956,8 @@ async function main() {
         suburb: `${location.city}, ${location.state}`,
         ownerId: owner.zesty_id,
         active: true,
+        logo: `https://picsum.photos/seed/studio-logo-${i}/200/200`,
+        coverImage: `https://picsum.photos/seed/studio-cover-${i}/1200/400`,
       }
     });
 
@@ -958,6 +972,7 @@ async function main() {
         startDate: new Date(),
         studioId: studio.id,
         status: JobStatus.OPEN,
+        coverImage: `https://picsum.photos/seed/job-${i}/1200/600`,
       }
     });
   }

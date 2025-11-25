@@ -22,6 +22,7 @@ import {
 import { StartChatButton } from "@/components/start-chat-button";
 import { useSupabaseSession } from "@/lib/supabase/client";
 import { toastManager } from "@/components/ui/toast";
+import ProfileModal from "@/components/profile-modal";
 
 interface EventData {
   id: string;
@@ -95,6 +96,7 @@ export default function EventPage() {
   const [isPostingThread, setIsPostingThread] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -335,7 +337,7 @@ export default function EventPage() {
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-muted shrink-0">
+                    <div onClick={() => setProfileOpen(true)} className="cursor-pointer w-10 h-10 rounded-full overflow-hidden bg-muted shrink-0">
                       {event.organizer.images?.[0]?.url ? (
                         <img src={event.organizer.images[0].url} alt={event.organizer.slug || 'Organizer'} className="w-full h-full object-cover" />
                       ) : (
@@ -346,10 +348,25 @@ export default function EventPage() {
                     </div>
                     <div>
                       <p className="font-semibold">Organized by</p>
+
+
+                      <button
+                        onClick={() => setProfileOpen(true)}
+                        className="flex items-center gap-3 pb-4 md:pb-0 lg:pb-4 xl:pb-0 hover:underline"
+                        aria-label={`Open profile for ${event.organizer.slug || 'user'}`}
+                      >
+                        <div>
+                          <p className="text-muted-foreground text-sm">{event.organizer.slug}</p>
+                        </div>
+                      </button>
+                      <ProfileModal slug={event.organizer.slug} open={profileOpen} onOpenChange={setProfileOpen} />
+
+
+                      {/* 
                       <StartChatButton variant="ghost" otherUserSlug={event.organizer.slug as string}>
                         {event.organizer.slug}
                         {event.organizer.verified && " ✓"}
-                      </StartChatButton>
+                      </StartChatButton> */}
                     </div>
                   </div>
                 </div>

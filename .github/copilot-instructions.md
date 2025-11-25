@@ -5,6 +5,10 @@ description: "CRITICAL database protection rules and user privacy requirements"
 
 # 🚨 CRITICAL: DATABASE PROTECTION RULES 🚨
 
+## 🚨 SECURITY RULES 🚨
+1. Do not do this `NODE_TLS_REJECT_UNAUTHORIZED=0`
+2. Always set `NODE_TLS_REJECT_UNAUTHORIZED=1` or RESET to DEFAULT VALUE
+
 ## 🚨 PRISMA MIGRATION RULES - NEVER BREAK THESE 🚨
 
 ### ABSOLUTE RULES:

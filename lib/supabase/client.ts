@@ -2,7 +2,7 @@
 
 import { Session, SupabaseClient, User as SupabaseUser } from '@supabase/supabase-js';
 import { createBrowserClient } from "@supabase/ssr";
-import { User as ZestyUser } from '@prisma/client';
+import { User as ZestyUser } from '@/prisma/generated/client';
 import { createElement, createContext, useContext, useState, useEffect } from 'react';
 
 type Status = 'loading' | 'authenticated' | 'unauthenticated';
@@ -59,7 +59,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
         setStatus('unauthenticated');
         return;
       }
-      
+
       setSession(session);
       setStatus(session ? 'authenticated' : 'unauthenticated');
 

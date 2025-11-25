@@ -110,7 +110,7 @@ export function ProfileModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-full lg:max-w-6xl p-0 overflow-hidden bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl border-zinc-200/50 dark:border-zinc-800/50 shadow-2xl gap-0 h-[95vh] lg:h-[700px] rounded-t-2xl lg:rounded-3xl border-0 lg:border">
+      <DialogContent className="w-full max-w-full lg:max-w-6xl p-0 overflow-hidden bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl border-zinc-200/50 dark:border-zinc-800/50 shadow-2xl gap-0 h-[95vh] lg:h-[700px] rounded-t-xl lg:rounded-xl border-0 lg:border">
         <DialogTitle className="sr-only">Profile Summary for {slug}</DialogTitle>
         <DialogDescription className="sr-only">
           Detailed view of {slug}&apos;s profile including photos and personal information.
@@ -234,7 +234,7 @@ export function ProfileModal({
               </div>
 
               {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto p-4 lg:p-6 pt-2 space-y-6 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto p-4 lg:p-6 pt-2! space-y-6 custom-scrollbar">
                 {/* Bio */}
                 <div className="prose prose-sm dark:prose-invert max-w-none">
                   <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
@@ -299,6 +299,21 @@ export function ProfileModal({
                         </a>
                       )}
 
+                      {!data.hasEscort && (
+                        <div className="opacity-60 flex cursor-default items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-950/20 border border-gray-100 dark:border-gray-900/30 dark:hover:bg-gray-900/40 transition-colors group">
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-900/50 flex items-center justify-center text-gray-600 dark:text-gray-400">
+                              <Heart className="h-4 w-4" />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 opacity-80">Escort Profile</span>
+                              <span className="text-xs text-gray-700 dark:text-gray-300/70 opacity-80">View full booking details</span>
+                            </div>
+                          </div>
+                          <ExternalLink className="h-4 w-4 text-gray-400 transition-colors" />
+                        </div>
+                      )}
+
                       {data.hasVIP && (
                         <a
                           href={`/${lang}/vip/${data.slug}`}
@@ -315,6 +330,21 @@ export function ProfileModal({
                           </div>
                           <ExternalLink className="h-4 w-4 text-amber-400 group-hover:text-amber-600 transition-colors" />
                         </a>
+                      )}
+
+                      {!data.hasVIP && (
+                        <div className="opacity-60 flex cursor-default items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-950/20 border dark:border-gray-900/30 hover:bg-gray-100 dark:hover:bg-gray-900/40 transition-colors group">
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-900/50 flex items-center justify-center text-gray-600 dark:text-gray-400">
+                              <Crown className="h-4 w-4" />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 opacity-80">VIP Content</span>
+                              <span className="text-xs text-gray-700 dark:text-gray-300/70 opacity-80">Exclusive photos & videos</span>
+                            </div>
+                          </div>
+                          <ExternalLink className="h-4 w-4 text-gray-400 transition-colors" />
+                        </div>
                       )}
 
                       {data.hasLive && (
@@ -334,6 +364,22 @@ export function ProfileModal({
                           <ExternalLink className="h-4 w-4 text-purple-400 group-hover:text-purple-600 transition-colors" />
                         </a>
                       )}
+
+                      {!data.hasLive && (
+                        <div className="opacity-60 flex cursor-default items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-950/20 border border-gray-100 dark:border-gray-900/30 dark:hover:bg-gray-900/40 transition-colors group">
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-900/50 flex items-center justify-center text-gray-600 dark:text-gray-400">
+                              <Video className="h-4 w-4" />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 opacity-80">Live Channel</span>
+                              <span className="text-xs text-gray-700 dark:text-gray-300/70 opacity-80">Watch live streams</span>
+                            </div>
+                          </div>
+                          <ExternalLink className="h-4 w-4 text-gray-400 transition-colors" />
+                        </div>
+                      )}
+
                     </div>
                   </div>
                 )}

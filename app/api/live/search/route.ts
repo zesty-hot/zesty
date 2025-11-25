@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma, withRetry } from '@/lib/prisma';
 import { calculateDistance } from '@/lib/calculate-distance';
 import { calculateAge } from '@/lib/calculate-age';
-import { Gender, BodyType, Race } from '@prisma/client';
+import { Gender, BodyType, Race } from '@/prisma/generated/enums';
+import { serverSupabase } from '@/lib/supabase/server';
 
 interface FilterData {
   gender: string[];
@@ -29,6 +30,21 @@ export async function POST(request: NextRequest) {
       limit = 8,
       liveOnly = false,  // Add parameter to filter only live streams
     } = await request.json();
+
+    // Get current user for follow status
+    const supaBase = await serverSupabase();
+    const { data: session } = await supaBase.auth.getUser();
+    let currentUserId: string | null = null;
+
+    if (session.user) {
+      const user = await withRetry(() => prisma.user.findUnique({
+        where: { supabaseId: session.user?.id },
+        select: { zesty_id: true },
+      }));
+      if (user) {
+        currentUserId = user.zesty_id;
+      }
+    }
 
     let decodedSlug = decodeURIComponent(slug);
 
@@ -96,8 +112,22 @@ export async function POST(request: NextRequest) {
         });
       }
 
+      // Check if following
+      let isFollowing = false;
+      if (currentUserId) {
+        const follow = await withRetry(() => prisma.liveStreamFollower.findUnique({
+          where: {
+            zesty_id_channelId: {
+              zesty_id: currentUserId!,
+              channelId: channel.id,
+            },
+          },
+        }));
+        isFollowing = !!follow;
+      }
+
       return NextResponse.json({
-        channels: [channel],
+        channels: [{ ...channel, isFollowing }],
         total: 1,
         totalPages: 1,
       });
@@ -211,8 +241,8 @@ export async function POST(request: NextRequest) {
       }));
 
       // Calculate distances, filter by age, and sort
-      const channelsWithDistance = channels
-        .map((channel) => {
+      const channelsWithDistance = await Promise.all(channels
+        .map(async (channel) => {
           if (!channel.user.location) return null;
 
           // Age filter
@@ -234,26 +264,43 @@ export async function POST(request: NextRequest) {
             channelLng
           );
 
+          // Check follow status
+          let isFollowing = false;
+          if (currentUserId) {
+            const follow = await withRetry(() => prisma.liveStreamFollower.findUnique({
+              where: {
+                zesty_id_channelId: {
+                  zesty_id: currentUserId!,
+                  channelId: channel.id,
+                },
+              },
+            }));
+            isFollowing = !!follow;
+          }
+
           return {
             ...channel,
+            isFollowing,
             distance,
             distanceText: distance < 1
               ? `${Math.round(distance * 1000)}m away`
               : `${distance.toFixed(1)}km away`,
           };
-        })
+        }));
+
+      const validChannels = channelsWithDistance
         .filter((channel): channel is NonNullable<typeof channel> => channel !== null)
         .sort((a, b) => a.distance - b.distance); // Always sort by distance for location-based search
 
       // Paginate
       const startIndex = (page - 1) * limit;
       const endIndex = startIndex + limit;
-      const paginatedChannels = channelsWithDistance.slice(startIndex, endIndex);
+      const paginatedChannels = validChannels.slice(startIndex, endIndex);
 
       return NextResponse.json({
         channels: paginatedChannels,
-        total: channelsWithDistance.length,
-        totalPages: Math.ceil(channelsWithDistance.length / limit),
+        total: validChannels.length,
+        totalPages: Math.ceil(validChannels.length / limit),
       });
     }
 
@@ -333,8 +380,25 @@ export async function POST(request: NextRequest) {
       })),
     ]);
 
+    // Add follow status
+    const channelsWithFollow = await Promise.all(channels.map(async (channel) => {
+      let isFollowing = false;
+      if (currentUserId) {
+        const follow = await withRetry(() => prisma.liveStreamFollower.findUnique({
+          where: {
+            zesty_id_channelId: {
+              zesty_id: currentUserId!,
+              channelId: channel.id,
+            },
+          },
+        }));
+        isFollowing = !!follow;
+      }
+      return { ...channel, isFollowing };
+    }));
+
     return NextResponse.json({
-      channels,
+      channels: channelsWithFollow,
       total,
       totalPages: Math.ceil(total / limit),
     });

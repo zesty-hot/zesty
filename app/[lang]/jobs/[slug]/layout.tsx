@@ -12,7 +12,7 @@ type Props = {
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, lang } = await params;
-  
+
   try {
     // Fetch the job data
     const job = await withRetry(() =>
@@ -74,8 +74,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const duration = job.lengthDays
       ? `${job.lengthDays} ${job.lengthDays === 1 ? "day" : "days"}`
       : job.lengthHours
-      ? `${job.lengthHours} ${job.lengthHours === 1 ? "hour" : "hours"}`
-      : "Flexible";
+        ? `${job.lengthHours} ${job.lengthHours === 1 ? "hour" : "hours"}`
+        : "Flexible";
 
     // Build location string
     const location = [job.venue, job.suburb].filter(Boolean).join(", ");
@@ -88,9 +88,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? job.description.length > 155
         ? `${job.description.substring(0, 152)}...`
         : job.description
-      : `${jobType} position at ${job.studio.name}. ${payInfo}. ${duration} duration. ${
-          location ? `Located in ${location}.` : ""
-        } Apply now!`;
+      : `${jobType} position at ${job.studio.name}. ${payInfo}. ${duration} duration. ${location ? `Located in ${location}.` : ""
+      } Apply now!`;
 
     // Build title
     const titleParts = [job.title, jobType];

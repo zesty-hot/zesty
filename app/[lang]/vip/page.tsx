@@ -144,7 +144,7 @@ export default function Page() {
 
       if (response.ok) {
         const data = await response.json();
-        setFeedContent([...feedContent, ...data.content]);
+        setFeedContent(prev => [...prev, ...data.content]);
         setCursor(data.nextCursor);
         setHasMore(data.hasMore);
       }
@@ -167,7 +167,7 @@ export default function Page() {
 
       if (response.ok) {
         // Update the like status locally
-        setFeedContent(feedContent.map(item =>
+        setFeedContent(prev => prev.map(item =>
           item.id === contentId
             ? { ...item, isLiked: !item.isLiked, likesCount: item.isLiked ? item.likesCount - 1 : item.likesCount + 1 }
             : item
@@ -275,7 +275,7 @@ export default function Page() {
 
       if (response && response.ok) {
         const data = await response.json();
-        setSearchResults([...searchResults, ...(data.creators || [])]);
+        setSearchResults(prev => [...prev, ...(data.creators || [])]);
         setSearchPage(nextPage);
       }
     } catch (error) {

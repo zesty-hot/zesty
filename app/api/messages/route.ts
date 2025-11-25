@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     const supaBase = await serverSupabase();
     const { data: session } = await supaBase.auth.getUser();
     const userId = (session?.user as any)?.id;
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -67,7 +67,16 @@ export async function GET(req: NextRequest) {
 
     // Format the chats to include the other user and last message
     const formattedChats = chats.map((chat) => {
-      const otherUser = chat.activeUsers.find((chatUser) => chatUser.zesty_id !== user.zesty_id);
+      let otherUser = chat.activeUsers.find((chatUser) => chatUser.zesty_id !== user.zesty_id);
+
+      if (!otherUser) {
+        otherUser = {
+          zesty_id: 'deleted',
+          slug: 'Deleted User',
+          images: []
+        };
+      }
+
       const lastMessage = chat.messages[0] || null;
 
       return {

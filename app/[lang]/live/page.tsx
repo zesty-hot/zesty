@@ -86,28 +86,28 @@ export default function Page() {
     fetchActiveChannels(1);
   }, []);
 
-  // Infinite scroll observer
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !hasSearched) {
-          loadMoreChannels();
-        }
-      },
-      { threshold: 0.1 }
-    );
+  // Infinite scroll observer - DISABLED (using manual Load More button only)
+  // useEffect(() => {
+  //   const observer = new IntersectionObserver(
+  //     (entries) => {
+  //       if (entries[0].isIntersecting && hasMore && !isLoadingMore && !hasSearched) {
+  //         loadMoreChannels();
+  //       }
+  //     },
+  //     { threshold: 0.1 }
+  //   );
 
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
+  //   const currentTarget = observerTarget.current;
+  //   if (currentTarget) {
+  //     observer.observe(currentTarget);
+  //   }
 
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [hasMore, isLoadingMore, hasSearched, currentPage]);
+  //   return () => {
+  //     if (currentTarget) {
+  //       observer.unobserve(currentTarget);
+  //     }
+  //   };
+  // }, [hasMore, isLoadingMore, hasSearched]);
 
   const fetchActiveChannels = async (page: number) => {
     try {

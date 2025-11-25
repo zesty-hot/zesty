@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+
+prod-ca-2021.crt
+prod-ca-2021.key
+supabase-ca.pem

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma, withRetry } from '@/lib/prisma';
-import { Gender, BodyType, Race } from '@prisma/client';
+import { Gender, BodyType, Race } from '@/prisma/generated/enums';
 import { calculateAge } from '@/lib/calculate-age';
 import { calculateDistance } from '@/lib/calculate-distance';
 
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
       .map((page) => {
         if (!page.user.dob) return null;
         const age = calculateAge(page.user.dob);
-        
+
         // Age filter
         if (filters.age && (age < filters.age[0] || age > filters.age[1])) {
           return null;
@@ -129,14 +129,14 @@ export async function POST(request: NextRequest) {
         // Calculate distance if location is provided
         let distance: number | undefined;
         let distanceText: string | undefined;
-        
+
         if (longitude !== undefined && latitude !== undefined && page.user.location) {
           const [userLat, userLng] = page.user.location
             .split(',')
             .map((coord) => parseFloat(coord.trim()));
-          
+
           distance = calculateDistance(latitude, longitude, userLat, userLng);
-          distanceText = distance < 1 
+          distanceText = distance < 1
             ? `${Math.round(distance * 1000)}m away`
             : `${distance.toFixed(1)}km away`;
         }

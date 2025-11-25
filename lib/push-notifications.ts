@@ -1,5 +1,5 @@
 import webpush from 'web-push';
-import type { PushSubscription } from '@prisma/client';
+import type { PushSubscription } from '@/prisma/generated/client';
 import { prisma } from './prisma';
 
 // Initialize VAPID keys
@@ -39,7 +39,7 @@ export async function sendPushNotification(
 
   try {
     const keys = JSON.parse(subscription.keys);
-    
+
     const pushSubscription = {
       endpoint: subscription.endpoint,
       keys: {
