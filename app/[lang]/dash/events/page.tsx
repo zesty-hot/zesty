@@ -16,9 +16,11 @@ interface Event {
   title: string;
   description: string;
   eventDate: string;
+  endTime?: string;
   location: string;
   attendeeCount: number;
   isPublished: boolean;
+  slug: string;
 }
 
 export default function EventsManagementPage() {
@@ -37,6 +39,7 @@ export default function EventsManagementPage() {
   }, [status]);
 
   const fetchEvents = async () => {
+    setLoading(true);
     try {
       const response = await fetch("/api/events/my-events");
       if (response.ok) {
@@ -68,8 +71,16 @@ export default function EventsManagementPage() {
     return;
   }
 
-  const upcomingEvents = events.filter(e => new Date(e.eventDate) >= new Date());
-  const pastEvents = events.filter(e => new Date(e.eventDate) < new Date());
+  const upcomingEvents = events.filter(e => {
+    const end = e.endTime ? new Date(e.endTime) : new Date(e.eventDate);
+    // If no end time, assume it ends same day (or just use start time for comparison)
+    // Better: if no end time, use start time. If end time exists, use that.
+    return end >= new Date();
+  });
+  const pastEvents = events.filter(e => {
+    const end = e.endTime ? new Date(e.endTime) : new Date(e.eventDate);
+    return end < new Date();
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -113,12 +124,6 @@ export default function EventsManagementPage() {
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               You haven't created any events yet. Start by creating your first event to connect with your community and organize gatherings.
             </p>
-            <Link href={`/${lang}/dash/events/setup`}>
-              <Button size="lg">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Your First Event
-              </Button>
-            </Link>
           </Card>
         ) : (
           <div className="space-y-8">
@@ -161,15 +166,9 @@ export default function EventsManagementPage() {
                         </div>
 
                         <div className="flex flex-col gap-2 ml-4">
-                          <Link href={`/${lang}/events/${event.id}`}>
+                          <Link href={`/${lang}/dash/events/${event.slug}`}>
                             <Button variant="outline" size="sm">
-                              <Eye className="w-4 h-4 mr-2" />
-                              View
-                            </Button>
-                          </Link>
-                          <Link href={`/${lang}/events/edit/${event.id}`}>
-                            <Button variant="outline" size="sm">
-                              Edit
+                              Manage
                             </Button>
                           </Link>
                         </div>
@@ -208,7 +207,7 @@ export default function EventsManagementPage() {
                           </div>
                         </div>
 
-                        <Link href={`/${lang}/events/${event.id}`}>
+                        <Link href={`/${lang}/dash/events/${event.slug}`}>
                           <Button variant="outline" size="sm">
                             <Eye className="w-4 h-4 mr-2" />
                             View
@@ -224,7 +223,7 @@ export default function EventsManagementPage() {
         )}
 
         {/* Tips */}
-        <Card className="mt-8 p-6 bg-gradient-to-r from-green-500/5 to-emerald-500/10 border-green-500/20">
+        <Card className="mt-8 p-6 bg-linear-to-r from-green-500/5 to-emerald-500/10 border-green-500/20">
           <h3 className="font-semibold text-lg mb-3">Event Planning Tips</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>✓ Provide clear details about date, time, and location</li>

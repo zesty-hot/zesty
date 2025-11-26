@@ -115,6 +115,7 @@ async function getFollowedStreamers(userId: string) {
 }
 
 async function getAttendingEvents(userId: string) {
+  const now = new Date();
   return await prisma.eventAttendee.findMany({
     where: {
       user: {
@@ -122,6 +123,21 @@ async function getAttendingEvents(userId: string) {
       },
       status: {
         in: ['GOING', 'MAYBE']
+      },
+      event: {
+        OR: [
+          {
+            endTime: {
+              gte: now
+            }
+          },
+          {
+            AND: [
+              { endTime: null },
+              { startTime: { gte: now } }
+            ]
+          }
+        ]
       }
     },
     include: {
@@ -186,7 +202,7 @@ export default async function FavouritesPage({ params }: { params: Promise<{ lan
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <div className="bg-background/95 backdrop-blur-sm border-b sticky top-0 z-40">
+      <div className="bg-background/95 backdrop-blur-sm border-b z-40">
         <div className="container mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Heart className="w-6 h-6 text-red-500 fill-red-500" />
@@ -231,7 +247,12 @@ export default async function FavouritesPage({ params }: { params: Promise<{ lan
               <Crown className="w-6 h-6 text-purple-500" />
               VIP Subscriptions
             </h2>
-            {/* <Badge variant="secondary">{vipSubscriptions.length}</Badge> */}
+            <Link href={`/${lang}/favourites/past`}>
+              <Button size="sm" variant="secondary" className="hover:bg-accent/40">
+                Expired
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
           </div>
 
           {vipSubscriptions.length === 0 ? (
@@ -258,7 +279,6 @@ export default async function FavouritesPage({ params }: { params: Promise<{ lan
               <Radio className="w-6 h-6 text-red-500" />
               Followed Streamers
             </h2>
-            {/* <Badge variant="secondary">{streamers.length}</Badge> */}
           </div>
 
           {streamers.length === 0 ? (
@@ -285,7 +305,12 @@ export default async function FavouritesPage({ params }: { params: Promise<{ lan
               <Calendar className="w-6 h-6 text-blue-500" />
               Upcoming Events
             </h2>
-            {/* <Badge variant="secondary">{events.length}</Badge> */}
+            <Link href={`/${lang}/favourites/past`}>
+              <Button size="sm" variant="secondary" className="hover:bg-accent/40">
+                History
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
           </div>
 
           {events.length === 0 ? (
@@ -312,7 +337,12 @@ export default async function FavouritesPage({ params }: { params: Promise<{ lan
               <Briefcase className="w-6 h-6 text-orange-500" />
               Accepted Jobs
             </h2>
-            {/* <Badge variant="secondary">{jobs.length}</Badge> */}
+            <Link href={`/${lang}/favourites/past`}>
+              <Button size="sm" variant="secondary" className="hover:bg-accent/40">
+                Completed
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
           </div>
 
           {jobs.length === 0 ? (

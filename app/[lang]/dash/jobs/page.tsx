@@ -22,8 +22,35 @@ export default function JobsManagementPage() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      setLoading(false);
-      // TODO: Fetch studios and applications
+      const fetchData = async () => {
+        try {
+          const [studiosRes, applicationsRes] = await Promise.all([
+            fetch('/api/dash/jobs/studios'),
+            fetch('/api/dash/jobs/applications')
+          ]);
+
+          if (studiosRes.ok) {
+            const studiosData = await studiosRes.json();
+            setStudios(studiosData);
+          }
+
+          if (applicationsRes.ok) {
+            const applicationsData = await applicationsRes.json();
+            setApplications(applicationsData);
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          toastManager.add({
+            title: "Error",
+            description: "Failed to load your jobs data.",
+            type: "error",
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchData();
     } else {
       setLoading(false);
     }
@@ -86,10 +113,10 @@ export default function JobsManagementPage() {
               <h2 className="text-2xl font-semibold">Your Studios</h2>
               <Menu>
                 <MenuTrigger render={<Button>
-                    <Building className="w-4 h-4 mr-2" />
-                    Studio Options
-                    <ChevronDown className="w-4 h-4 ml-2" />
-                  </Button>}>
+                  <Building className="w-4 h-4 ml-2 mr-2" />
+                  Studio Options
+                  <ChevronDown className="w-4 h-4 ml-2" />
+                </Button>}>
                 </MenuTrigger>
                 <MenuPopup>
                   <Link href={`/${lang}/dash/studio/create-studio`}>
@@ -115,7 +142,7 @@ export default function JobsManagementPage() {
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                   You haven't created any studios yet. Create a studio to start posting job opportunities and building your team.
                 </p>
-                <div className="flex gap-3 justify-center">
+                {/* <div className="flex gap-3 justify-center">
                   <Link href={`/${lang}/jobs/create-studio`}>
                     <Button size="lg">
                       <Megaphone className="w-4 h-4 mr-2" />
@@ -128,7 +155,7 @@ export default function JobsManagementPage() {
                       Join Studio
                     </Button>
                   </Link>
-                </div>
+                </div> */}
               </Card>
             ) : (
               <div className="grid gap-4">
@@ -177,28 +204,36 @@ export default function JobsManagementPage() {
                 </Link>
               </Card>
             ) : (
-              <div className="grid gap-4">
-                {applications.map((app) => (
-                  <Card key={app.id} className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-semibold mb-2">{app.job.title}</h3>
-                        <p className="text-muted-foreground mb-3">{app.studio.name}</p>
-                        <div className="flex gap-4 text-sm text-muted-foreground">
-                          <span>📅 Applied {new Date(app.createdAt).toLocaleDateString()}</span>
-                          <span className={`font-medium ${
-                            app.status === 'ACCEPTED' ? 'text-green-500' :
-                            app.status === 'REJECTED' ? 'text-red-500' :
-                            'text-yellow-500'
-                          }`}>
-                            {app.status}
-                          </span>
+              <Card className="bg-muted/50">
+                <div className="p-6">
+                  <div className="h-[400px] overflow-y-auto pr-4 space-y-4 custom-scrollbar">
+                    {applications.map((app) => (
+                      <div key={app.id} className="bg-background rounded-lg p-4 border shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg">{app.job.title}</h3>
+                            <p className="text-muted-foreground text-sm mb-2">{app.studio.name}</p>
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              <span>📅 Applied {new Date(app.createdAt).toLocaleDateString()}</span>
+                              <span className={`font-medium px-2 py-0.5 rounded-full text-xs ${app.status === 'ACCEPTED' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                  app.status === 'REJECTED' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                    'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                }`}>
+                                {app.status}
+                              </span>
+                            </div>
+                          </div>
+                          <Link href={`/${lang}/jobs/${app.job.slug}`}>
+                            <Button variant="ghost" size="sm">
+                              View Job
+                            </Button>
+                          </Link>
                         </div>
                       </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                    ))}
+                  </div>
+                </div>
+              </Card>
             )}
           </TabsContent>
         </Tabs>

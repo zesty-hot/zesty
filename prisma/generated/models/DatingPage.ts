@@ -45,6 +45,8 @@ export type DatingPageMinAggregateOutputType = {
   maxDistance: number | null
   active: boolean | null
   verified: boolean | null
+  banned: boolean | null
+  bannedById: string | null
   zesty_id: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -57,6 +59,8 @@ export type DatingPageMaxAggregateOutputType = {
   maxDistance: number | null
   active: boolean | null
   verified: boolean | null
+  banned: boolean | null
+  bannedById: string | null
   zesty_id: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -71,6 +75,8 @@ export type DatingPageCountAggregateOutputType = {
   showGender: number
   active: number
   verified: number
+  banned: number
+  bannedById: number
   zesty_id: number
   createdAt: number
   updatedAt: number
@@ -97,6 +103,8 @@ export type DatingPageMinAggregateInputType = {
   maxDistance?: true
   active?: true
   verified?: true
+  banned?: true
+  bannedById?: true
   zesty_id?: true
   createdAt?: true
   updatedAt?: true
@@ -109,6 +117,8 @@ export type DatingPageMaxAggregateInputType = {
   maxDistance?: true
   active?: true
   verified?: true
+  banned?: true
+  bannedById?: true
   zesty_id?: true
   createdAt?: true
   updatedAt?: true
@@ -123,6 +133,8 @@ export type DatingPageCountAggregateInputType = {
   showGender?: true
   active?: true
   verified?: true
+  banned?: true
+  bannedById?: true
   zesty_id?: true
   createdAt?: true
   updatedAt?: true
@@ -224,6 +236,8 @@ export type DatingPageGroupByOutputType = {
   showGender: $Enums.Gender[]
   active: boolean
   verified: boolean
+  banned: boolean
+  bannedById: string | null
   zesty_id: string
   createdAt: Date
   updatedAt: Date
@@ -261,9 +275,12 @@ export type DatingPageWhereInput = {
   showGender?: Prisma.EnumGenderNullableListFilter<"DatingPage">
   active?: Prisma.BoolFilter<"DatingPage"> | boolean
   verified?: Prisma.BoolFilter<"DatingPage"> | boolean
+  banned?: Prisma.BoolFilter<"DatingPage"> | boolean
+  bannedById?: Prisma.StringNullableFilter<"DatingPage"> | string | null
   zesty_id?: Prisma.StringFilter<"DatingPage"> | string
   createdAt?: Prisma.DateTimeFilter<"DatingPage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DatingPage"> | Date | string
+  bannedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   swipesGiven?: Prisma.DatingSwipeListRelationFilter
   swipesReceived?: Prisma.DatingSwipeListRelationFilter
@@ -280,9 +297,12 @@ export type DatingPageOrderByWithRelationInput = {
   showGender?: Prisma.SortOrder
   active?: Prisma.SortOrder
   verified?: Prisma.SortOrder
+  banned?: Prisma.SortOrder
+  bannedById?: Prisma.SortOrderInput | Prisma.SortOrder
   zesty_id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  bannedBy?: Prisma.UserOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   swipesGiven?: Prisma.DatingSwipeOrderByRelationAggregateInput
   swipesReceived?: Prisma.DatingSwipeOrderByRelationAggregateInput
@@ -303,8 +323,11 @@ export type DatingPageWhereUniqueInput = Prisma.AtLeast<{
   showGender?: Prisma.EnumGenderNullableListFilter<"DatingPage">
   active?: Prisma.BoolFilter<"DatingPage"> | boolean
   verified?: Prisma.BoolFilter<"DatingPage"> | boolean
+  banned?: Prisma.BoolFilter<"DatingPage"> | boolean
+  bannedById?: Prisma.StringNullableFilter<"DatingPage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"DatingPage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DatingPage"> | Date | string
+  bannedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   swipesGiven?: Prisma.DatingSwipeListRelationFilter
   swipesReceived?: Prisma.DatingSwipeListRelationFilter
@@ -321,6 +344,8 @@ export type DatingPageOrderByWithAggregationInput = {
   showGender?: Prisma.SortOrder
   active?: Prisma.SortOrder
   verified?: Prisma.SortOrder
+  banned?: Prisma.SortOrder
+  bannedById?: Prisma.SortOrderInput | Prisma.SortOrder
   zesty_id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -343,6 +368,8 @@ export type DatingPageScalarWhereWithAggregatesInput = {
   showGender?: Prisma.EnumGenderNullableListFilter<"DatingPage">
   active?: Prisma.BoolWithAggregatesFilter<"DatingPage"> | boolean
   verified?: Prisma.BoolWithAggregatesFilter<"DatingPage"> | boolean
+  banned?: Prisma.BoolWithAggregatesFilter<"DatingPage"> | boolean
+  bannedById?: Prisma.StringNullableWithAggregatesFilter<"DatingPage"> | string | null
   zesty_id?: Prisma.StringWithAggregatesFilter<"DatingPage"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DatingPage"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DatingPage"> | Date | string
@@ -357,9 +384,11 @@ export type DatingPageCreateInput = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutDatingPagesInput
+  bannedBy?: Prisma.UserCreateNestedOneWithoutBannedDatingPagesInput
+  user: Prisma.UserCreateNestedOneWithoutDatingPageInput
   swipesGiven?: Prisma.DatingSwipeCreateNestedManyWithoutSwiperInput
   swipesReceived?: Prisma.DatingSwipeCreateNestedManyWithoutSwipedInput
   matchesAsUser1?: Prisma.DatingMatchCreateNestedManyWithoutUser1Input
@@ -375,6 +404,8 @@ export type DatingPageUncheckedCreateInput = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
+  bannedById?: string | null
   zesty_id: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -393,9 +424,11 @@ export type DatingPageUpdateInput = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutDatingPagesNestedInput
+  bannedBy?: Prisma.UserUpdateOneWithoutBannedDatingPagesNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutDatingPageNestedInput
   swipesGiven?: Prisma.DatingSwipeUpdateManyWithoutSwiperNestedInput
   swipesReceived?: Prisma.DatingSwipeUpdateManyWithoutSwipedNestedInput
   matchesAsUser1?: Prisma.DatingMatchUpdateManyWithoutUser1NestedInput
@@ -411,6 +444,8 @@ export type DatingPageUncheckedUpdateInput = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bannedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zesty_id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -429,6 +464,8 @@ export type DatingPageCreateManyInput = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
+  bannedById?: string | null
   zesty_id: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -443,6 +480,7 @@ export type DatingPageUpdateManyMutationInput = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -456,9 +494,16 @@ export type DatingPageUncheckedUpdateManyInput = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bannedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zesty_id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type DatingPageNullableScalarRelationFilter = {
+  is?: Prisma.DatingPageWhereInput | null
+  isNot?: Prisma.DatingPageWhereInput | null
 }
 
 export type DatingPageListRelationFilter = {
@@ -488,6 +533,8 @@ export type DatingPageCountOrderByAggregateInput = {
   showGender?: Prisma.SortOrder
   active?: Prisma.SortOrder
   verified?: Prisma.SortOrder
+  banned?: Prisma.SortOrder
+  bannedById?: Prisma.SortOrder
   zesty_id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -506,6 +553,8 @@ export type DatingPageMaxOrderByAggregateInput = {
   maxDistance?: Prisma.SortOrder
   active?: Prisma.SortOrder
   verified?: Prisma.SortOrder
+  banned?: Prisma.SortOrder
+  bannedById?: Prisma.SortOrder
   zesty_id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -518,6 +567,8 @@ export type DatingPageMinOrderByAggregateInput = {
   maxDistance?: Prisma.SortOrder
   active?: Prisma.SortOrder
   verified?: Prisma.SortOrder
+  banned?: Prisma.SortOrder
+  bannedById?: Prisma.SortOrder
   zesty_id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -534,45 +585,77 @@ export type DatingPageScalarRelationFilter = {
   isNot?: Prisma.DatingPageWhereInput
 }
 
-export type DatingPageCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.DatingPageCreateWithoutUserInput, Prisma.DatingPageUncheckedCreateWithoutUserInput> | Prisma.DatingPageCreateWithoutUserInput[] | Prisma.DatingPageUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.DatingPageCreateOrConnectWithoutUserInput | Prisma.DatingPageCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.DatingPageCreateManyUserInputEnvelope
+export type DatingPageCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.DatingPageCreateWithoutUserInput, Prisma.DatingPageUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.DatingPageCreateOrConnectWithoutUserInput
+  connect?: Prisma.DatingPageWhereUniqueInput
+}
+
+export type DatingPageCreateNestedManyWithoutBannedByInput = {
+  create?: Prisma.XOR<Prisma.DatingPageCreateWithoutBannedByInput, Prisma.DatingPageUncheckedCreateWithoutBannedByInput> | Prisma.DatingPageCreateWithoutBannedByInput[] | Prisma.DatingPageUncheckedCreateWithoutBannedByInput[]
+  connectOrCreate?: Prisma.DatingPageCreateOrConnectWithoutBannedByInput | Prisma.DatingPageCreateOrConnectWithoutBannedByInput[]
+  createMany?: Prisma.DatingPageCreateManyBannedByInputEnvelope
   connect?: Prisma.DatingPageWhereUniqueInput | Prisma.DatingPageWhereUniqueInput[]
 }
 
-export type DatingPageUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.DatingPageCreateWithoutUserInput, Prisma.DatingPageUncheckedCreateWithoutUserInput> | Prisma.DatingPageCreateWithoutUserInput[] | Prisma.DatingPageUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.DatingPageCreateOrConnectWithoutUserInput | Prisma.DatingPageCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.DatingPageCreateManyUserInputEnvelope
+export type DatingPageUncheckedCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.DatingPageCreateWithoutUserInput, Prisma.DatingPageUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.DatingPageCreateOrConnectWithoutUserInput
+  connect?: Prisma.DatingPageWhereUniqueInput
+}
+
+export type DatingPageUncheckedCreateNestedManyWithoutBannedByInput = {
+  create?: Prisma.XOR<Prisma.DatingPageCreateWithoutBannedByInput, Prisma.DatingPageUncheckedCreateWithoutBannedByInput> | Prisma.DatingPageCreateWithoutBannedByInput[] | Prisma.DatingPageUncheckedCreateWithoutBannedByInput[]
+  connectOrCreate?: Prisma.DatingPageCreateOrConnectWithoutBannedByInput | Prisma.DatingPageCreateOrConnectWithoutBannedByInput[]
+  createMany?: Prisma.DatingPageCreateManyBannedByInputEnvelope
   connect?: Prisma.DatingPageWhereUniqueInput | Prisma.DatingPageWhereUniqueInput[]
 }
 
-export type DatingPageUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.DatingPageCreateWithoutUserInput, Prisma.DatingPageUncheckedCreateWithoutUserInput> | Prisma.DatingPageCreateWithoutUserInput[] | Prisma.DatingPageUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.DatingPageCreateOrConnectWithoutUserInput | Prisma.DatingPageCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.DatingPageUpsertWithWhereUniqueWithoutUserInput | Prisma.DatingPageUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.DatingPageCreateManyUserInputEnvelope
+export type DatingPageUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.DatingPageCreateWithoutUserInput, Prisma.DatingPageUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.DatingPageCreateOrConnectWithoutUserInput
+  upsert?: Prisma.DatingPageUpsertWithoutUserInput
+  disconnect?: Prisma.DatingPageWhereInput | boolean
+  delete?: Prisma.DatingPageWhereInput | boolean
+  connect?: Prisma.DatingPageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DatingPageUpdateToOneWithWhereWithoutUserInput, Prisma.DatingPageUpdateWithoutUserInput>, Prisma.DatingPageUncheckedUpdateWithoutUserInput>
+}
+
+export type DatingPageUpdateManyWithoutBannedByNestedInput = {
+  create?: Prisma.XOR<Prisma.DatingPageCreateWithoutBannedByInput, Prisma.DatingPageUncheckedCreateWithoutBannedByInput> | Prisma.DatingPageCreateWithoutBannedByInput[] | Prisma.DatingPageUncheckedCreateWithoutBannedByInput[]
+  connectOrCreate?: Prisma.DatingPageCreateOrConnectWithoutBannedByInput | Prisma.DatingPageCreateOrConnectWithoutBannedByInput[]
+  upsert?: Prisma.DatingPageUpsertWithWhereUniqueWithoutBannedByInput | Prisma.DatingPageUpsertWithWhereUniqueWithoutBannedByInput[]
+  createMany?: Prisma.DatingPageCreateManyBannedByInputEnvelope
   set?: Prisma.DatingPageWhereUniqueInput | Prisma.DatingPageWhereUniqueInput[]
   disconnect?: Prisma.DatingPageWhereUniqueInput | Prisma.DatingPageWhereUniqueInput[]
   delete?: Prisma.DatingPageWhereUniqueInput | Prisma.DatingPageWhereUniqueInput[]
   connect?: Prisma.DatingPageWhereUniqueInput | Prisma.DatingPageWhereUniqueInput[]
-  update?: Prisma.DatingPageUpdateWithWhereUniqueWithoutUserInput | Prisma.DatingPageUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.DatingPageUpdateManyWithWhereWithoutUserInput | Prisma.DatingPageUpdateManyWithWhereWithoutUserInput[]
+  update?: Prisma.DatingPageUpdateWithWhereUniqueWithoutBannedByInput | Prisma.DatingPageUpdateWithWhereUniqueWithoutBannedByInput[]
+  updateMany?: Prisma.DatingPageUpdateManyWithWhereWithoutBannedByInput | Prisma.DatingPageUpdateManyWithWhereWithoutBannedByInput[]
   deleteMany?: Prisma.DatingPageScalarWhereInput | Prisma.DatingPageScalarWhereInput[]
 }
 
-export type DatingPageUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.DatingPageCreateWithoutUserInput, Prisma.DatingPageUncheckedCreateWithoutUserInput> | Prisma.DatingPageCreateWithoutUserInput[] | Prisma.DatingPageUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.DatingPageCreateOrConnectWithoutUserInput | Prisma.DatingPageCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.DatingPageUpsertWithWhereUniqueWithoutUserInput | Prisma.DatingPageUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.DatingPageCreateManyUserInputEnvelope
+export type DatingPageUncheckedUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.DatingPageCreateWithoutUserInput, Prisma.DatingPageUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.DatingPageCreateOrConnectWithoutUserInput
+  upsert?: Prisma.DatingPageUpsertWithoutUserInput
+  disconnect?: Prisma.DatingPageWhereInput | boolean
+  delete?: Prisma.DatingPageWhereInput | boolean
+  connect?: Prisma.DatingPageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DatingPageUpdateToOneWithWhereWithoutUserInput, Prisma.DatingPageUpdateWithoutUserInput>, Prisma.DatingPageUncheckedUpdateWithoutUserInput>
+}
+
+export type DatingPageUncheckedUpdateManyWithoutBannedByNestedInput = {
+  create?: Prisma.XOR<Prisma.DatingPageCreateWithoutBannedByInput, Prisma.DatingPageUncheckedCreateWithoutBannedByInput> | Prisma.DatingPageCreateWithoutBannedByInput[] | Prisma.DatingPageUncheckedCreateWithoutBannedByInput[]
+  connectOrCreate?: Prisma.DatingPageCreateOrConnectWithoutBannedByInput | Prisma.DatingPageCreateOrConnectWithoutBannedByInput[]
+  upsert?: Prisma.DatingPageUpsertWithWhereUniqueWithoutBannedByInput | Prisma.DatingPageUpsertWithWhereUniqueWithoutBannedByInput[]
+  createMany?: Prisma.DatingPageCreateManyBannedByInputEnvelope
   set?: Prisma.DatingPageWhereUniqueInput | Prisma.DatingPageWhereUniqueInput[]
   disconnect?: Prisma.DatingPageWhereUniqueInput | Prisma.DatingPageWhereUniqueInput[]
   delete?: Prisma.DatingPageWhereUniqueInput | Prisma.DatingPageWhereUniqueInput[]
   connect?: Prisma.DatingPageWhereUniqueInput | Prisma.DatingPageWhereUniqueInput[]
-  update?: Prisma.DatingPageUpdateWithWhereUniqueWithoutUserInput | Prisma.DatingPageUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.DatingPageUpdateManyWithWhereWithoutUserInput | Prisma.DatingPageUpdateManyWithWhereWithoutUserInput[]
+  update?: Prisma.DatingPageUpdateWithWhereUniqueWithoutBannedByInput | Prisma.DatingPageUpdateWithWhereUniqueWithoutBannedByInput[]
+  updateMany?: Prisma.DatingPageUpdateManyWithWhereWithoutBannedByInput | Prisma.DatingPageUpdateManyWithWhereWithoutBannedByInput[]
   deleteMany?: Prisma.DatingPageScalarWhereInput | Prisma.DatingPageScalarWhereInput[]
 }
 
@@ -659,8 +742,10 @@ export type DatingPageCreateWithoutUserInput = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  bannedBy?: Prisma.UserCreateNestedOneWithoutBannedDatingPagesInput
   swipesGiven?: Prisma.DatingSwipeCreateNestedManyWithoutSwiperInput
   swipesReceived?: Prisma.DatingSwipeCreateNestedManyWithoutSwipedInput
   matchesAsUser1?: Prisma.DatingMatchCreateNestedManyWithoutUser1Input
@@ -676,6 +761,8 @@ export type DatingPageUncheckedCreateWithoutUserInput = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
+  bannedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   swipesGiven?: Prisma.DatingSwipeUncheckedCreateNestedManyWithoutSwiperInput
@@ -689,25 +776,117 @@ export type DatingPageCreateOrConnectWithoutUserInput = {
   create: Prisma.XOR<Prisma.DatingPageCreateWithoutUserInput, Prisma.DatingPageUncheckedCreateWithoutUserInput>
 }
 
-export type DatingPageCreateManyUserInputEnvelope = {
-  data: Prisma.DatingPageCreateManyUserInput | Prisma.DatingPageCreateManyUserInput[]
+export type DatingPageCreateWithoutBannedByInput = {
+  id?: string
+  lookingFor?: Prisma.DatingPageCreatelookingForInput | string[]
+  ageRangeMin?: number
+  ageRangeMax?: number
+  maxDistance?: number
+  showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
+  active?: boolean
+  verified?: boolean
+  banned?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutDatingPageInput
+  swipesGiven?: Prisma.DatingSwipeCreateNestedManyWithoutSwiperInput
+  swipesReceived?: Prisma.DatingSwipeCreateNestedManyWithoutSwipedInput
+  matchesAsUser1?: Prisma.DatingMatchCreateNestedManyWithoutUser1Input
+  matchesAsUser2?: Prisma.DatingMatchCreateNestedManyWithoutUser2Input
+}
+
+export type DatingPageUncheckedCreateWithoutBannedByInput = {
+  id?: string
+  lookingFor?: Prisma.DatingPageCreatelookingForInput | string[]
+  ageRangeMin?: number
+  ageRangeMax?: number
+  maxDistance?: number
+  showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
+  active?: boolean
+  verified?: boolean
+  banned?: boolean
+  zesty_id: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  swipesGiven?: Prisma.DatingSwipeUncheckedCreateNestedManyWithoutSwiperInput
+  swipesReceived?: Prisma.DatingSwipeUncheckedCreateNestedManyWithoutSwipedInput
+  matchesAsUser1?: Prisma.DatingMatchUncheckedCreateNestedManyWithoutUser1Input
+  matchesAsUser2?: Prisma.DatingMatchUncheckedCreateNestedManyWithoutUser2Input
+}
+
+export type DatingPageCreateOrConnectWithoutBannedByInput = {
+  where: Prisma.DatingPageWhereUniqueInput
+  create: Prisma.XOR<Prisma.DatingPageCreateWithoutBannedByInput, Prisma.DatingPageUncheckedCreateWithoutBannedByInput>
+}
+
+export type DatingPageCreateManyBannedByInputEnvelope = {
+  data: Prisma.DatingPageCreateManyBannedByInput | Prisma.DatingPageCreateManyBannedByInput[]
   skipDuplicates?: boolean
 }
 
-export type DatingPageUpsertWithWhereUniqueWithoutUserInput = {
-  where: Prisma.DatingPageWhereUniqueInput
+export type DatingPageUpsertWithoutUserInput = {
   update: Prisma.XOR<Prisma.DatingPageUpdateWithoutUserInput, Prisma.DatingPageUncheckedUpdateWithoutUserInput>
   create: Prisma.XOR<Prisma.DatingPageCreateWithoutUserInput, Prisma.DatingPageUncheckedCreateWithoutUserInput>
+  where?: Prisma.DatingPageWhereInput
 }
 
-export type DatingPageUpdateWithWhereUniqueWithoutUserInput = {
-  where: Prisma.DatingPageWhereUniqueInput
+export type DatingPageUpdateToOneWithWhereWithoutUserInput = {
+  where?: Prisma.DatingPageWhereInput
   data: Prisma.XOR<Prisma.DatingPageUpdateWithoutUserInput, Prisma.DatingPageUncheckedUpdateWithoutUserInput>
 }
 
-export type DatingPageUpdateManyWithWhereWithoutUserInput = {
+export type DatingPageUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  lookingFor?: Prisma.DatingPageUpdatelookingForInput | string[]
+  ageRangeMin?: Prisma.IntFieldUpdateOperationsInput | number
+  ageRangeMax?: Prisma.IntFieldUpdateOperationsInput | number
+  maxDistance?: Prisma.IntFieldUpdateOperationsInput | number
+  showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bannedBy?: Prisma.UserUpdateOneWithoutBannedDatingPagesNestedInput
+  swipesGiven?: Prisma.DatingSwipeUpdateManyWithoutSwiperNestedInput
+  swipesReceived?: Prisma.DatingSwipeUpdateManyWithoutSwipedNestedInput
+  matchesAsUser1?: Prisma.DatingMatchUpdateManyWithoutUser1NestedInput
+  matchesAsUser2?: Prisma.DatingMatchUpdateManyWithoutUser2NestedInput
+}
+
+export type DatingPageUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  lookingFor?: Prisma.DatingPageUpdatelookingForInput | string[]
+  ageRangeMin?: Prisma.IntFieldUpdateOperationsInput | number
+  ageRangeMax?: Prisma.IntFieldUpdateOperationsInput | number
+  maxDistance?: Prisma.IntFieldUpdateOperationsInput | number
+  showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bannedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  swipesGiven?: Prisma.DatingSwipeUncheckedUpdateManyWithoutSwiperNestedInput
+  swipesReceived?: Prisma.DatingSwipeUncheckedUpdateManyWithoutSwipedNestedInput
+  matchesAsUser1?: Prisma.DatingMatchUncheckedUpdateManyWithoutUser1NestedInput
+  matchesAsUser2?: Prisma.DatingMatchUncheckedUpdateManyWithoutUser2NestedInput
+}
+
+export type DatingPageUpsertWithWhereUniqueWithoutBannedByInput = {
+  where: Prisma.DatingPageWhereUniqueInput
+  update: Prisma.XOR<Prisma.DatingPageUpdateWithoutBannedByInput, Prisma.DatingPageUncheckedUpdateWithoutBannedByInput>
+  create: Prisma.XOR<Prisma.DatingPageCreateWithoutBannedByInput, Prisma.DatingPageUncheckedCreateWithoutBannedByInput>
+}
+
+export type DatingPageUpdateWithWhereUniqueWithoutBannedByInput = {
+  where: Prisma.DatingPageWhereUniqueInput
+  data: Prisma.XOR<Prisma.DatingPageUpdateWithoutBannedByInput, Prisma.DatingPageUncheckedUpdateWithoutBannedByInput>
+}
+
+export type DatingPageUpdateManyWithWhereWithoutBannedByInput = {
   where: Prisma.DatingPageScalarWhereInput
-  data: Prisma.XOR<Prisma.DatingPageUpdateManyMutationInput, Prisma.DatingPageUncheckedUpdateManyWithoutUserInput>
+  data: Prisma.XOR<Prisma.DatingPageUpdateManyMutationInput, Prisma.DatingPageUncheckedUpdateManyWithoutBannedByInput>
 }
 
 export type DatingPageScalarWhereInput = {
@@ -722,6 +901,8 @@ export type DatingPageScalarWhereInput = {
   showGender?: Prisma.EnumGenderNullableListFilter<"DatingPage">
   active?: Prisma.BoolFilter<"DatingPage"> | boolean
   verified?: Prisma.BoolFilter<"DatingPage"> | boolean
+  banned?: Prisma.BoolFilter<"DatingPage"> | boolean
+  bannedById?: Prisma.StringNullableFilter<"DatingPage"> | string | null
   zesty_id?: Prisma.StringFilter<"DatingPage"> | string
   createdAt?: Prisma.DateTimeFilter<"DatingPage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DatingPage"> | Date | string
@@ -736,9 +917,11 @@ export type DatingPageCreateWithoutSwipesGivenInput = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutDatingPagesInput
+  bannedBy?: Prisma.UserCreateNestedOneWithoutBannedDatingPagesInput
+  user: Prisma.UserCreateNestedOneWithoutDatingPageInput
   swipesReceived?: Prisma.DatingSwipeCreateNestedManyWithoutSwipedInput
   matchesAsUser1?: Prisma.DatingMatchCreateNestedManyWithoutUser1Input
   matchesAsUser2?: Prisma.DatingMatchCreateNestedManyWithoutUser2Input
@@ -753,6 +936,8 @@ export type DatingPageUncheckedCreateWithoutSwipesGivenInput = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
+  bannedById?: string | null
   zesty_id: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -775,9 +960,11 @@ export type DatingPageCreateWithoutSwipesReceivedInput = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutDatingPagesInput
+  bannedBy?: Prisma.UserCreateNestedOneWithoutBannedDatingPagesInput
+  user: Prisma.UserCreateNestedOneWithoutDatingPageInput
   swipesGiven?: Prisma.DatingSwipeCreateNestedManyWithoutSwiperInput
   matchesAsUser1?: Prisma.DatingMatchCreateNestedManyWithoutUser1Input
   matchesAsUser2?: Prisma.DatingMatchCreateNestedManyWithoutUser2Input
@@ -792,6 +979,8 @@ export type DatingPageUncheckedCreateWithoutSwipesReceivedInput = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
+  bannedById?: string | null
   zesty_id: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -825,9 +1014,11 @@ export type DatingPageUpdateWithoutSwipesGivenInput = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutDatingPagesNestedInput
+  bannedBy?: Prisma.UserUpdateOneWithoutBannedDatingPagesNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutDatingPageNestedInput
   swipesReceived?: Prisma.DatingSwipeUpdateManyWithoutSwipedNestedInput
   matchesAsUser1?: Prisma.DatingMatchUpdateManyWithoutUser1NestedInput
   matchesAsUser2?: Prisma.DatingMatchUpdateManyWithoutUser2NestedInput
@@ -842,6 +1033,8 @@ export type DatingPageUncheckedUpdateWithoutSwipesGivenInput = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bannedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zesty_id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -870,9 +1063,11 @@ export type DatingPageUpdateWithoutSwipesReceivedInput = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutDatingPagesNestedInput
+  bannedBy?: Prisma.UserUpdateOneWithoutBannedDatingPagesNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutDatingPageNestedInput
   swipesGiven?: Prisma.DatingSwipeUpdateManyWithoutSwiperNestedInput
   matchesAsUser1?: Prisma.DatingMatchUpdateManyWithoutUser1NestedInput
   matchesAsUser2?: Prisma.DatingMatchUpdateManyWithoutUser2NestedInput
@@ -887,6 +1082,8 @@ export type DatingPageUncheckedUpdateWithoutSwipesReceivedInput = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bannedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zesty_id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -904,9 +1101,11 @@ export type DatingPageCreateWithoutMatchesAsUser1Input = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutDatingPagesInput
+  bannedBy?: Prisma.UserCreateNestedOneWithoutBannedDatingPagesInput
+  user: Prisma.UserCreateNestedOneWithoutDatingPageInput
   swipesGiven?: Prisma.DatingSwipeCreateNestedManyWithoutSwiperInput
   swipesReceived?: Prisma.DatingSwipeCreateNestedManyWithoutSwipedInput
   matchesAsUser2?: Prisma.DatingMatchCreateNestedManyWithoutUser2Input
@@ -921,6 +1120,8 @@ export type DatingPageUncheckedCreateWithoutMatchesAsUser1Input = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
+  bannedById?: string | null
   zesty_id: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -943,9 +1144,11 @@ export type DatingPageCreateWithoutMatchesAsUser2Input = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutDatingPagesInput
+  bannedBy?: Prisma.UserCreateNestedOneWithoutBannedDatingPagesInput
+  user: Prisma.UserCreateNestedOneWithoutDatingPageInput
   swipesGiven?: Prisma.DatingSwipeCreateNestedManyWithoutSwiperInput
   swipesReceived?: Prisma.DatingSwipeCreateNestedManyWithoutSwipedInput
   matchesAsUser1?: Prisma.DatingMatchCreateNestedManyWithoutUser1Input
@@ -960,6 +1163,8 @@ export type DatingPageUncheckedCreateWithoutMatchesAsUser2Input = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
+  bannedById?: string | null
   zesty_id: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -993,9 +1198,11 @@ export type DatingPageUpdateWithoutMatchesAsUser1Input = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutDatingPagesNestedInput
+  bannedBy?: Prisma.UserUpdateOneWithoutBannedDatingPagesNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutDatingPageNestedInput
   swipesGiven?: Prisma.DatingSwipeUpdateManyWithoutSwiperNestedInput
   swipesReceived?: Prisma.DatingSwipeUpdateManyWithoutSwipedNestedInput
   matchesAsUser2?: Prisma.DatingMatchUpdateManyWithoutUser2NestedInput
@@ -1010,6 +1217,8 @@ export type DatingPageUncheckedUpdateWithoutMatchesAsUser1Input = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bannedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zesty_id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1038,9 +1247,11 @@ export type DatingPageUpdateWithoutMatchesAsUser2Input = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutDatingPagesNestedInput
+  bannedBy?: Prisma.UserUpdateOneWithoutBannedDatingPagesNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutDatingPageNestedInput
   swipesGiven?: Prisma.DatingSwipeUpdateManyWithoutSwiperNestedInput
   swipesReceived?: Prisma.DatingSwipeUpdateManyWithoutSwipedNestedInput
   matchesAsUser1?: Prisma.DatingMatchUpdateManyWithoutUser1NestedInput
@@ -1055,6 +1266,8 @@ export type DatingPageUncheckedUpdateWithoutMatchesAsUser2Input = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bannedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zesty_id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1063,7 +1276,7 @@ export type DatingPageUncheckedUpdateWithoutMatchesAsUser2Input = {
   matchesAsUser1?: Prisma.DatingMatchUncheckedUpdateManyWithoutUser1NestedInput
 }
 
-export type DatingPageCreateManyUserInput = {
+export type DatingPageCreateManyBannedByInput = {
   id?: string
   lookingFor?: Prisma.DatingPageCreatelookingForInput | string[]
   ageRangeMin?: number
@@ -1072,11 +1285,13 @@ export type DatingPageCreateManyUserInput = {
   showGender?: Prisma.DatingPageCreateshowGenderInput | $Enums.Gender[]
   active?: boolean
   verified?: boolean
+  banned?: boolean
+  zesty_id: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type DatingPageUpdateWithoutUserInput = {
+export type DatingPageUpdateWithoutBannedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   lookingFor?: Prisma.DatingPageUpdatelookingForInput | string[]
   ageRangeMin?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1085,15 +1300,17 @@ export type DatingPageUpdateWithoutUserInput = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutDatingPageNestedInput
   swipesGiven?: Prisma.DatingSwipeUpdateManyWithoutSwiperNestedInput
   swipesReceived?: Prisma.DatingSwipeUpdateManyWithoutSwipedNestedInput
   matchesAsUser1?: Prisma.DatingMatchUpdateManyWithoutUser1NestedInput
   matchesAsUser2?: Prisma.DatingMatchUpdateManyWithoutUser2NestedInput
 }
 
-export type DatingPageUncheckedUpdateWithoutUserInput = {
+export type DatingPageUncheckedUpdateWithoutBannedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   lookingFor?: Prisma.DatingPageUpdatelookingForInput | string[]
   ageRangeMin?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1102,6 +1319,8 @@ export type DatingPageUncheckedUpdateWithoutUserInput = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  zesty_id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   swipesGiven?: Prisma.DatingSwipeUncheckedUpdateManyWithoutSwiperNestedInput
@@ -1110,7 +1329,7 @@ export type DatingPageUncheckedUpdateWithoutUserInput = {
   matchesAsUser2?: Prisma.DatingMatchUncheckedUpdateManyWithoutUser2NestedInput
 }
 
-export type DatingPageUncheckedUpdateManyWithoutUserInput = {
+export type DatingPageUncheckedUpdateManyWithoutBannedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   lookingFor?: Prisma.DatingPageUpdatelookingForInput | string[]
   ageRangeMin?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1119,6 +1338,8 @@ export type DatingPageUncheckedUpdateManyWithoutUserInput = {
   showGender?: Prisma.DatingPageUpdateshowGenderInput | $Enums.Gender[]
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  zesty_id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1190,9 +1411,12 @@ export type DatingPageSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   showGender?: boolean
   active?: boolean
   verified?: boolean
+  banned?: boolean
+  bannedById?: boolean
   zesty_id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  bannedBy?: boolean | Prisma.DatingPage$bannedByArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   swipesGiven?: boolean | Prisma.DatingPage$swipesGivenArgs<ExtArgs>
   swipesReceived?: boolean | Prisma.DatingPage$swipesReceivedArgs<ExtArgs>
@@ -1210,9 +1434,12 @@ export type DatingPageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   showGender?: boolean
   active?: boolean
   verified?: boolean
+  banned?: boolean
+  bannedById?: boolean
   zesty_id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  bannedBy?: boolean | Prisma.DatingPage$bannedByArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["datingPage"]>
 
@@ -1225,9 +1452,12 @@ export type DatingPageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   showGender?: boolean
   active?: boolean
   verified?: boolean
+  banned?: boolean
+  bannedById?: boolean
   zesty_id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  bannedBy?: boolean | Prisma.DatingPage$bannedByArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["datingPage"]>
 
@@ -1240,13 +1470,16 @@ export type DatingPageSelectScalar = {
   showGender?: boolean
   active?: boolean
   verified?: boolean
+  banned?: boolean
+  bannedById?: boolean
   zesty_id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DatingPageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "lookingFor" | "ageRangeMin" | "ageRangeMax" | "maxDistance" | "showGender" | "active" | "verified" | "zesty_id" | "createdAt" | "updatedAt", ExtArgs["result"]["datingPage"]>
+export type DatingPageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "lookingFor" | "ageRangeMin" | "ageRangeMax" | "maxDistance" | "showGender" | "active" | "verified" | "banned" | "bannedById" | "zesty_id" | "createdAt" | "updatedAt", ExtArgs["result"]["datingPage"]>
 export type DatingPageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  bannedBy?: boolean | Prisma.DatingPage$bannedByArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   swipesGiven?: boolean | Prisma.DatingPage$swipesGivenArgs<ExtArgs>
   swipesReceived?: boolean | Prisma.DatingPage$swipesReceivedArgs<ExtArgs>
@@ -1255,15 +1488,18 @@ export type DatingPageInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   _count?: boolean | Prisma.DatingPageCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DatingPageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  bannedBy?: boolean | Prisma.DatingPage$bannedByArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type DatingPageIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  bannedBy?: boolean | Prisma.DatingPage$bannedByArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $DatingPagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DatingPage"
   objects: {
+    bannedBy: Prisma.$UserPayload<ExtArgs> | null
     user: Prisma.$UserPayload<ExtArgs>
     swipesGiven: Prisma.$DatingSwipePayload<ExtArgs>[]
     swipesReceived: Prisma.$DatingSwipePayload<ExtArgs>[]
@@ -1279,6 +1515,8 @@ export type $DatingPagePayload<ExtArgs extends runtime.Types.Extensions.Internal
     showGender: $Enums.Gender[]
     active: boolean
     verified: boolean
+    banned: boolean
+    bannedById: string | null
     zesty_id: string
     createdAt: Date
     updatedAt: Date
@@ -1676,6 +1914,7 @@ readonly fields: DatingPageFieldRefs;
  */
 export interface Prisma__DatingPageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  bannedBy<T extends Prisma.DatingPage$bannedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DatingPage$bannedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   swipesGiven<T extends Prisma.DatingPage$swipesGivenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DatingPage$swipesGivenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DatingSwipePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   swipesReceived<T extends Prisma.DatingPage$swipesReceivedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DatingPage$swipesReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DatingSwipePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1718,6 +1957,8 @@ export interface DatingPageFieldRefs {
   readonly showGender: Prisma.FieldRef<"DatingPage", 'Gender[]'>
   readonly active: Prisma.FieldRef<"DatingPage", 'Boolean'>
   readonly verified: Prisma.FieldRef<"DatingPage", 'Boolean'>
+  readonly banned: Prisma.FieldRef<"DatingPage", 'Boolean'>
+  readonly bannedById: Prisma.FieldRef<"DatingPage", 'String'>
   readonly zesty_id: Prisma.FieldRef<"DatingPage", 'String'>
   readonly createdAt: Prisma.FieldRef<"DatingPage", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DatingPage", 'DateTime'>
@@ -2114,6 +2355,25 @@ export type DatingPageDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many DatingPages to delete.
    */
   limit?: number
+}
+
+/**
+ * DatingPage.bannedBy
+ */
+export type DatingPage$bannedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

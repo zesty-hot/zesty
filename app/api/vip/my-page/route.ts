@@ -9,7 +9,16 @@ export async function GET(req: NextRequest) {
   const user = await withRetry(() => prisma.user.findUnique({
     where: { supabaseId: session?.user?.id },
     include: {
-      vipPage: true
+      vipPage: {
+        include: {
+          _count: {
+            select: {
+              subscriptions: { where: { active: true } },
+              content: true
+            }
+          }
+        }
+      }
     }
   }));
 
@@ -21,7 +30,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, }, { status: 404 });
   }
 
-  return NextResponse.json(user.vipPage, { status: 200 });
+  const { _count, ...vipPageData } = user.vipPage;
+
+  return NextResponse.json({
+    ...vipPageData,
+    subscriberCount: _count.subscriptions,
+    contentCount: _count.content
+  }, { status: 200 });
 }
 
 export async function PATCH(req: NextRequest) {
@@ -61,8 +76,11 @@ export async function PATCH(req: NextRequest) {
     prisma.vIPPage.update({
       where: { id: user.vipPage?.id },
       data: {
-        description: body.description || user.vipPage?.description,
+        description: body.description !== undefined ? body.description : user.vipPage?.description,
         active: body.active !== undefined ? body.active : user.vipPage?.active,
+        bannerUrl: body.bannerUrl !== undefined ? body.bannerUrl : user.vipPage?.bannerUrl,
+        subscriptionPrice: body.subscriptionPrice !== undefined ? body.subscriptionPrice : user.vipPage?.subscriptionPrice,
+        isFree: body.isFree !== undefined ? body.isFree : user.vipPage?.isFree,
       },
     })
   );

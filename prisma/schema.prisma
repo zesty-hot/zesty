@@ -115,10 +115,11 @@ model User {
 
   favouritedEscorts PrivateAd[] @relation("escortFollowers")
 
-  datingPages DatingPage[]
-
   lastActive DateTime? @default(now())
   createdAt  DateTime  @default(now())
+
+  datingPage        DatingPage?  @relation("datingProfile")
+  bannedDatingPages DatingPage[] @relation("bannedBy")
 
   @@map("zesty_user")
 }
@@ -500,6 +501,9 @@ model ChatMessage {
 
   readBy MessageRead[]
 
+  eventAttendee   EventAttendee? @relation(fields: [eventAttendeeId], references: [id])
+  eventAttendeeId String?
+
   @@index([chatId, createdAt])
   @@index([senderId])
   @@map("chat_message")
@@ -534,9 +538,13 @@ model DatingPage {
 
   active   Boolean @default(true) // Profile enabled/disabled
   verified Boolean @default(false) // Verified dating profile
+  banned   Boolean @default(false)
+
+  bannedBy   User?   @relation("bannedBy", fields: [bannedById], references: [zesty_id])
+  bannedById String?
 
   // Relations
-  user     User   @relation(fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
+  user     User   @relation("datingProfile", fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
   zesty_id String
 
   swipesGiven    DatingSwipe[] @relation("swiper")
@@ -758,6 +766,8 @@ model EventAttendee {
 
   user     User   @relation("eventAttendee", fields: [zesty_id], references: [zesty_id], onDelete: Cascade)
   zesty_id String
+
+  chatMessages ChatMessage[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

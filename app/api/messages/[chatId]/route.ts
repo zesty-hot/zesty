@@ -122,12 +122,39 @@ export async function GET(
       },
     }));
 
+    // Fetch event invites related to this chat
+    const eventInvites = await withRetry(() => prisma.eventAttendee.findMany({
+      where: {
+        chatMessages: {
+          some: {
+            chatId: chatId,
+          },
+        },
+      },
+      include: {
+        event: {
+          select: {
+            title: true,
+            slug: true,
+            startTime: true,
+            coverImage: true,
+            location: true,
+            venue: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    }));
+
     return NextResponse.json({
       id: chat.id,
       otherUser,
       messages: chat.messages,
       otherUserAd,
       offers,
+      eventInvites,
     });
   } catch (error) {
     console.error("Error fetching messages:", error);

@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
 
     // Create or find chat between client and worker
     let finalChatId = chatId;
-    
+
     if (!finalChatId) {
       // Check if a chat already exists between these users
       // We need to find a chat where BOTH users are active
@@ -98,9 +98,9 @@ export async function POST(req: NextRequest) {
       const existingChat = allChats.find(chat => {
         const userIds = chat.activeUsers.map(u => u.zesty_id).sort();
         const targetIds = [user?.zesty_id, workerId].sort();
-        return userIds.length === 2 && 
-               userIds[0] === targetIds[0] && 
-               userIds[1] === targetIds[1];
+        return userIds.length === 2 &&
+          userIds[0] === targetIds[0] &&
+          userIds[1] === targetIds[1];
       });
 
       if (existingChat) {
@@ -168,15 +168,15 @@ export async function POST(req: NextRequest) {
     );
 
     // Create a chat message to notify the worker about the new offer
-    const offerMessage = await withRetry(() =>
-      prisma.chatMessage.create({
-        data: {
-          content: `📋 New offer received: ${service.replace(/_/g, " ")} for $${amount}`,
-          senderId: user?.zesty_id,
-          chatId: finalChatId,
-        },
-      })
-    );
+    // const offerMessage = await withRetry(() =>
+    //   prisma.chatMessage.create({
+    //     data: {
+    //       content: `📋 New offer received: ${service.replace(/_/g, " ")} for $${amount}`,
+    //       senderId: user?.zesty_id,
+    //       chatId: finalChatId,
+    //     },
+    //   })
+    // );
 
     // Send push notification to worker
     const clientName = offer.client.slug || 'Someone';
@@ -184,9 +184,9 @@ export async function POST(req: NextRequest) {
       sendNewOfferNotification(workerId, clientName, offer.amount).catch(err => {
         console.error('Failed to send offer push notification:', err);
       }),
-      sendNewMessageNotification(workerId, clientName, offerMessage.content).catch(err => {
-        console.error('Failed to send message push notification:', err);
-      })
+      // sendNewMessageNotification(workerId, clientName, offerMessage.content).catch(err => {
+      //   console.error('Failed to send message push notification:', err);
+      // })
     ]);
 
     return NextResponse.json({ offer }, { status: 201 });

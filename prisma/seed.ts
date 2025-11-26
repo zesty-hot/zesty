@@ -10,7 +10,10 @@ const pool = new Pool({
   connectionString,
   ssl: {
     rejectUnauthorized: false
-  }
+  },
+  max: 5,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
@@ -375,6 +378,15 @@ async function main() {
     await prisma.vIPPage.deleteMany({
       where: {
         zesty_id: { in: seedUserIds }
+      }
+    });
+
+    // Delete Studios (and jobs via cascade)
+    await prisma.studio.deleteMany({
+      where: {
+        slug: {
+          endsWith: '-seed'
+        }
       }
     });
 
@@ -961,20 +973,45 @@ async function main() {
       }
     });
 
-    // Create a job
-    await prisma.job.create({
-      data: {
-        title: 'Actor Needed',
-        slug: `actor-needed-${studio.slug}-${i}`,
-        description: 'Looking for talent.',
-        type: JobType.ACTOR,
-        payAmount: 50000,
-        startDate: new Date(),
-        studioId: studio.id,
-        status: JobStatus.OPEN,
-        coverImage: `https://picsum.photos/seed/job-${i}/1200/600`,
-      }
-    });
+    // Create multiple jobs per studio
+    for (let j = 0; j < 12; j++) {
+      const type = randomElement([
+        JobType.ACTOR,
+        JobType.DIRECTOR,
+        JobType.CAMERA_OPERATOR,
+        JobType.EDITOR,
+        JobType.PRODUCTION_STAFF,
+        JobType.MODEL,
+        JobType.OTHER
+      ]);
+
+      const titles = {
+        [JobType.ACTOR]: ['Lead Actor Needed', 'Supporting Role', 'Background Extras', 'Character Actor', 'Voice Actor'],
+        [JobType.DIRECTOR]: ['Assistant Director', 'Director of Photography', 'Art Director', 'Creative Director'],
+        [JobType.CAMERA_OPERATOR]: ['Camera Operator', 'Steadicam Operator', 'Drone Operator', 'Videographer'],
+        [JobType.EDITOR]: ['Video Editor', 'Colorist', 'Sound Editor', 'VFX Artist'],
+        [JobType.PRODUCTION_STAFF]: ['Production Assistant', 'Gaffer', 'Grip', 'Boom Operator', 'Runner'],
+        [JobType.MODEL]: ['Fashion Model', 'Hand Model', 'Fitness Model', 'Commercial Model'],
+        [JobType.OTHER]: ['Makeup Artist', 'Costume Designer', 'Catering Staff', 'Set Designer']
+      };
+
+      const title = randomElement(titles[type]);
+
+      await prisma.job.create({
+        data: {
+          title: title,
+          slug: `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${studio.slug}-${j}`,
+          description: `We are looking for a talented ${title.toLowerCase()} to join our production. Great opportunity for the right candidate.`,
+          type: type,
+          payAmount: Math.floor(Math.random() * 90000) + 10000, // 100-1000
+          startDate: new Date(),
+          endDate: new Date(new Date().setDate(new Date().getDate() + Math.floor(Math.random() * 60) + 5)), // 5-65 days from now
+          studioId: studio.id,
+          status: JobStatus.OPEN,
+          coverImage: `https://picsum.photos/seed/job-${i}-${j}/1200/600`,
+        }
+      });
+    }
   }
 
   console.log('💕 Creating dating profiles...');
@@ -992,8 +1029,6 @@ async function main() {
   });
 
   console.log('✅ Seed completed successfully!');
-
-
 }
 
 main()

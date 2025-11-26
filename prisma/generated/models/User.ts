@@ -305,7 +305,8 @@ export type UserWhereInput = {
   reviewsReceived?: Prisma.ReviewListRelationFilter
   pushSubscriptions?: Prisma.PushSubscriptionListRelationFilter
   favouritedEscorts?: Prisma.PrivateAdListRelationFilter
-  datingPages?: Prisma.DatingPageListRelationFilter
+  datingPage?: Prisma.XOR<Prisma.DatingPageNullableScalarRelationFilter, Prisma.DatingPageWhereInput> | null
+  bannedDatingPages?: Prisma.DatingPageListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -353,7 +354,8 @@ export type UserOrderByWithRelationInput = {
   reviewsReceived?: Prisma.ReviewOrderByRelationAggregateInput
   pushSubscriptions?: Prisma.PushSubscriptionOrderByRelationAggregateInput
   favouritedEscorts?: Prisma.PrivateAdOrderByRelationAggregateInput
-  datingPages?: Prisma.DatingPageOrderByRelationAggregateInput
+  datingPage?: Prisma.DatingPageOrderByWithRelationInput
+  bannedDatingPages?: Prisma.DatingPageOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -404,7 +406,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   reviewsReceived?: Prisma.ReviewListRelationFilter
   pushSubscriptions?: Prisma.PushSubscriptionListRelationFilter
   favouritedEscorts?: Prisma.PrivateAdListRelationFilter
-  datingPages?: Prisma.DatingPageListRelationFilter
+  datingPage?: Prisma.XOR<Prisma.DatingPageNullableScalarRelationFilter, Prisma.DatingPageWhereInput> | null
+  bannedDatingPages?: Prisma.DatingPageListRelationFilter
 }, "zesty_id" | "supabaseId" | "slug">
 
 export type UserOrderByWithAggregationInput = {
@@ -498,7 +501,8 @@ export type UserCreateInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -546,7 +550,8 @@ export type UserUncheckedCreateInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUpdateInput = {
@@ -594,7 +599,8 @@ export type UserUpdateInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -642,7 +648,8 @@ export type UserUncheckedUpdateInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1089,18 +1096,34 @@ export type UserUpdateOneRequiredWithoutMessagesReadNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMessagesReadInput, Prisma.UserUpdateWithoutMessagesReadInput>, Prisma.UserUncheckedUpdateWithoutMessagesReadInput>
 }
 
-export type UserCreateNestedOneWithoutDatingPagesInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutDatingPagesInput, Prisma.UserUncheckedCreateWithoutDatingPagesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDatingPagesInput
+export type UserCreateNestedOneWithoutBannedDatingPagesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBannedDatingPagesInput, Prisma.UserUncheckedCreateWithoutBannedDatingPagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBannedDatingPagesInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutDatingPagesNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutDatingPagesInput, Prisma.UserUncheckedCreateWithoutDatingPagesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDatingPagesInput
-  upsert?: Prisma.UserUpsertWithoutDatingPagesInput
+export type UserCreateNestedOneWithoutDatingPageInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDatingPageInput, Prisma.UserUncheckedCreateWithoutDatingPageInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDatingPageInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDatingPagesInput, Prisma.UserUpdateWithoutDatingPagesInput>, Prisma.UserUncheckedUpdateWithoutDatingPagesInput>
+}
+
+export type UserUpdateOneWithoutBannedDatingPagesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBannedDatingPagesInput, Prisma.UserUncheckedCreateWithoutBannedDatingPagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBannedDatingPagesInput
+  upsert?: Prisma.UserUpsertWithoutBannedDatingPagesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBannedDatingPagesInput, Prisma.UserUpdateWithoutBannedDatingPagesInput>, Prisma.UserUncheckedUpdateWithoutBannedDatingPagesInput>
+}
+
+export type UserUpdateOneRequiredWithoutDatingPageNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDatingPageInput, Prisma.UserUncheckedCreateWithoutDatingPageInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDatingPageInput
+  upsert?: Prisma.UserUpsertWithoutDatingPageInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDatingPageInput, Prisma.UserUpdateWithoutDatingPageInput>, Prisma.UserUncheckedUpdateWithoutDatingPageInput>
 }
 
 export type UserCreateNestedOneWithoutLiveStreamPageInput = {
@@ -1317,7 +1340,8 @@ export type UserCreateWithoutImagesInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutImagesInput = {
@@ -1364,7 +1388,8 @@ export type UserUncheckedCreateWithoutImagesInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutImagesInput = {
@@ -1427,7 +1452,8 @@ export type UserUpdateWithoutImagesInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutImagesInput = {
@@ -1474,7 +1500,8 @@ export type UserUncheckedUpdateWithoutImagesInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutVipPageInput = {
@@ -1521,7 +1548,8 @@ export type UserCreateWithoutVipPageInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutVipPageInput = {
@@ -1568,7 +1596,8 @@ export type UserUncheckedCreateWithoutVipPageInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutVipPageInput = {
@@ -1631,7 +1660,8 @@ export type UserUpdateWithoutVipPageInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVipPageInput = {
@@ -1678,7 +1708,8 @@ export type UserUncheckedUpdateWithoutVipPageInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutVipSubscriptionsInput = {
@@ -1725,7 +1756,8 @@ export type UserCreateWithoutVipSubscriptionsInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutVipSubscriptionsInput = {
@@ -1772,7 +1804,8 @@ export type UserUncheckedCreateWithoutVipSubscriptionsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutVipSubscriptionsInput = {
@@ -1835,7 +1868,8 @@ export type UserUpdateWithoutVipSubscriptionsInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVipSubscriptionsInput = {
@@ -1882,7 +1916,8 @@ export type UserUncheckedUpdateWithoutVipSubscriptionsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutVipLikesInput = {
@@ -1929,7 +1964,8 @@ export type UserCreateWithoutVipLikesInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutVipLikesInput = {
@@ -1976,7 +2012,8 @@ export type UserUncheckedCreateWithoutVipLikesInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutVipLikesInput = {
@@ -2039,7 +2076,8 @@ export type UserUpdateWithoutVipLikesInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVipLikesInput = {
@@ -2086,7 +2124,8 @@ export type UserUncheckedUpdateWithoutVipLikesInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutVipCommentsInput = {
@@ -2133,7 +2172,8 @@ export type UserCreateWithoutVipCommentsInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutVipCommentsInput = {
@@ -2180,7 +2220,8 @@ export type UserUncheckedCreateWithoutVipCommentsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutVipCommentsInput = {
@@ -2243,7 +2284,8 @@ export type UserUpdateWithoutVipCommentsInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVipCommentsInput = {
@@ -2290,7 +2332,8 @@ export type UserUncheckedUpdateWithoutVipCommentsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutReviewsGivenInput = {
@@ -2337,7 +2380,8 @@ export type UserCreateWithoutReviewsGivenInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutReviewsGivenInput = {
@@ -2384,7 +2428,8 @@ export type UserUncheckedCreateWithoutReviewsGivenInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutReviewsGivenInput = {
@@ -2436,7 +2481,8 @@ export type UserCreateWithoutReviewsReceivedInput = {
   reviewsGiven?: Prisma.ReviewCreateNestedManyWithoutReviewerInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutReviewsReceivedInput = {
@@ -2483,7 +2529,8 @@ export type UserUncheckedCreateWithoutReviewsReceivedInput = {
   reviewsGiven?: Prisma.ReviewUncheckedCreateNestedManyWithoutReviewerInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutReviewsReceivedInput = {
@@ -2546,7 +2593,8 @@ export type UserUpdateWithoutReviewsGivenInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewsGivenInput = {
@@ -2593,7 +2641,8 @@ export type UserUncheckedUpdateWithoutReviewsGivenInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUpsertWithoutReviewsReceivedInput = {
@@ -2651,7 +2700,8 @@ export type UserUpdateWithoutReviewsReceivedInput = {
   reviewsGiven?: Prisma.ReviewUpdateManyWithoutReviewerNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewsReceivedInput = {
@@ -2698,7 +2748,8 @@ export type UserUncheckedUpdateWithoutReviewsReceivedInput = {
   reviewsGiven?: Prisma.ReviewUncheckedUpdateManyWithoutReviewerNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutFavouritedEscortsInput = {
@@ -2745,7 +2796,8 @@ export type UserCreateWithoutFavouritedEscortsInput = {
   reviewsGiven?: Prisma.ReviewCreateNestedManyWithoutReviewerInput
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutFavouritedEscortsInput = {
@@ -2792,7 +2844,8 @@ export type UserUncheckedCreateWithoutFavouritedEscortsInput = {
   reviewsGiven?: Prisma.ReviewUncheckedCreateNestedManyWithoutReviewerInput
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutFavouritedEscortsInput = {
@@ -2844,7 +2897,8 @@ export type UserCreateWithoutPrivateAdsInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutPrivateAdsInput = {
@@ -2891,7 +2945,8 @@ export type UserUncheckedCreateWithoutPrivateAdsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutPrivateAdsInput = {
@@ -2993,7 +3048,8 @@ export type UserUpdateWithoutPrivateAdsInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPrivateAdsInput = {
@@ -3040,7 +3096,8 @@ export type UserUncheckedUpdateWithoutPrivateAdsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutPrivateOffersSentInput = {
@@ -3087,7 +3144,8 @@ export type UserCreateWithoutPrivateOffersSentInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutPrivateOffersSentInput = {
@@ -3134,7 +3192,8 @@ export type UserUncheckedCreateWithoutPrivateOffersSentInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutPrivateOffersSentInput = {
@@ -3186,7 +3245,8 @@ export type UserCreateWithoutPrivateOffersReceivedInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutPrivateOffersReceivedInput = {
@@ -3233,7 +3293,8 @@ export type UserUncheckedCreateWithoutPrivateOffersReceivedInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutPrivateOffersReceivedInput = {
@@ -3296,7 +3357,8 @@ export type UserUpdateWithoutPrivateOffersSentInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPrivateOffersSentInput = {
@@ -3343,7 +3405,8 @@ export type UserUncheckedUpdateWithoutPrivateOffersSentInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUpsertWithoutPrivateOffersReceivedInput = {
@@ -3401,7 +3464,8 @@ export type UserUpdateWithoutPrivateOffersReceivedInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPrivateOffersReceivedInput = {
@@ -3448,7 +3512,8 @@ export type UserUncheckedUpdateWithoutPrivateOffersReceivedInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutActiveChatsInput = {
@@ -3495,7 +3560,8 @@ export type UserCreateWithoutActiveChatsInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutActiveChatsInput = {
@@ -3542,7 +3608,8 @@ export type UserUncheckedCreateWithoutActiveChatsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutActiveChatsInput = {
@@ -3594,7 +3661,8 @@ export type UserCreateWithoutHiddenChatsInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutHiddenChatsInput = {
@@ -3641,7 +3709,8 @@ export type UserUncheckedCreateWithoutHiddenChatsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutHiddenChatsInput = {
@@ -3725,7 +3794,8 @@ export type UserCreateWithoutMessagesSentInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutMessagesSentInput = {
@@ -3772,7 +3842,8 @@ export type UserUncheckedCreateWithoutMessagesSentInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutMessagesSentInput = {
@@ -3835,7 +3906,8 @@ export type UserUpdateWithoutMessagesSentInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMessagesSentInput = {
@@ -3882,7 +3954,8 @@ export type UserUncheckedUpdateWithoutMessagesSentInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutMessagesReadInput = {
@@ -3929,7 +4002,8 @@ export type UserCreateWithoutMessagesReadInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutMessagesReadInput = {
@@ -3976,7 +4050,8 @@ export type UserUncheckedCreateWithoutMessagesReadInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutMessagesReadInput = {
@@ -4039,7 +4114,8 @@ export type UserUpdateWithoutMessagesReadInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMessagesReadInput = {
@@ -4086,10 +4162,11 @@ export type UserUncheckedUpdateWithoutMessagesReadInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
-export type UserCreateWithoutDatingPagesInput = {
+export type UserCreateWithoutBannedDatingPagesInput = {
   zesty_id?: string
   supabaseId: string
   title?: string | null
@@ -4134,9 +4211,10 @@ export type UserCreateWithoutDatingPagesInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
 }
 
-export type UserUncheckedCreateWithoutDatingPagesInput = {
+export type UserUncheckedCreateWithoutBannedDatingPagesInput = {
   zesty_id?: string
   supabaseId: string
   title?: string | null
@@ -4181,25 +4259,127 @@ export type UserUncheckedCreateWithoutDatingPagesInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
 }
 
-export type UserCreateOrConnectWithoutDatingPagesInput = {
+export type UserCreateOrConnectWithoutBannedDatingPagesInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutDatingPagesInput, Prisma.UserUncheckedCreateWithoutDatingPagesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBannedDatingPagesInput, Prisma.UserUncheckedCreateWithoutBannedDatingPagesInput>
 }
 
-export type UserUpsertWithoutDatingPagesInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutDatingPagesInput, Prisma.UserUncheckedUpdateWithoutDatingPagesInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutDatingPagesInput, Prisma.UserUncheckedCreateWithoutDatingPagesInput>
+export type UserCreateWithoutDatingPageInput = {
+  zesty_id?: string
+  supabaseId: string
+  title?: string | null
+  bio?: string | null
+  slug?: string | null
+  webRole?: $Enums.Role
+  dob?: Date | string | null
+  stripeId?: string | null
+  verified?: boolean
+  onboardingCompleted?: boolean
+  location?: string | null
+  suburb?: string | null
+  bodyType?: $Enums.BodyType | null
+  race?: $Enums.Race | null
+  gender?: $Enums.Gender | null
+  lastActive?: Date | string | null
+  createdAt?: Date | string
+  privateAds?: Prisma.PrivateAdCreateNestedManyWithoutWorkerInput
+  images?: Prisma.ImagesCreateNestedManyWithoutUserInput
+  privateOffersSent?: Prisma.PrivateOfferCreateNestedManyWithoutClientInput
+  privateOffersReceived?: Prisma.PrivateOfferCreateNestedManyWithoutWorkerInput
+  vipPage?: Prisma.VIPPageCreateNestedOneWithoutUserInput
+  vipSubscriptions?: Prisma.VIPSubscriptionCreateNestedManyWithoutSubscriberInput
+  vipLikes?: Prisma.VIPLikeCreateNestedManyWithoutUserInput
+  vipComments?: Prisma.VIPCommentCreateNestedManyWithoutUserInput
+  liveStreamPage?: Prisma.LiveStreamPageCreateNestedOneWithoutUserInput
+  liveStreamFollows?: Prisma.LiveStreamFollowerCreateNestedManyWithoutUserInput
+  liveStreamDonations?: Prisma.LiveStreamDonationCreateNestedManyWithoutDonorInput
+  eventsOrganized?: Prisma.EventCreateNestedManyWithoutOrganizerInput
+  eventsAttending?: Prisma.EventAttendeeCreateNestedManyWithoutUserInput
+  eventPosts?: Prisma.EventPostCreateNestedManyWithoutAuthorInput
+  eventComments?: Prisma.EventCommentCreateNestedManyWithoutAuthorInput
+  studiosOwned?: Prisma.StudioCreateNestedManyWithoutOwnerInput
+  studioAdmins?: Prisma.StudioAdminCreateNestedManyWithoutUserInput
+  jobApplications?: Prisma.JobApplicationCreateNestedManyWithoutApplicantInput
+  studioReviews?: Prisma.StudioReviewCreateNestedManyWithoutReviewerInput
+  messagesSent?: Prisma.ChatMessageCreateNestedManyWithoutSenderInput
+  messagesRead?: Prisma.MessageReadCreateNestedManyWithoutUserInput
+  activeChats?: Prisma.ChatCreateNestedManyWithoutActiveUsersInput
+  hiddenChats?: Prisma.ChatCreateNestedManyWithoutHiddenUsersInput
+  reviewsGiven?: Prisma.ReviewCreateNestedManyWithoutReviewerInput
+  reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
+}
+
+export type UserUncheckedCreateWithoutDatingPageInput = {
+  zesty_id?: string
+  supabaseId: string
+  title?: string | null
+  bio?: string | null
+  slug?: string | null
+  webRole?: $Enums.Role
+  dob?: Date | string | null
+  stripeId?: string | null
+  verified?: boolean
+  onboardingCompleted?: boolean
+  location?: string | null
+  suburb?: string | null
+  bodyType?: $Enums.BodyType | null
+  race?: $Enums.Race | null
+  gender?: $Enums.Gender | null
+  lastActive?: Date | string | null
+  createdAt?: Date | string
+  privateAds?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutWorkerInput
+  images?: Prisma.ImagesUncheckedCreateNestedManyWithoutUserInput
+  privateOffersSent?: Prisma.PrivateOfferUncheckedCreateNestedManyWithoutClientInput
+  privateOffersReceived?: Prisma.PrivateOfferUncheckedCreateNestedManyWithoutWorkerInput
+  vipPage?: Prisma.VIPPageUncheckedCreateNestedOneWithoutUserInput
+  vipSubscriptions?: Prisma.VIPSubscriptionUncheckedCreateNestedManyWithoutSubscriberInput
+  vipLikes?: Prisma.VIPLikeUncheckedCreateNestedManyWithoutUserInput
+  vipComments?: Prisma.VIPCommentUncheckedCreateNestedManyWithoutUserInput
+  liveStreamPage?: Prisma.LiveStreamPageUncheckedCreateNestedOneWithoutUserInput
+  liveStreamFollows?: Prisma.LiveStreamFollowerUncheckedCreateNestedManyWithoutUserInput
+  liveStreamDonations?: Prisma.LiveStreamDonationUncheckedCreateNestedManyWithoutDonorInput
+  eventsOrganized?: Prisma.EventUncheckedCreateNestedManyWithoutOrganizerInput
+  eventsAttending?: Prisma.EventAttendeeUncheckedCreateNestedManyWithoutUserInput
+  eventPosts?: Prisma.EventPostUncheckedCreateNestedManyWithoutAuthorInput
+  eventComments?: Prisma.EventCommentUncheckedCreateNestedManyWithoutAuthorInput
+  studiosOwned?: Prisma.StudioUncheckedCreateNestedManyWithoutOwnerInput
+  studioAdmins?: Prisma.StudioAdminUncheckedCreateNestedManyWithoutUserInput
+  jobApplications?: Prisma.JobApplicationUncheckedCreateNestedManyWithoutApplicantInput
+  studioReviews?: Prisma.StudioReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messagesSent?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutSenderInput
+  messagesRead?: Prisma.MessageReadUncheckedCreateNestedManyWithoutUserInput
+  activeChats?: Prisma.ChatUncheckedCreateNestedManyWithoutActiveUsersInput
+  hiddenChats?: Prisma.ChatUncheckedCreateNestedManyWithoutHiddenUsersInput
+  reviewsGiven?: Prisma.ReviewUncheckedCreateNestedManyWithoutReviewerInput
+  reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
+}
+
+export type UserCreateOrConnectWithoutDatingPageInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutDatingPageInput, Prisma.UserUncheckedCreateWithoutDatingPageInput>
+}
+
+export type UserUpsertWithoutBannedDatingPagesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutBannedDatingPagesInput, Prisma.UserUncheckedUpdateWithoutBannedDatingPagesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBannedDatingPagesInput, Prisma.UserUncheckedCreateWithoutBannedDatingPagesInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutDatingPagesInput = {
+export type UserUpdateToOneWithWhereWithoutBannedDatingPagesInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutDatingPagesInput, Prisma.UserUncheckedUpdateWithoutDatingPagesInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutBannedDatingPagesInput, Prisma.UserUncheckedUpdateWithoutBannedDatingPagesInput>
 }
 
-export type UserUpdateWithoutDatingPagesInput = {
+export type UserUpdateWithoutBannedDatingPagesInput = {
   zesty_id?: Prisma.StringFieldUpdateOperationsInput | string
   supabaseId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4244,9 +4424,10 @@ export type UserUpdateWithoutDatingPagesInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutDatingPagesInput = {
+export type UserUncheckedUpdateWithoutBannedDatingPagesInput = {
   zesty_id?: Prisma.StringFieldUpdateOperationsInput | string
   supabaseId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4291,6 +4472,114 @@ export type UserUncheckedUpdateWithoutDatingPagesInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserUpsertWithoutDatingPageInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutDatingPageInput, Prisma.UserUncheckedUpdateWithoutDatingPageInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutDatingPageInput, Prisma.UserUncheckedCreateWithoutDatingPageInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutDatingPageInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutDatingPageInput, Prisma.UserUncheckedUpdateWithoutDatingPageInput>
+}
+
+export type UserUpdateWithoutDatingPageInput = {
+  zesty_id?: Prisma.StringFieldUpdateOperationsInput | string
+  supabaseId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  dob?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bodyType?: Prisma.NullableEnumBodyTypeFieldUpdateOperationsInput | $Enums.BodyType | null
+  race?: Prisma.NullableEnumRaceFieldUpdateOperationsInput | $Enums.Race | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  lastActive?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  privateAds?: Prisma.PrivateAdUpdateManyWithoutWorkerNestedInput
+  images?: Prisma.ImagesUpdateManyWithoutUserNestedInput
+  privateOffersSent?: Prisma.PrivateOfferUpdateManyWithoutClientNestedInput
+  privateOffersReceived?: Prisma.PrivateOfferUpdateManyWithoutWorkerNestedInput
+  vipPage?: Prisma.VIPPageUpdateOneWithoutUserNestedInput
+  vipSubscriptions?: Prisma.VIPSubscriptionUpdateManyWithoutSubscriberNestedInput
+  vipLikes?: Prisma.VIPLikeUpdateManyWithoutUserNestedInput
+  vipComments?: Prisma.VIPCommentUpdateManyWithoutUserNestedInput
+  liveStreamPage?: Prisma.LiveStreamPageUpdateOneWithoutUserNestedInput
+  liveStreamFollows?: Prisma.LiveStreamFollowerUpdateManyWithoutUserNestedInput
+  liveStreamDonations?: Prisma.LiveStreamDonationUpdateManyWithoutDonorNestedInput
+  eventsOrganized?: Prisma.EventUpdateManyWithoutOrganizerNestedInput
+  eventsAttending?: Prisma.EventAttendeeUpdateManyWithoutUserNestedInput
+  eventPosts?: Prisma.EventPostUpdateManyWithoutAuthorNestedInput
+  eventComments?: Prisma.EventCommentUpdateManyWithoutAuthorNestedInput
+  studiosOwned?: Prisma.StudioUpdateManyWithoutOwnerNestedInput
+  studioAdmins?: Prisma.StudioAdminUpdateManyWithoutUserNestedInput
+  jobApplications?: Prisma.JobApplicationUpdateManyWithoutApplicantNestedInput
+  studioReviews?: Prisma.StudioReviewUpdateManyWithoutReviewerNestedInput
+  messagesSent?: Prisma.ChatMessageUpdateManyWithoutSenderNestedInput
+  messagesRead?: Prisma.MessageReadUpdateManyWithoutUserNestedInput
+  activeChats?: Prisma.ChatUpdateManyWithoutActiveUsersNestedInput
+  hiddenChats?: Prisma.ChatUpdateManyWithoutHiddenUsersNestedInput
+  reviewsGiven?: Prisma.ReviewUpdateManyWithoutReviewerNestedInput
+  reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutDatingPageInput = {
+  zesty_id?: Prisma.StringFieldUpdateOperationsInput | string
+  supabaseId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  dob?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bodyType?: Prisma.NullableEnumBodyTypeFieldUpdateOperationsInput | $Enums.BodyType | null
+  race?: Prisma.NullableEnumRaceFieldUpdateOperationsInput | $Enums.Race | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  lastActive?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  privateAds?: Prisma.PrivateAdUncheckedUpdateManyWithoutWorkerNestedInput
+  images?: Prisma.ImagesUncheckedUpdateManyWithoutUserNestedInput
+  privateOffersSent?: Prisma.PrivateOfferUncheckedUpdateManyWithoutClientNestedInput
+  privateOffersReceived?: Prisma.PrivateOfferUncheckedUpdateManyWithoutWorkerNestedInput
+  vipPage?: Prisma.VIPPageUncheckedUpdateOneWithoutUserNestedInput
+  vipSubscriptions?: Prisma.VIPSubscriptionUncheckedUpdateManyWithoutSubscriberNestedInput
+  vipLikes?: Prisma.VIPLikeUncheckedUpdateManyWithoutUserNestedInput
+  vipComments?: Prisma.VIPCommentUncheckedUpdateManyWithoutUserNestedInput
+  liveStreamPage?: Prisma.LiveStreamPageUncheckedUpdateOneWithoutUserNestedInput
+  liveStreamFollows?: Prisma.LiveStreamFollowerUncheckedUpdateManyWithoutUserNestedInput
+  liveStreamDonations?: Prisma.LiveStreamDonationUncheckedUpdateManyWithoutDonorNestedInput
+  eventsOrganized?: Prisma.EventUncheckedUpdateManyWithoutOrganizerNestedInput
+  eventsAttending?: Prisma.EventAttendeeUncheckedUpdateManyWithoutUserNestedInput
+  eventPosts?: Prisma.EventPostUncheckedUpdateManyWithoutAuthorNestedInput
+  eventComments?: Prisma.EventCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  studiosOwned?: Prisma.StudioUncheckedUpdateManyWithoutOwnerNestedInput
+  studioAdmins?: Prisma.StudioAdminUncheckedUpdateManyWithoutUserNestedInput
+  jobApplications?: Prisma.JobApplicationUncheckedUpdateManyWithoutApplicantNestedInput
+  studioReviews?: Prisma.StudioReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messagesSent?: Prisma.ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
+  messagesRead?: Prisma.MessageReadUncheckedUpdateManyWithoutUserNestedInput
+  activeChats?: Prisma.ChatUncheckedUpdateManyWithoutActiveUsersNestedInput
+  hiddenChats?: Prisma.ChatUncheckedUpdateManyWithoutHiddenUsersNestedInput
+  reviewsGiven?: Prisma.ReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutLiveStreamPageInput = {
@@ -4337,7 +4626,8 @@ export type UserCreateWithoutLiveStreamPageInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutLiveStreamPageInput = {
@@ -4384,7 +4674,8 @@ export type UserUncheckedCreateWithoutLiveStreamPageInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutLiveStreamPageInput = {
@@ -4447,7 +4738,8 @@ export type UserUpdateWithoutLiveStreamPageInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLiveStreamPageInput = {
@@ -4494,7 +4786,8 @@ export type UserUncheckedUpdateWithoutLiveStreamPageInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutLiveStreamFollowsInput = {
@@ -4541,7 +4834,8 @@ export type UserCreateWithoutLiveStreamFollowsInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutLiveStreamFollowsInput = {
@@ -4588,7 +4882,8 @@ export type UserUncheckedCreateWithoutLiveStreamFollowsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutLiveStreamFollowsInput = {
@@ -4651,7 +4946,8 @@ export type UserUpdateWithoutLiveStreamFollowsInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLiveStreamFollowsInput = {
@@ -4698,7 +4994,8 @@ export type UserUncheckedUpdateWithoutLiveStreamFollowsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutLiveStreamDonationsInput = {
@@ -4745,7 +5042,8 @@ export type UserCreateWithoutLiveStreamDonationsInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutLiveStreamDonationsInput = {
@@ -4792,7 +5090,8 @@ export type UserUncheckedCreateWithoutLiveStreamDonationsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutLiveStreamDonationsInput = {
@@ -4855,7 +5154,8 @@ export type UserUpdateWithoutLiveStreamDonationsInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLiveStreamDonationsInput = {
@@ -4902,7 +5202,8 @@ export type UserUncheckedUpdateWithoutLiveStreamDonationsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutEventsOrganizedInput = {
@@ -4949,7 +5250,8 @@ export type UserCreateWithoutEventsOrganizedInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutEventsOrganizedInput = {
@@ -4996,7 +5298,8 @@ export type UserUncheckedCreateWithoutEventsOrganizedInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutEventsOrganizedInput = {
@@ -5059,7 +5362,8 @@ export type UserUpdateWithoutEventsOrganizedInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventsOrganizedInput = {
@@ -5106,7 +5410,8 @@ export type UserUncheckedUpdateWithoutEventsOrganizedInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutEventsAttendingInput = {
@@ -5153,7 +5458,8 @@ export type UserCreateWithoutEventsAttendingInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutEventsAttendingInput = {
@@ -5200,7 +5506,8 @@ export type UserUncheckedCreateWithoutEventsAttendingInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutEventsAttendingInput = {
@@ -5263,7 +5570,8 @@ export type UserUpdateWithoutEventsAttendingInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventsAttendingInput = {
@@ -5310,7 +5618,8 @@ export type UserUncheckedUpdateWithoutEventsAttendingInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutEventPostsInput = {
@@ -5357,7 +5666,8 @@ export type UserCreateWithoutEventPostsInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutEventPostsInput = {
@@ -5404,7 +5714,8 @@ export type UserUncheckedCreateWithoutEventPostsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutEventPostsInput = {
@@ -5467,7 +5778,8 @@ export type UserUpdateWithoutEventPostsInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventPostsInput = {
@@ -5514,7 +5826,8 @@ export type UserUncheckedUpdateWithoutEventPostsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutEventCommentsInput = {
@@ -5561,7 +5874,8 @@ export type UserCreateWithoutEventCommentsInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutEventCommentsInput = {
@@ -5608,7 +5922,8 @@ export type UserUncheckedCreateWithoutEventCommentsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutEventCommentsInput = {
@@ -5671,7 +5986,8 @@ export type UserUpdateWithoutEventCommentsInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventCommentsInput = {
@@ -5718,7 +6034,8 @@ export type UserUncheckedUpdateWithoutEventCommentsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutStudiosOwnedInput = {
@@ -5765,7 +6082,8 @@ export type UserCreateWithoutStudiosOwnedInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutStudiosOwnedInput = {
@@ -5812,7 +6130,8 @@ export type UserUncheckedCreateWithoutStudiosOwnedInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutStudiosOwnedInput = {
@@ -5875,7 +6194,8 @@ export type UserUpdateWithoutStudiosOwnedInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStudiosOwnedInput = {
@@ -5922,7 +6242,8 @@ export type UserUncheckedUpdateWithoutStudiosOwnedInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutStudioAdminsInput = {
@@ -5969,7 +6290,8 @@ export type UserCreateWithoutStudioAdminsInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutStudioAdminsInput = {
@@ -6016,7 +6338,8 @@ export type UserUncheckedCreateWithoutStudioAdminsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutStudioAdminsInput = {
@@ -6079,7 +6402,8 @@ export type UserUpdateWithoutStudioAdminsInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStudioAdminsInput = {
@@ -6126,7 +6450,8 @@ export type UserUncheckedUpdateWithoutStudioAdminsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutJobApplicationsInput = {
@@ -6173,7 +6498,8 @@ export type UserCreateWithoutJobApplicationsInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutJobApplicationsInput = {
@@ -6220,7 +6546,8 @@ export type UserUncheckedCreateWithoutJobApplicationsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutJobApplicationsInput = {
@@ -6283,7 +6610,8 @@ export type UserUpdateWithoutJobApplicationsInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutJobApplicationsInput = {
@@ -6330,7 +6658,8 @@ export type UserUncheckedUpdateWithoutJobApplicationsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutStudioReviewsInput = {
@@ -6377,7 +6706,8 @@ export type UserCreateWithoutStudioReviewsInput = {
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutStudioReviewsInput = {
@@ -6424,7 +6754,8 @@ export type UserUncheckedCreateWithoutStudioReviewsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutStudioReviewsInput = {
@@ -6487,7 +6818,8 @@ export type UserUpdateWithoutStudioReviewsInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStudioReviewsInput = {
@@ -6534,7 +6866,8 @@ export type UserUncheckedUpdateWithoutStudioReviewsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserCreateWithoutPushSubscriptionsInput = {
@@ -6581,7 +6914,8 @@ export type UserCreateWithoutPushSubscriptionsInput = {
   reviewsGiven?: Prisma.ReviewCreateNestedManyWithoutReviewerInput
   reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutRevieweeInput
   favouritedEscorts?: Prisma.PrivateAdCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageCreateNestedManyWithoutBannedByInput
 }
 
 export type UserUncheckedCreateWithoutPushSubscriptionsInput = {
@@ -6628,7 +6962,8 @@ export type UserUncheckedCreateWithoutPushSubscriptionsInput = {
   reviewsGiven?: Prisma.ReviewUncheckedCreateNestedManyWithoutReviewerInput
   reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutRevieweeInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedCreateNestedManyWithoutFollowersInput
-  datingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutUserInput
+  datingPage?: Prisma.DatingPageUncheckedCreateNestedOneWithoutUserInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedCreateNestedManyWithoutBannedByInput
 }
 
 export type UserCreateOrConnectWithoutPushSubscriptionsInput = {
@@ -6691,7 +7026,8 @@ export type UserUpdateWithoutPushSubscriptionsInput = {
   reviewsGiven?: Prisma.ReviewUpdateManyWithoutReviewerNestedInput
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPushSubscriptionsInput = {
@@ -6738,7 +7074,8 @@ export type UserUncheckedUpdateWithoutPushSubscriptionsInput = {
   reviewsGiven?: Prisma.ReviewUncheckedUpdateManyWithoutReviewerNestedInput
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUpdateWithoutFavouritedEscortsInput = {
@@ -6785,7 +7122,8 @@ export type UserUpdateWithoutFavouritedEscortsInput = {
   reviewsGiven?: Prisma.ReviewUpdateManyWithoutReviewerNestedInput
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFavouritedEscortsInput = {
@@ -6832,7 +7170,8 @@ export type UserUncheckedUpdateWithoutFavouritedEscortsInput = {
   reviewsGiven?: Prisma.ReviewUncheckedUpdateManyWithoutReviewerNestedInput
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutFavouritedEscortsInput = {
@@ -6899,7 +7238,8 @@ export type UserUpdateWithoutActiveChatsInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActiveChatsInput = {
@@ -6946,7 +7286,8 @@ export type UserUncheckedUpdateWithoutActiveChatsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutActiveChatsInput = {
@@ -7013,7 +7354,8 @@ export type UserUpdateWithoutHiddenChatsInput = {
   reviewsReceived?: Prisma.ReviewUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutHiddenChatsInput = {
@@ -7060,7 +7402,8 @@ export type UserUncheckedUpdateWithoutHiddenChatsInput = {
   reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutRevieweeNestedInput
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   favouritedEscorts?: Prisma.PrivateAdUncheckedUpdateManyWithoutFollowersNestedInput
-  datingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutUserNestedInput
+  datingPage?: Prisma.DatingPageUncheckedUpdateOneWithoutUserNestedInput
+  bannedDatingPages?: Prisma.DatingPageUncheckedUpdateManyWithoutBannedByNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutHiddenChatsInput = {
@@ -7114,7 +7457,7 @@ export type UserCountOutputType = {
   reviewsReceived: number
   pushSubscriptions: number
   favouritedEscorts: number
-  datingPages: number
+  bannedDatingPages: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -7143,7 +7486,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   reviewsReceived?: boolean | UserCountOutputTypeCountReviewsReceivedArgs
   pushSubscriptions?: boolean | UserCountOutputTypeCountPushSubscriptionsArgs
   favouritedEscorts?: boolean | UserCountOutputTypeCountFavouritedEscortsArgs
-  datingPages?: boolean | UserCountOutputTypeCountDatingPagesArgs
+  bannedDatingPages?: boolean | UserCountOutputTypeCountBannedDatingPagesArgs
 }
 
 /**
@@ -7334,7 +7677,7 @@ export type UserCountOutputTypeCountFavouritedEscortsArgs<ExtArgs extends runtim
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountDatingPagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type UserCountOutputTypeCountBannedDatingPagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DatingPageWhereInput
 }
 
@@ -7384,7 +7727,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   reviewsReceived?: boolean | Prisma.User$reviewsReceivedArgs<ExtArgs>
   pushSubscriptions?: boolean | Prisma.User$pushSubscriptionsArgs<ExtArgs>
   favouritedEscorts?: boolean | Prisma.User$favouritedEscortsArgs<ExtArgs>
-  datingPages?: boolean | Prisma.User$datingPagesArgs<ExtArgs>
+  datingPage?: boolean | Prisma.User$datingPageArgs<ExtArgs>
+  bannedDatingPages?: boolean | Prisma.User$bannedDatingPagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -7477,7 +7821,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   reviewsReceived?: boolean | Prisma.User$reviewsReceivedArgs<ExtArgs>
   pushSubscriptions?: boolean | Prisma.User$pushSubscriptionsArgs<ExtArgs>
   favouritedEscorts?: boolean | Prisma.User$favouritedEscortsArgs<ExtArgs>
-  datingPages?: boolean | Prisma.User$datingPagesArgs<ExtArgs>
+  datingPage?: boolean | Prisma.User$datingPageArgs<ExtArgs>
+  bannedDatingPages?: boolean | Prisma.User$bannedDatingPagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -7513,7 +7858,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     reviewsReceived: Prisma.$ReviewPayload<ExtArgs>[]
     pushSubscriptions: Prisma.$PushSubscriptionPayload<ExtArgs>[]
     favouritedEscorts: Prisma.$PrivateAdPayload<ExtArgs>[]
-    datingPages: Prisma.$DatingPagePayload<ExtArgs>[]
+    datingPage: Prisma.$DatingPagePayload<ExtArgs> | null
+    bannedDatingPages: Prisma.$DatingPagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     zesty_id: string
@@ -7954,7 +8300,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   reviewsReceived<T extends Prisma.User$reviewsReceivedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewsReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pushSubscriptions<T extends Prisma.User$pushSubscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$pushSubscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PushSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   favouritedEscorts<T extends Prisma.User$favouritedEscortsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$favouritedEscortsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PrivateAdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  datingPages<T extends Prisma.User$datingPagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$datingPagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DatingPagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  datingPage<T extends Prisma.User$datingPageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$datingPageArgs<ExtArgs>>): Prisma.Prisma__DatingPageClient<runtime.Types.Result.GetResult<Prisma.$DatingPagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  bannedDatingPages<T extends Prisma.User$bannedDatingPagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$bannedDatingPagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DatingPagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9027,9 +9374,28 @@ export type User$favouritedEscortsArgs<ExtArgs extends runtime.Types.Extensions.
 }
 
 /**
- * User.datingPages
+ * User.datingPage
  */
-export type User$datingPagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$datingPageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DatingPage
+   */
+  select?: Prisma.DatingPageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DatingPage
+   */
+  omit?: Prisma.DatingPageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DatingPageInclude<ExtArgs> | null
+  where?: Prisma.DatingPageWhereInput
+}
+
+/**
+ * User.bannedDatingPages
+ */
+export type User$bannedDatingPagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the DatingPage
    */

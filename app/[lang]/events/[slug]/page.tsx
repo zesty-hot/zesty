@@ -23,6 +23,8 @@ import { StartChatButton } from "@/components/start-chat-button";
 import { useSupabaseSession } from "@/lib/supabase/client";
 import { toastManager } from "@/components/ui/toast";
 import ProfileModal from "@/components/profile-modal";
+import { SharePopover } from "@/components/share-popover";
+import { InviteUserButton } from "@/components/invite-user-button";
 
 interface EventData {
   id: string;
@@ -97,6 +99,15 @@ export default function EventPage() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [selectedAttendeeSlug, setSelectedAttendeeSlug] = useState<string | null>(null);
+  const [attendeeProfileOpen, setAttendeeProfileOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+
+  const [isCommenting, setIsCommenting] = useState(false);
+
+  useEffect(() => {
+    setShareUrl(window.location.href);
+  }, []);
 
   useEffect(() => {
     if (!slug) return;
@@ -179,6 +190,7 @@ export default function EventPage() {
   const handleCreateComment = async (postId: string) => {
     if (!replyContent.trim()) return;
 
+    setIsCommenting(true);
     try {
       const response = await fetch(`/api/events/${slug}/posts/${postId}/comments`, {
         method: 'POST',
@@ -193,6 +205,8 @@ export default function EventPage() {
       }
     } catch (error) {
       console.error('Error creating comment:', error);
+    } finally {
+      setIsCommenting(false);
     }
   };
 
@@ -348,11 +362,9 @@ export default function EventPage() {
                     </div>
                     <div>
                       <p className="font-semibold">Organized by</p>
-
-
                       <button
                         onClick={() => setProfileOpen(true)}
-                        className="flex items-center gap-3 pb-4 md:pb-0 lg:pb-4 xl:pb-0 hover:underline"
+                        className="flex items-center gap-3 pb-4 md:pb-0 lg:pb-4 xl:pb-0 hover:underline cursor-pointer"
                         aria-label={`Open profile for ${event.organizer.slug || 'user'}`}
                       >
                         <div>
@@ -398,10 +410,12 @@ export default function EventPage() {
                     'Join Event'
                   )}
                 </Button>
-                <Button variant="outline" size="lg">
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Share
-                </Button>
+                {/* <SharePopover url={shareUrl}>
+                  <Button variant="outline" size="lg">
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share
+                  </Button>
+                </SharePopover> */}
               </div>
 
               <p className="text-sm text-muted-foreground text-center">
@@ -427,16 +441,6 @@ export default function EventPage() {
                 Back
               </Button>
             </Link>
-            <div className="flex gap-2">
-              <Button variant="outline" size="lg">
-                <Share2 className="w-4 h-4" />
-              </Button>
-              {event.isOrganizer && (
-                <Button variant="outline" size="lg">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
           </div>
         </div>
       </div>
@@ -587,9 +591,13 @@ export default function EventPage() {
                             <Button
                               size="sm"
                               onClick={() => handleCreateComment(post.id)}
-                              disabled={!replyContent.trim()}
+                              disabled={!replyContent.trim() || isCommenting}
                             >
-                              <Send className="w-4 h-4" />
+                              {isCommenting ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Send className="w-4 h-4" />
+                              )}
                             </Button>
                             <Button
                               size="sm"
@@ -680,10 +688,13 @@ export default function EventPage() {
                   .filter(a => a.status === 'GOING')
                   .slice(0, 10)
                   .map((attendee) => (
-                    <Link
+                    <div
                       key={attendee.id}
-                      href={`/${lang}/vip/${attendee.user.slug}`}
-                      className="flex items-center gap-2 p-2 rounded hover:bg-muted transition-colors"
+                      onClick={() => {
+                        setSelectedAttendeeSlug(attendee.user.slug);
+                        setAttendeeProfileOpen(true);
+                      }}
+                      className="flex items-center gap-2 p-2 rounded hover:bg-muted transition-colors cursor-pointer"
                     >
                       <div className="w-8 h-8 rounded-full overflow-hidden bg-muted shrink-0">
                         {attendee.user.images?.[0]?.url ? (
@@ -695,20 +706,25 @@ export default function EventPage() {
                         )}
                       </div>
                       <span className="text-sm font-medium">{attendee.user.slug}</span>
-                    </Link>
+                    </div>
                   ))}
                 {goingCount > 10 && (
                   <p className="text-xs text-muted-foreground text-center pt-2">
                     +{goingCount - 10} more
                   </p>
                 )}
+                <ProfileModal
+                  slug={selectedAttendeeSlug}
+                  open={attendeeProfileOpen}
+                  onOpenChange={setAttendeeProfileOpen}
+                />
               </div>
             </div>
 
             {/* Organizer */}
             <div className="border rounded-xl p-4 bg-card">
               <h3 className="font-semibold mb-3">Organized by</h3>
-              <Link href={`/${lang}/vip/${event.organizer.slug}`} className="flex items-center gap-3 hover:bg-muted p-2 rounded transition-colors">
+              <div onClick={() => setProfileOpen(true)} className="cursor-pointer flex items-center gap-3 hover:bg-muted p-2 rounded transition-colors">
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-muted shrink-0">
                   {event.organizer.images?.[0]?.url ? (
                     <img src={event.organizer.images[0].url} alt={event.organizer.slug || 'Organizer'} className="w-full h-full object-cover" />
@@ -726,7 +742,8 @@ export default function EventPage() {
                     </Badge>
                   )}
                 </div>
-              </Link>
+              </div>
+              <ProfileModal slug={event.organizer.slug} open={profileOpen} onOpenChange={setProfileOpen} />
             </div>
           </div>
         </div>

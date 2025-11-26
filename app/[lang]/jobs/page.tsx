@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { searchLocations, type LocationSuggestion } from '@/lib/geocoding';
+import { Spinner } from "@/components/ui/spinner";
 
 interface Job {
   id: string;
@@ -78,6 +79,16 @@ export default function Page() {
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [selectedJobType, setSelectedJobType] = useState<string | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  // Search pagination state
+  const [searchPage, setSearchPage] = useState(1);
+  const [hasMoreSearch, setHasMoreSearch] = useState(true);
+  const [isLoadingMoreSearch, setIsLoadingMoreSearch] = useState(false);
+
   // Debounced search for location suggestions
   useEffect(() => {
     if (!locationQuery || locationQuery.length < 2) {
@@ -96,11 +107,11 @@ export default function Page() {
   }, [locationQuery]);
 
   useEffect(() => {
-    fetchJobs();
+    fetchJobs(1);
   }, [selectedJobType]);
 
-  const fetchJobs = async () => {
-    setIsLoading(true);
+  const fetchJobs = async (page = 1) => {
+    if (page === 1) setIsLoading(true);
     try {
       const response = await fetch('/api/jobs/search', {
         method: 'POST',
@@ -109,26 +120,35 @@ export default function Page() {
           status: 'OPEN',
           type: selectedJobType || undefined,
           limit: 50,
+          page,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setJobs(data.jobs || []);
+        if (page === 1) {
+          setJobs(data.jobs || []);
+        } else {
+          setJobs(prev => [...prev, ...(data.jobs || [])]);
+        }
+        setHasMore(data.hasMore);
+        setCurrentPage(page);
       }
     } catch (error) {
       console.error('Error fetching jobs:', error);
     } finally {
-      setIsLoading(false);
+      if (page === 1) setIsLoading(false);
     }
   };
 
-  const handleLocationSearch = async (location: LocationSuggestion) => {
+  const handleLocationSearch = async (location: LocationSuggestion, page = 1) => {
     if (!location.coordinates) return;
 
-    setIsSearching(true);
-    setHasSearched(true);
-    setSelectedLocation(location);
+    if (page === 1) {
+      setIsSearching(true);
+      setHasSearched(true);
+      setSelectedLocation(location);
+    }
 
     try {
       const [lon, lat] = location.coordinates;
@@ -141,17 +161,24 @@ export default function Page() {
           status: 'OPEN',
           type: selectedJobType || undefined,
           limit: 50,
+          page,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setSearchResults(data.jobs || []);
+        if (page === 1) {
+          setSearchResults(data.jobs || []);
+        } else {
+          setSearchResults(prev => [...prev, ...(data.jobs || [])]);
+        }
+        setHasMoreSearch(data.hasMore);
+        setSearchPage(page);
       }
     } catch (error) {
       console.error('Error searching jobs:', error);
     } finally {
-      setIsSearching(false);
+      if (page === 1) setIsSearching(false);
     }
   };
 
@@ -161,17 +188,31 @@ export default function Page() {
     setHasSearched(false);
     setLocationQuery("");
     setSelectedLocation(null);
-    fetchJobs();
+    setHasMoreSearch(true);
+    setSearchPage(1);
+    fetchJobs(1);
+  };
+
+  const handleLoadMore = async () => {
+    if (hasSearched) {
+      if (isLoadingMoreSearch || !hasMoreSearch || !selectedLocation) return;
+      setIsLoadingMoreSearch(true);
+      await handleLocationSearch(selectedLocation, searchPage + 1);
+      setIsLoadingMoreSearch(false);
+    } else {
+      if (isLoadingMore || !hasMore) return;
+      setIsLoadingMore(true);
+      await fetchJobs(currentPage + 1);
+      setIsLoadingMore(false);
+    }
   };
 
   const displayJobs = hasSearched ? searchResults : jobs;
 
   if (isLoading && !hasSearched) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-        </div>
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
+        <Spinner className="size-8" />
       </div>
     );
   }
@@ -304,6 +345,23 @@ export default function Page() {
             {displayJobs.map((job) => (
               <JobCard key={job.id} job={job} lang={lang as string} />
             ))}
+
+            {/* Load More Button */}
+            {(hasSearched ? hasMoreSearch : hasMore) && (
+              <div className="flex justify-center pt-8 pb-4">
+                <Button
+                  variant="outline"
+                  onClick={handleLoadMore}
+                  disabled={hasSearched ? isLoadingMoreSearch : isLoadingMore}
+                  className="min-w-[150px]"
+                >
+                  {(hasSearched ? isLoadingMoreSearch : isLoadingMore) && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
+                  Load More
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -313,13 +371,13 @@ export default function Page() {
 
 function JobCard({ job, lang }: { job: Job; lang: string }) {
   const startDate = new Date(job.startDate);
-  const isUrgent = new Date(startDate).getTime() - new Date().getTime() < 7 * 24 * 60 * 60 * 1000; // Within 7 days
+  // const isUrgent = new Date(startDate).getTime() - new Date().getTime() < 7 * 24 * 60 * 60 * 1000; // Within 7 days
 
-  const duration = job.lengthDays 
+  const duration = job.lengthDays
     ? `${job.lengthDays} day${job.lengthDays > 1 ? 's' : ''}`
     : job.lengthHours
-    ? `${job.lengthHours} hour${job.lengthHours > 1 ? 's' : ''}`
-    : 'TBD';
+      ? `${job.lengthHours} hour${job.lengthHours > 1 ? 's' : ''}`
+      : 'TBD';
 
   return (
     <Link href={`/${lang}/jobs/${job.slug}`}>
@@ -339,11 +397,11 @@ function JobCard({ job, lang }: { job: Job; lang: string }) {
               </div>
             )}
 
-            {isUrgent && (
+            {/* {isUrgent && (
               <div className="absolute top-2 left-2">
                 <Badge className="bg-red-600 hover:bg-red-700">Urgent</Badge>
               </div>
-            )}
+            )} */}
 
             <div className="absolute top-2 right-2">
               <JobTypeBadge type={job.type} />
@@ -399,10 +457,19 @@ function JobCard({ job, lang }: { job: Job; lang: string }) {
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4 shrink-0" />
                 <span>
-                  {startDate.toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric' 
+                  {startDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
                   })}
+                  {job.endDate && (
+                    <>
+                      {' - '}
+                      {new Date(job.endDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </>
+                  )}
                 </span>
               </div>
               {job.distanceText && (

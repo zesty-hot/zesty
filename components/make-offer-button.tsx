@@ -54,7 +54,7 @@ interface MakeOfferButtonProps {
 export function MakeOfferButton({ ad, chatId, onOfferMade }: MakeOfferButtonProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedOption, setSelectedOption] = useState<ServiceOption | null>(null);
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
@@ -63,14 +63,14 @@ export function MakeOfferButton({ ad, chatId, onOfferMade }: MakeOfferButtonProp
 
   const calculateTotal = () => {
     let total = selectedOption?.price || 0;
-    
+
     for (const extraId of selectedExtras) {
       const extra = ad.extras.find(e => e.id === extraId);
       if (extra) {
         total += extra.price;
       }
     }
-    
+
     return total;
   };
 
@@ -89,7 +89,7 @@ export function MakeOfferButton({ ad, chatId, onOfferMade }: MakeOfferButtonProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedService || !selectedOption) {
       alert("Please select a service");
       return;
@@ -135,7 +135,7 @@ export function MakeOfferButton({ ad, chatId, onOfferMade }: MakeOfferButtonProp
       <DialogTrigger
         className="w-full"
         render={(props) => (
-          <Button {...props} className="w-full" size="lg">
+          <Button {...props} className="w-full">
             <DollarSign className="w-4 h-4 mr-2" />
             Make an Offer
           </Button>
@@ -149,140 +149,137 @@ export function MakeOfferButton({ ad, chatId, onOfferMade }: MakeOfferButtonProp
 
         <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden">
           <div className="overflow-y-auto flex-1 space-y-6 pr-2">
-          {/* Service Selection */}
-          <div>
-            <Label className="text-base font-semibold mb-3 block">Select Service *</Label>
-            <div className="grid gap-3">
-              {ad.services.map((service) => (
-                <Card
-                  key={service.id}
-                  className={`p-4 cursor-pointer transition-colors ${
-                    selectedService?.id === service.id
+            {/* Service Selection */}
+            <div>
+              <Label className="text-base font-semibold mb-3 block">Select Service *</Label>
+              <div className="grid gap-3">
+                {ad.services.map((service) => (
+                  <Card
+                    key={service.id}
+                    className={`p-4 cursor-pointer transition-colors ${selectedService?.id === service.id
                       ? "border-primary bg-primary/5"
                       : "hover:border-primary/50"
-                  }`}
-                  onClick={() => handleServiceSelect(service)}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">
-                      {service.label || service.category.replace(/_/g, " ")}
-                    </h4>
-                    <Badge variant={selectedService?.id === service.id ? "default" : "outline"}>
-                      {service.category.replace(/_/g, " ")}
-                    </Badge>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {service.options.map((option, idx) => (
-                      <Badge key={idx} variant="secondary" className="text-xs">
-                        {option.durationMin}min - ${option.price}
+                      }`}
+                    onClick={() => handleServiceSelect(service)}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">
+                        {service.label || service.category.replace(/_/g, " ")}
+                      </h4>
+                      <Badge variant={selectedService?.id === service.id ? "default" : "outline"}>
+                        {service.category.replace(/_/g, " ")}
                       </Badge>
-                    ))}
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-
-          {/* Duration & Price Options */}
-          {selectedService && (
-            <div>
-              <Label className="text-base font-semibold mb-3 block">Select Duration *</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {selectedService.options.map((option, idx) => (
-                  <Card
-                    key={idx}
-                    className={`p-4 cursor-pointer transition-colors ${
-                      selectedOption === option
-                        ? "border-primary bg-primary/5"
-                        : "hover:border-primary/50"
-                    }`}
-                    onClick={() => setSelectedOption(option)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-medium">{option.durationMin} min</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-bold">{option.price}</span>
-                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {service.options.map((option, idx) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          {option.durationMin}min - ${option.price}
+                        </Badge>
+                      ))}
                     </div>
                   </Card>
                 ))}
               </div>
             </div>
-          )}
 
-          {/* Extras */}
-          {ad.extras.length > 0 && (
-            <div>
-              <Label className="text-base font-semibold mb-3 block">Add Extras (Optional)</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {ad.extras.map((extra) => (
-                  <Card
-                    key={extra.id}
-                    className={`p-3 cursor-pointer transition-colors ${
-                      selectedExtras.includes(extra.id)
+            {/* Duration & Price Options */}
+            {selectedService && (
+              <div>
+                <Label className="text-base font-semibold mb-3 block">Select Duration *</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  {selectedService.options.map((option, idx) => (
+                    <Card
+                      key={idx}
+                      className={`p-4 cursor-pointer transition-colors ${selectedOption === option
                         ? "border-primary bg-primary/5"
                         : "hover:border-primary/50"
-                    }`}
-                    onClick={() => toggleExtra(extra.id)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">{extra.name.replace(/_/g, " ")}</span>
-                      <span className="text-sm font-semibold">+${extra.price}</span>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Scheduling */}
-          <div>
-            <Label className="text-base font-semibold mb-3 block">When?</Label>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="asap"
-                  checked={isAsap}
-                  onChange={(e) => setIsAsap(e.target.checked)}
-                  className="h-4 w-4"
-                />
-                <Label htmlFor="asap" className="cursor-pointer">
-                  ASAP / Now
-                </Label>
-              </div>
-              
-              {!isAsap && (
-                <div>
-                  <Label htmlFor="scheduledFor">Select Date & Time</Label>
-                  <Input
-                    id="scheduledFor"
-                    type="datetime-local"
-                    value={scheduledFor}
-                    onChange={(e) => setScheduledFor(e.target.value)}
-                    className="mt-1"
-                  />
+                        }`}
+                      onClick={() => setSelectedOption(option)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-medium">{option.durationMin} min</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-bold">{option.price}</span>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
+            )}
 
-          {/* Total */}
-          <Card className="p-4 bg-primary/5">
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-semibold">Total Amount</span>
-              <span className="text-2xl font-bold text-primary">
-                ${calculateTotal()}
-              </span>
+            {/* Extras */}
+            {ad.extras.length > 0 && (
+              <div>
+                <Label className="text-base font-semibold mb-3 block">Add Extras (Optional)</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  {ad.extras.map((extra) => (
+                    <Card
+                      key={extra.id}
+                      className={`p-3 cursor-pointer transition-colors ${selectedExtras.includes(extra.id)
+                        ? "border-primary bg-primary/5"
+                        : "hover:border-primary/50"
+                        }`}
+                      onClick={() => toggleExtra(extra.id)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">{extra.name.replace(/_/g, " ")}</span>
+                        <span className="text-sm font-semibold">+${extra.price}</span>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Scheduling */}
+            <div>
+              <Label className="text-base font-semibold mb-3 block">When?</Label>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="asap"
+                    checked={isAsap}
+                    onChange={(e) => setIsAsap(e.target.checked)}
+                    className="h-4 w-4"
+                  />
+                  <Label htmlFor="asap" className="cursor-pointer">
+                    ASAP / Now
+                  </Label>
+                </div>
+
+                {!isAsap && (
+                  <div>
+                    <Label htmlFor="scheduledFor">Select Date & Time</Label>
+                    <Input
+                      id="scheduledFor"
+                      type="datetime-local"
+                      value={scheduledFor}
+                      onChange={(e) => setScheduledFor(e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Note: A non-refundable $5 credit fee will be charged when the offer is accepted.
-            </p>
-          </Card>
+
+            {/* Total */}
+            <Card className="p-4 bg-primary/5">
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-semibold">Total Amount</span>
+                <span className="text-2xl font-bold text-primary">
+                  ${calculateTotal()}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Note: A non-refundable $5 credit fee will be charged when the offer is accepted.
+              </p>
+            </Card>
           </div>
 
           {/* Submit */}

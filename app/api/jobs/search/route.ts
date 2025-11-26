@@ -5,11 +5,11 @@ import { calculateDistance } from '@/lib/calculate-distance';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
+    const {
       slug,
-      longitude, 
-      latitude, 
-      page = 1, 
+      longitude,
+      latitude,
+      page = 1,
       limit = 20,
       type,
       status = 'OPEN',
@@ -20,6 +20,10 @@ export async function POST(request: NextRequest) {
     // Build where clause
     const where: any = {
       status: status || 'OPEN', // Default to OPEN jobs
+      OR: [
+        { endDate: null },
+        { endDate: { gte: new Date() } }
+      ]
     };
 
     // Filter by job type
@@ -87,10 +91,10 @@ export async function POST(request: NextRequest) {
       const jobsWithDistance = allJobs
         .map(job => {
           if (!job.location) return null;
-          
+
           const [jobLat, jobLng] = job.location.split(',').map(Number);
           const distance = calculateDistance(latitude, longitude, jobLat, jobLng);
-          
+
           return {
             ...job,
             distance,
@@ -102,7 +106,7 @@ export async function POST(request: NextRequest) {
         .sort((a, b) => a!.distance - b!.distance)
         .slice(skip, skip + limit);
 
-      return NextResponse.json({ 
+      return NextResponse.json({
         jobs: jobsWithDistance,
         page,
         limit,
@@ -161,7 +165,7 @@ export async function POST(request: NextRequest) {
       applicationCount: job._count.applications,
     }));
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       jobs: jobsWithCount,
       page,
       limit,

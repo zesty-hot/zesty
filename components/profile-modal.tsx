@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 
 type ImageItem = { url: string; width?: number; height?: number; default?: boolean };
 
@@ -282,7 +283,7 @@ export function ProfileModal({
                     </h4>
                     <div className="grid gap-2">
                       {data.hasEscort && (
-                        <a
+                        <Link
                           href={`/${lang}/escorts/${data.slug}`}
                           className="flex items-center justify-between p-3 rounded-xl bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors group"
                         >
@@ -296,7 +297,7 @@ export function ProfileModal({
                             </div>
                           </div>
                           <ExternalLink className="h-4 w-4 text-rose-400 group-hover:text-rose-600 transition-colors" />
-                        </a>
+                        </Link>
                       )}
 
                       {!data.hasEscort && (
@@ -315,7 +316,7 @@ export function ProfileModal({
                       )}
 
                       {data.hasVIP && (
-                        <a
+                        <Link
                           href={`/${lang}/vip/${data.slug}`}
                           className="flex items-center justify-between p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors group"
                         >
@@ -329,7 +330,7 @@ export function ProfileModal({
                             </div>
                           </div>
                           <ExternalLink className="h-4 w-4 text-amber-400 group-hover:text-amber-600 transition-colors" />
-                        </a>
+                        </Link>
                       )}
 
                       {!data.hasVIP && (
@@ -348,7 +349,7 @@ export function ProfileModal({
                       )}
 
                       {data.hasLive && (
-                        <a
+                        <Link
                           href={`/${lang}/live/${data.slug}`}
                           className="flex items-center justify-between p-3 rounded-xl bg-purple-50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors group"
                         >
@@ -362,7 +363,7 @@ export function ProfileModal({
                             </div>
                           </div>
                           <ExternalLink className="h-4 w-4 text-purple-400 group-hover:text-purple-600 transition-colors" />
-                        </a>
+                        </Link>
                       )}
 
                       {!data.hasLive && (

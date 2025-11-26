@@ -1,4 +1,8 @@
 ---
+trigger: always_on
+---
+
+---
 applyTo: "**"
 description: "CRITICAL database protection rules and user privacy requirements"
 ---
@@ -10,7 +14,7 @@ description: "CRITICAL database protection rules and user privacy requirements"
 2. Always set `NODE_TLS_REJECT_UNAUTHORIZED=1` or RESET to DEFAULT VALUE
 
 ## 🚨 PRISMA MIGRATION RULES - NEVER BREAK THESE 🚨
-
+`
 ### ABSOLUTE RULES:
 1. ❌ **NEVER use `prisma db push`**
 2. ❌ **NEVER edit existing migration files** - Once applied, they are immutable
@@ -80,33 +84,6 @@ Common use cases: CHECK constraints, partial indexes, triggers, GIN/GIST indexes
 - Explain the implications of each approach
 - Let the user make the final decision
 - Remember: It's better to ask than to destroy data
-
----
-
-## DATABASE OPERATIONS:
-
-If you're using a prisma query, ensure that you use `withRetry()` wrapper for database operations to enhance reliability and handle transient errors effectively.
-
-### EXAMPLE - CORRECT:
-```typescript
-const user = await withRetry(() =>
-  prisma.user.findUnique({
-    where: { slug: userSlug },
-    select: {
-      zesty_id: true,
-      slug: true,
-      bio: true,
-      location: true,
-      suburb: true,
-      verified: true,
-      images: {
-        where: { default: true },
-        select: { url: true }
-      }
-    }
-  })
-);
-```
 
 ---
 

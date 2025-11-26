@@ -82,7 +82,7 @@ export function OfferCard({ offer, type, onUpdate }: OfferCardProps) {
   const getStatusBadge = () => {
     switch (offer.status) {
       case "OFFER":
-        return <Badge variant="outline" size="lg">Pending Response</Badge>;
+        return <Badge variant="outline" size="lg" className="bg-muted/70">Pending Response</Badge>;
       case "PENDING":
         return <Badge variant="default" size="lg">Accepted</Badge>;
       case "CONFIRMED":

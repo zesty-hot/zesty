@@ -194,7 +194,7 @@ export default function VIPManagementPage() {
                 <div className="text-muted-foreground text-sm mb-1">Subscription Price</div>
                 <div className="text-3xl font-bold flex items-center gap-2">
                   <DollarSign className="w-6 h-6" />
-                  {vipPage.isFree ? "Free" : `$${(vipPage.subscriptionPrice / 100).toFixed(2)}`}
+                  {vipPage.isFree ? "Free" : `${(vipPage.subscriptionPrice / 100).toFixed(2)}`}
                 </div>
               </Card>
               <Card className="p-6">
@@ -219,7 +219,7 @@ export default function VIPManagementPage() {
 
             {/* Action Buttons */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Link href={`/${lang}/dash/vip/content`}>
+              <Link href={`/${lang}/dash/vip/manage`}>
                 <Card className="relative p-6 hover:border-orange-500 transition-colors cursor-pointer h-full">
                   <Camera className="w-8 h-8 text-orange-500 mb-3" />
                   <Badge className="absolute top-2 right-2 w-9 h-5 opacity-80 rounded-md">New</Badge>

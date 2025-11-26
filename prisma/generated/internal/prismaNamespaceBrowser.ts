@@ -335,7 +335,8 @@ export const ChatMessageScalarFieldEnum = {
   senderId: 'senderId',
   content: 'content',
   createdAt: 'createdAt',
-  chatId: 'chatId'
+  chatId: 'chatId',
+  eventAttendeeId: 'eventAttendeeId'
 } as const
 
 export type ChatMessageScalarFieldEnum = (typeof ChatMessageScalarFieldEnum)[keyof typeof ChatMessageScalarFieldEnum]
@@ -360,6 +361,8 @@ export const DatingPageScalarFieldEnum = {
   showGender: 'showGender',
   active: 'active',
   verified: 'verified',
+  banned: 'banned',
+  bannedById: 'bannedById',
   zesty_id: 'zesty_id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

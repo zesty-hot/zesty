@@ -5,11 +5,11 @@ import { calculateDistance } from '@/lib/calculate-distance';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
+    const {
       slug,
-      longitude, 
-      latitude, 
-      page = 1, 
+      longitude,
+      latitude,
+      page = 1,
       limit = 20,
       startDate,
       endDate,
@@ -20,15 +20,45 @@ export async function POST(request: NextRequest) {
     const now = new Date();
 
     // Build where clause
-    const where: any = {
-      startTime: {
-        gte: startDate ? new Date(startDate) : now, // Only show upcoming events
-      },
-    };
+    // Build where clause
+    const where: any = { AND: [] };
 
-    // Filter by end date if provided
+    const filterStart = startDate ? new Date(startDate) : now;
+
     if (endDate) {
-      where.startTime.lte = new Date(endDate);
+      // Range overlap: Event is active within [filterStart, filterEnd]
+      const filterEnd = new Date(endDate);
+      where.AND.push({
+        OR: [
+          {
+            // Has end time: Starts before range ends AND ends after range starts
+            AND: [
+              { startTime: { lte: filterEnd } },
+              { endTime: { gte: filterStart } }
+            ]
+          },
+          {
+            // No end time: Point event within range
+            AND: [
+              { endTime: null },
+              { startTime: { gte: filterStart, lte: filterEnd } }
+            ]
+          }
+        ]
+      });
+    } else {
+      // Open ended: Event is active after filterStart
+      where.AND.push({
+        OR: [
+          { endTime: { gte: filterStart } },
+          {
+            AND: [
+              { endTime: null },
+              { startTime: { gte: filterStart } }
+            ]
+          }
+        ]
+      });
     }
 
     // Filter by status
@@ -38,11 +68,13 @@ export async function POST(request: NextRequest) {
 
     // Search by slug (event title/organizer)
     if (slug) {
-      where.OR = [
-        { slug: { contains: slug.toLowerCase(), mode: 'insensitive' } },
-        { title: { contains: slug, mode: 'insensitive' } },
-        { organizer: { slug: { contains: slug.toLowerCase(), mode: 'insensitive' } } },
-      ];
+      where.AND.push({
+        OR: [
+          { slug: { contains: slug.toLowerCase(), mode: 'insensitive' } },
+          { title: { contains: slug, mode: 'insensitive' } },
+          { organizer: { slug: { contains: slug.toLowerCase(), mode: 'insensitive' } } },
+        ]
+      });
     }
 
     // Location-based search
@@ -96,10 +128,10 @@ export async function POST(request: NextRequest) {
       const eventsWithDistance = allEvents
         .map(event => {
           if (!event.location) return null;
-          
+
           const [eventLat, eventLng] = event.location.split(',').map(Number);
           const distance = calculateDistance(latitude, longitude, eventLat, eventLng);
-          
+
           return {
             ...event,
             distance,
@@ -111,7 +143,7 @@ export async function POST(request: NextRequest) {
         .sort((a, b) => a!.distance - b!.distance)
         .slice(skip, skip + limit);
 
-      return NextResponse.json({ 
+      return NextResponse.json({
         events: eventsWithDistance,
         page,
         limit,
@@ -171,7 +203,7 @@ export async function POST(request: NextRequest) {
       attendeeCount: event._count.attendees,
     }));
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       events: eventsWithCount,
       page,
       limit,

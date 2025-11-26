@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useSupabaseSession } from "@/lib/supabase/client";
 import { toastManager } from "@/components/ui/toast";
+import { SharePopover } from "@/components/share-popover";
 
 interface JobData {
   id: string;
@@ -91,6 +92,11 @@ export default function JobPage() {
   const [isApplying, setIsApplying] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
   const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+
+  useEffect(() => {
+    setShareUrl(window.location.href);
+  }, []);
 
   useEffect(() => {
     if (!slug) return;
@@ -224,10 +230,12 @@ export default function JobPage() {
                 Back
               </Button>
             </Link>
-            <Button variant="outline" size="lg">
-              <Share2 className="w-4 h-4" />
-              Share
-            </Button>
+            {/* <SharePopover url={shareUrl} align="end">
+              <Button variant="outline" size="lg">
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+            </SharePopover> */}
           </div>
         </div>
       </div>
@@ -256,7 +264,7 @@ export default function JobPage() {
               <h1 className="text-3xl font-bold mb-3">{job.title}</h1>
 
               {/* Studio */}
-              <a target="_blank" href={`${job.studio.website || '#'}`} className="flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
+              {/* <a target="_blank" href={`${job.studio.website || '#'}`} className="flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
                 {job.studio.logo && (
                   <img src={job.studio.logo} alt={job.studio.name} className="w-12 h-12 rounded" />
                 )}
@@ -277,7 +285,7 @@ export default function JobPage() {
                     )}
                   </div>
                 </div>
-              </a>
+              </a> */}
 
               <p className="text-muted-foreground whitespace-pre-line">
                 {job.description}
@@ -297,9 +305,9 @@ export default function JobPage() {
             {/* Application Status */}
             {hasApplied && (
               <div className={`border rounded-xl p-4 ${applicationStatus === 'ACCEPTED' ? 'bg-green-50 border-green-200' :
-                  applicationStatus === 'REJECTED' ? 'bg-red-50 border-red-200' :
-                    applicationStatus === 'WITHDRAWN' ? 'bg-gray-50 border-gray-200' :
-                      'bg-blue-50 border-blue-200'
+                applicationStatus === 'REJECTED' ? 'bg-red-50 border-red-200' :
+                  applicationStatus === 'WITHDRAWN' ? 'bg-gray-50 border-gray-200' :
+                    'bg-blue-50 border-blue-200'
                 }`}>
                 <div className="flex items-start gap-3">
                   {applicationStatus === 'ACCEPTED' ? (
@@ -326,7 +334,7 @@ export default function JobPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="mt-2"
+                        className="mt-2 hover:bg-blue-200"
                         onClick={handleWithdraw}
                       >
                         Withdraw Application
@@ -431,8 +439,8 @@ export default function JobPage() {
                             <Star
                               key={i}
                               className={`w-4 h-4 ${i < review.rating
-                                  ? 'fill-yellow-500 text-yellow-500'
-                                  : 'text-gray-300'
+                                ? 'fill-yellow-500 text-yellow-500'
+                                : 'text-gray-300'
                                 }`}
                             />
                           ))}

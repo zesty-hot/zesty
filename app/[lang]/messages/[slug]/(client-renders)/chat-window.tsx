@@ -10,8 +10,9 @@ import { formatDistanceToNow } from '@/lib/utils';
 import { RiSendPlaneFill } from '@remixicon/react';
 import { MakeOfferButton } from '@/components/make-offer-button';
 import { OfferCard } from '@/components/offer-card';
+import { EventInviteCard } from '@/components/event-invite-card';
 import ProfileModal from '@/components/profile-modal';
-import { AlertTriangle, TriangleAlert } from 'lucide-react';
+import { AlertTriangle, TriangleAlert, X } from 'lucide-react';
 
 interface ChatUser {
   id: string;
@@ -54,11 +55,25 @@ interface Offer {
   worker: ChatUser;
 }
 
+interface EventInvite {
+  id: string;
+  status: 'PENDING' | 'GOING' | 'MAYBE' | 'DECLINED' | 'INVITED';
+  event: {
+    title: string;
+    slug: string;
+    startTime: string;
+    coverImage: string | null;
+    location: string | null;
+    venue: string | null;
+  };
+}
+
 interface ChatData {
   id: string;
   otherUser: ChatUser;
   messages: Message[];
   offers?: Offer[];
+  eventInvites?: EventInvite[];
   otherUserAd?: PrivateAd | null;
 }
 
@@ -73,6 +88,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
   const [sending, setSending] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [profileOpen, setProfileOpen] = useState(false);
+  const [showOfferCard, setShowOfferCard] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -200,7 +216,9 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
         chatId: data.id,
         messagesCount: data.messages?.length || 0,
         offersCount: data.offers?.length || 0,
-        offers: data.offers
+        invitesCount: data.eventInvites?.length || 0,
+        offers: data.offers,
+        invites: data.eventInvites
       });
       setChat(data);
     } catch (error) {
@@ -311,7 +329,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)] bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-12rem)] border border-gray-200 dark:border-accent rounded-lg overflow-hidden">
       {/* Header */}
       <div className="flex flex-row border-b p-4">
         <div className="flex-1  items-center gap-3">
@@ -339,7 +357,12 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
           </button>
           <ProfileModal slug={chat.otherUser?.slug} open={profileOpen} onOpenChange={setProfileOpen} />
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end items-center gap-2">
+          {!showOfferCard && chat.otherUserAd && chat.otherUserAd.active && (
+            <Button variant="ghost" size="lg" onClick={() => setShowOfferCard(true)}>
+              Show Ad
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="lg"
@@ -351,23 +374,32 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
       </div>
 
       {/* Private Ad Banner */}
-      {chat.otherUserAd && chat.otherUserAd.active && (
+      {showOfferCard && chat.otherUserAd && chat.otherUserAd.active && (
         <Card className="m-4 p-4 bg-linear-to-r from-rose-500/10 to-pink-500/10 border-rose-500/30">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <h3 className="font-semibold text-lg mb-1">{chat.otherUserAd.title}</h3>
-              <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                {chat.otherUserAd.description}
-              </p>
-              <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                <span>🔧 {chat.otherUserAd.services.length} service{chat.otherUserAd.services.length !== 1 ? 's' : ''}</span>
-                {chat.otherUserAd.extras.length > 0 && (
-                  <span>➕ {chat.otherUserAd.extras.length} extra{chat.otherUserAd.extras.length !== 1 ? 's' : ''}</span>
-                )}
+              <div className="flex flex-row">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg mb-1">{chat.otherUserAd.title}</h3>
+                </div>
+                <Button variant="ghost" size="xs" className="h-6 w-6 p-3 text-muted-foreground/70 hover:bg-rose-400/20" onClick={() => setShowOfferCard(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
-            </div>
-            <div className="shrink-0">
-              <MakeOfferButton ad={chat.otherUserAd} chatId={chatId} />
+              <div className="my-auto">
+                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                  {chat.otherUserAd.description}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                <div className="flex flex-1 my-auto gap-3">
+                  <span>🔧 {chat.otherUserAd.services.length} service{chat.otherUserAd.services.length !== 1 ? 's' : ''}</span>
+                  {chat.otherUserAd.extras.length > 0 && (
+                    <span>➕ {chat.otherUserAd.extras.length} extra{chat.otherUserAd.extras.length !== 1 ? 's' : ''}</span>
+                  )}
+                </div>
+                <div className="flex justify-end"><MakeOfferButton ad={chat.otherUserAd} chatId={chatId} /></div>
+              </div>
             </div>
           </div>
         </Card>
@@ -382,7 +414,11 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
         ) : (
           (() => {
             // Combine messages and offers, then sort by createdAt
-            const items: Array<{ type: 'message' | 'offer'; data: Message | Offer; createdAt: Date }> = [
+            const items: Array<
+              | { type: 'message'; data: Message; createdAt: Date }
+              | { type: 'offer'; data: Offer; createdAt: Date }
+              | { type: 'invite'; data: EventInvite; createdAt: Date }
+            > = [
               ...(chat.messages || []).map(msg => ({
                 type: 'message' as const,
                 data: msg,
@@ -393,12 +429,17 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
                 data: offer,
                 createdAt: new Date(offer.createdAt)
               })),
+              ...(chat.eventInvites || []).map(invite => ({
+                type: 'invite' as const,
+                data: invite,
+                createdAt: new Date() // We might need to fetch createdAt for invites, for now use current date or add to schema
+              })),
             ].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 
             return items.map((item, index) => {
               if (item.type === 'offer') {
                 const offer = item.data as Offer;
-                const isSent = offer.clientId === (session?.user as any)?.id;
+                const isSent = offer.clientId === user?.zesty_id;
 
                 return (
                   <div key={`offer-${offer.id}`} className="my-4">
@@ -409,9 +450,16 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
                     />
                   </div>
                 );
+              } else if (item.type === 'invite') {
+                const invite = item.data as EventInvite;
+                return (
+                  <div key={`invite-${invite.id}`} className="my-4 w-full">
+                    <EventInviteCard invite={invite} />
+                  </div>
+                );
               } else {
                 const message = item.data as Message;
-                const isOwn = message.senderId === (session?.user as any)?.id;
+                const isOwn = message.senderId === user?.zesty_id;
 
                 return (
                   <div
@@ -458,7 +506,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
       </div>
 
       {/* Input */}
-      <form onSubmit={sendMessage} className="bg-gray-300 p-4">
+      <form onSubmit={sendMessage} className="bg-gray-300 dark:bg-accent p-4">
         <div className="flex gap-2 items-center">
           <input
             type="text"
@@ -466,7 +514,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             disabled={sending}
-            className="flex-1 h-10 rounded px-3 text-sm bg-white border-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="bg-white text-black dark:bg-neutral-500 dark:text-white dark:placeholder-white/40 flex-1 h-10 rounded px-3 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Button
             type="submit"

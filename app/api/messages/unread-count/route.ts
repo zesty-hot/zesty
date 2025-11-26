@@ -7,9 +7,9 @@ export async function GET(req: NextRequest) {
   try {
     const supaBase = await serverSupabase();
     const { data: session } = await supaBase.auth.getUser();
-    const userId = (session?.user as any)?.id;
-    
-    if (!userId) {
+    const supabaseId = session?.user?.id;
+
+    if (!supabaseId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -17,19 +17,21 @@ export async function GET(req: NextRequest) {
     // 1. User is in the chat (active)
     // 2. Message was not sent by the user
     // 3. User has not read the message
-    
+
     // First, get all messages from others in user's chats
     const messagesFromOthers = await withRetry(() => prisma.chatMessage.findMany({
       where: {
         chat: {
           activeUsers: {
             some: {
-              supabaseId: userId,
+              supabaseId: supabaseId,
             },
           },
         },
-        senderId: {
-          not: userId,
+        sender: {
+          supabaseId: {
+            not: supabaseId,
+          },
         },
       },
       select: {
@@ -47,7 +49,7 @@ export async function GET(req: NextRequest) {
     }
 
     const user = await withRetry(() => prisma.user.findUnique({
-      where: { supabaseId: userId },
+      where: { supabaseId: supabaseId },
       select: { zesty_id: true },
     }));
 
