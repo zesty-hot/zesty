@@ -31,7 +31,7 @@ export function VIPFollowButton({
 }: VIPFollowButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  // clientSecret removed
   const [isHoveringSubscribed, setIsHoveringSubscribed] = useState(false);
   const [subscribed, setSubscribed] = useState<boolean>(isSubscribed);
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
@@ -39,22 +39,21 @@ export function VIPFollowButton({
   const displayPrice = activeDiscount ? activeDiscount.discountedPrice : price;
 
   const handleFollow = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/vip/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vipPageId }),
-      });
+    if (isFree) {
+      setIsLoading(true);
+      try {
+        const response = await fetch("/api/vip/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vipPageId }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to subscribe");
-      }
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to subscribe");
+        }
 
-      if (isFree) {
-        // Free subscription success
         toastManager.add({
           title: "Success",
           description: "Followed successfully!",
@@ -62,34 +61,19 @@ export function VIPFollowButton({
         });
         onSubscriptionChange();
         setSubscribed(true);
-      } else {
-        // Paid subscription - open modal
-        if (data.clientSecret) {
-          setClientSecret(data.clientSecret);
-          setSubscriptionId(data.subscriptionId);
-          setIsPaymentModalOpen(true);
-        } else {
-          // Maybe already subscribed?
-          if (data.message === "Already subscribed") {
-            toastManager.add({
-              title: "Info",
-              description: "You are already subscribed.",
-              type: "info",
-            });
-            onSubscriptionChange();
-            setSubscribed(true);
-          }
-        }
+      } catch (error: any) {
+        console.error("Subscription error:", error);
+        toastManager.add({
+          title: "Error",
+          description: error.message || "Something went wrong",
+          type: "error",
+        });
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error: any) {
-      console.error("Subscription error:", error);
-      toastManager.add({
-        title: "Error",
-        description: error.message || "Something went wrong",
-        type: "error",
-      });
-    } finally {
-      setIsLoading(false);
+    } else {
+      // Paid subscription - open modal directly
+      setIsPaymentModalOpen(true);
     }
   };
 
@@ -127,27 +111,39 @@ export function VIPFollowButton({
 
   const handlePaymentSuccess = async () => {
     setIsPaymentModalOpen(false);
+    setIsLoading(true);
 
-    // Verify subscription
-    if (subscriptionId) {
-      try {
-        await fetch("/api/vip/verify-subscription", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ subscriptionId }),
-        });
-      } catch (e) {
-        console.error("Verification failed", e);
+    try {
+      // Call subscribe API
+      const response = await fetch("/api/vip/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vipPageId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to subscribe");
       }
-    }
 
-    toastManager.add({
-      title: "Success",
-      description: "Subscription successful!",
-      type: "success",
-    });
-    setSubscribed(true);
-    onSubscriptionChange();
+      toastManager.add({
+        title: "Success",
+        description: "Subscription successful!",
+        type: "success",
+      });
+      setSubscribed(true);
+      onSubscriptionChange();
+    } catch (error: any) {
+      console.error("Subscription error:", error);
+      toastManager.add({
+        title: "Error",
+        description: error.message || "Something went wrong",
+        type: "error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (subscribed) {
@@ -232,7 +228,7 @@ export function VIPFollowButton({
       <PaymentModal
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
-        clientSecret={clientSecret || ""}
+        // clientSecret removed
         price={displayPrice}
         creatorName={creatorName}
         onSuccess={handlePaymentSuccess}

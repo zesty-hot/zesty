@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-import {
-  Elements,
-  PaymentElement,
-  useStripe,
-  useElements,
-} from "@stripe/react-stripe-js";
+// Stripe imports removed
 import {
   Dialog,
   DialogContent,
@@ -18,84 +12,59 @@ import {
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
-// Initialize Stripe outside of component to avoid recreation
-const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
+// Stripe key removed
+
 
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  clientSecret: string;
+  // clientSecret removed
   price: number;
   creatorName: string;
   onSuccess: () => void;
 }
 
 function CheckoutForm({ onSuccess, price, onClose }: { onSuccess: () => void; price: number; onClose: () => void }) {
-  const stripe = useStripe();
-  const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
-
+  const handleConfirm = async () => {
     setIsLoading(true);
-    setErrorMessage(null);
-
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: window.location.href, // Or a specific success page
-      },
-      redirect: "if_required",
-    });
-
-    if (error) {
-      setErrorMessage(error.message || "An unexpected error occurred.");
-      setIsLoading(false);
-    } else {
-      // Payment succeeded
-      onSuccess();
-      setIsLoading(false);
-    }
+    // Simulate processing
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    onSuccess();
+    setIsLoading(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <PaymentElement />
-      {errorMessage && (
-        <div className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
-          {errorMessage}
-        </div>
-      )}
+    <div className="space-y-6">
+      <div className="p-4 bg-muted rounded-md text-center">
+        <p className="text-sm text-muted-foreground mb-2">Total to pay</p>
+        <p className="text-3xl font-bold">${(price / 100).toFixed(2)}</p>
+      </div>
+
       <div className="flex gap-3 justify-end">
         <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
           Cancel
         </Button>
-        <Button type="submit" disabled={!stripe || isLoading} className="w-full sm:w-auto">
+        <Button onClick={handleConfirm} disabled={isLoading} className="w-full sm:w-auto">
           {isLoading ? (
             <>
               <Spinner className="mr-2 h-4 w-4" />
               Processing...
             </>
           ) : (
-            `Pay $${(price / 100).toFixed(2)}`
+            `Confirm Payment`
           )}
         </Button>
       </div>
-    </form>
+    </div>
   );
 }
 
 export function PaymentModal({
   isOpen,
   onClose,
-  clientSecret,
+  // clientSecret removed
   price,
   creatorName,
   onSuccess,
@@ -109,27 +78,7 @@ export function PaymentModal({
             Complete your subscription to unlock exclusive content.
           </DialogDescription>
         </DialogHeader>
-        {clientSecret && stripePromise && (
-          <Elements
-            stripe={stripePromise}
-            options={{
-              clientSecret,
-              appearance: {
-                theme: "stripe",
-                variables: {
-                  colorPrimary: "#ec4899", // Pink-500
-                },
-              },
-            }}
-          >
-            <CheckoutForm onSuccess={onSuccess} price={price} onClose={onClose} />
-          </Elements>
-        )}
-        {clientSecret && !stripePromise && (
-          <div className="p-4 text-center text-red-500">
-            Stripe configuration error: Missing publishable key.
-          </div>
-        )}
+        <CheckoutForm onSuccess={onSuccess} price={price} onClose={onClose} />
       </DialogContent>
     </Dialog>
   );

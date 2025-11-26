@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { serverSupabase } from "@/lib/supabase/server";
-import Stripe from "stripe";
+// Stripe removed
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-12-18.acacia" as any, // Force version to avoid TS errors if types mismatch
-});
 
 export async function POST(request: Request) {
   try {
@@ -78,72 +75,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: "active", message: "Followed successfully" });
     }
 
-    // 5. Handle Paid Subscription (Stripe)
-
-    // Ensure user has Stripe Customer ID
-    let stripeCustomerId = user.stripeId;
-    if (!stripeCustomerId) {
-      const customer = await stripe.customers.create({
-        email: authUser.email || undefined,
-        metadata: {
-          zesty_id: user.zesty_id,
-          supabase_id: user.supabaseId,
-        },
-      });
-      stripeCustomerId = customer.id;
-      await prisma.user.update({
-        where: { zesty_id: user.zesty_id },
-        data: { stripeId: stripeCustomerId },
-      });
-    }
-
-    // Create Stripe Subscription
-    // First create a price for this subscription
-    // We create a new price object to ensure it matches the current VIP page settings
-    // In a production app, we might want to cache this or store stripePriceId on the VIPPage model
-    const price = await stripe.prices.create({
-      currency: "usd",
-      unit_amount: vipPage.subscriptionPrice,
-      recurring: {
-        interval: "month",
-      },
-      product_data: {
-        name: `Subscription to ${vipPage.user.title || vipPage.user.slug || "VIP Content"}`,
-        metadata: {
-          vipPageId: vipPage.id,
-        },
-      },
-    });
-
-    const subscription = await stripe.subscriptions.create({
-      customer: stripeCustomerId,
-      items: [
-        {
-          price: price.id,
-        },
-      ],
-      payment_behavior: "default_incomplete",
-      payment_settings: {
-        save_default_payment_method: "on_subscription",
-        payment_method_types: ["card"],
-      },
-      expand: ["latest_invoice.payment_intent"],
-      metadata: {
-        vipPageId: vipPage.id,
+    // 5. Handle Paid Subscription (Mock)
+    // Directly create the subscription without payment
+    await prisma.vIPSubscription.create({
+      data: {
         subscriberId: user.zesty_id,
+        vipPageId: vipPage.id,
+        active: true,
+        amountPaid: vipPage.subscriptionPrice,
+        // No stripeSubscriptionId
       },
     });
-
-    const invoice = subscription.latest_invoice as any;
-    const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
-
-    if (!paymentIntent || !paymentIntent.client_secret) {
-      throw new Error("Failed to create payment intent");
-    }
 
     return NextResponse.json({
-      clientSecret: paymentIntent.client_secret,
-      subscriptionId: subscription.id,
+      status: "active",
+      message: "Subscribed successfully (Mock)",
     });
 
   } catch (error) {

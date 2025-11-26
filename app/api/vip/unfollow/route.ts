@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { serverSupabase } from "@/lib/supabase/server";
-import Stripe from "stripe";
+// Stripe removed
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-11-17.clover",
-});
 
 export async function POST(request: Request) {
   try {
@@ -51,15 +48,8 @@ export async function POST(request: Request) {
 
     // 3. Handle Unfollow/Unsubscribe
 
-    // If it's a paid subscription with Stripe, cancel it there too
-    if (subscription.stripeSubscriptionId && !subscription.vipPage.isFree) {
-      try {
-        await stripe.subscriptions.cancel(subscription.stripeSubscriptionId);
-      } catch (stripeError) {
-        console.error("Error cancelling Stripe subscription:", stripeError);
-        // Continue to cancel locally even if Stripe fails (or maybe it was already cancelled)
-      }
-    }
+    // Stripe cancellation removed
+
 
     // Deactivate local subscription
     await prisma.vIPSubscription.update({
