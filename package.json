@@ -50,7 +50,7 @@
     "@capacitor/cli": "^7.4.4",
     "@tailwindcss/postcss": "^4",
     "@types/negotiator": "^0.6.4",
-    "@types/node": "^20.19.25",
+    "@types/node": "^24.10.1",
     "@types/pg": "^8.15.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
