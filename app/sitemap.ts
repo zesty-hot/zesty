@@ -1,6 +1,8 @@
 import { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/metadata";
 import { prisma, withRetry } from "@/lib/prisma";
+import { locales } from '@/lib/i18n/config';
+import { JobStatus, EventStatus } from "@prisma/client";
 
 // Revalidate sitemap every 24 hours (86400 seconds)
 export const revalidate = 86400;
@@ -67,8 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // Add other language versions
-  const languages = ["es", "fr", "de"];
-  const languagePages: MetadataRoute.Sitemap = languages.flatMap((lang) => [
+  const languagePages: MetadataRoute.Sitemap = locales.flatMap((lang) => [
     {
       url: `${baseUrl}/${lang}`,
       lastModified: new Date(),
@@ -113,7 +114,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           slug: true,
           lastActive: true,
         },
-        take: 1000, // Limit to top 1000 escorts
         orderBy: {
           lastActive: "desc",
         },
@@ -121,7 +121,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
 
     const escortPages: MetadataRoute.Sitemap = escorts.flatMap((escort) =>
-      ["en", "es", "fr", "de"].map((lang) => ({
+      locales.map((lang) => ({
         url: `${baseUrl}/${lang}/escorts/${escort.slug}`,
         lastModified: escort.lastActive || new Date(),
         changeFrequency: "weekly" as const,
@@ -148,7 +148,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           },
           updatedAt: true,
         },
-        take: 500, // Limit to top 500 VIP pages
         orderBy: {
           updatedAt: "desc",
         },
@@ -156,7 +155,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
 
     const vipPageEntries: MetadataRoute.Sitemap = vipPages.flatMap((page) =>
-      ["en", "es", "fr", "de"].map((lang) => ({
+      locales.map((lang) => ({
         url: `${baseUrl}/${lang}/vip/${page.user.slug}`,
         lastModified: page.updatedAt,
         changeFrequency: "daily" as const,
@@ -184,7 +183,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           },
           updatedAt: true,
         },
-        take: 500,
         orderBy: {
           updatedAt: "desc",
         },
@@ -192,7 +190,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
 
     const livePageEntries: MetadataRoute.Sitemap = livePages.flatMap((page) =>
-      ["en", "es", "fr", "de"].map((lang) => ({
+      locales.map((lang) => ({
         url: `${baseUrl}/${lang}/live/${page.user.slug}`,
         lastModified: page.user.lastActive || page.updatedAt,
         changeFrequency: "hourly" as const,
@@ -204,7 +202,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const events = await withRetry(() =>
       prisma.event.findMany({
         where: {
-          status: "OPEN",
+          status: {
+            in: ["OPEN", "PAY_TO_JOIN", "REQUEST_TO_JOIN"] as EventStatus[],
+          },
           startTime: {
             gte: new Date(), // Only include upcoming events
           },
@@ -213,7 +213,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           slug: true,
           updatedAt: true,
         },
-        take: 500,
         orderBy: {
           startTime: "asc",
         },
@@ -221,7 +220,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
 
     const eventPages: MetadataRoute.Sitemap = events.flatMap((event) =>
-      ["en", "es", "fr", "de"].map((lang) => ({
+      locales.map((lang) => ({
         url: `${baseUrl}/${lang}/events/${event.slug}`,
         lastModified: event.updatedAt,
         changeFrequency: "daily" as const,
@@ -239,7 +238,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           slug: true,
           updatedAt: true,
         },
-        take: 500,
         orderBy: {
           updatedAt: "desc",
         },
@@ -247,7 +245,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
 
     const jobPages: MetadataRoute.Sitemap = jobs.flatMap((job) =>
-      ["en", "es", "fr", "de"].map((lang) => ({
+      locales.map((lang) => ({
         url: `${baseUrl}/${lang}/jobs/${job.slug}`,
         lastModified: job.updatedAt,
         changeFrequency: "weekly" as const,
