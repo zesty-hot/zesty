@@ -1,22 +1,29 @@
 import { PrismaClient, Gender, BodyType, Race, PrivateAdCustomerCategory, PrivateAdServiceCategory, PrivateAdExtraType, PrivateAdDaysAvailable, VIPContentType, EventStatus, EventAttendeeStatus, JobType, JobStatus, ApplicationStatus, SwipeDirection } from '@/prisma/generated/client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
 import { randomUUID } from 'crypto';
 
-// Strip sslmode from connection string to allow programmatic SSL config
-const connectionString = process.env.DATABASE_URL?.replace(/[?&]sslmode=[^&]+/, '') || '';
+// Load environment variables (if .env is present)
+import * as dotenv from 'dotenv';
+dotenv.config();
 
-const pool = new Pool({
-  connectionString,
+// Use DIRECT_URL if provided, otherwise fall back to DATABASE_URL (same as lib/prisma.ts)
+const connectionStr = process.env.DATABASE_URL;
+if (!connectionStr) {
+  throw new Error('DATABASE_URL is not defined. Please set it in your environment or .env file.');
+}
+
+// Mask password for safe logging
+const masked = connectionStr.replace(/:(.+?)@/, ':****@');
+console.log('🔗 Using database connection string:', masked);
+
+// SSL config mirrors lib/prisma.ts (rejectUnauthorized false for Supabase)
+const directAdapter = new PrismaPg({
+  connectionString: connectionStr,
   ssl: {
-    rejectUnauthorized: false
+    rejectUnauthorized: false,
   },
-  max: 5,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
 });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient({ adapter: directAdapter });
 
 // Australian cities with coordinates
 const locations = [

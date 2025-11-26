@@ -83,7 +83,7 @@ export default function DashboardPage() {
     toastManager.add({
       title: "Authentication Required",
       description: "Please log in to access your dashboard.",
-      type: "warning",
+      type: "warning"
     });
     router.push(`/${lang}`);
     return;

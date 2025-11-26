@@ -87,10 +87,10 @@ export function SharePopover({
     <Popover>
       <PopoverTrigger asChild>
         {children || (
-          // <Button variant="outline" className={className}>
-          //   <Share2 className="w-4 h-4 mr-2" />
-          //   Share
-          // </Button>
+          <Button variant="outline" className={className}>
+            <Share2 className="w-4 h-4 mr-2" />
+            Share
+          </Button>
         )}
       </PopoverTrigger>
       <PopoverContent className="w-72" align={align} side={side} collisionPadding={16}>

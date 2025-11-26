@@ -430,7 +430,7 @@ export default function Page() {
   const opacity = 1 - Math.abs(dragOffset.x) / 300;
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="bg-background">
       {/* Header */}
       <div className="border-b bg-background/95 backdrop-blur-sm z-40">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -438,19 +438,19 @@ export default function Page() {
             <Flame className="w-6 h-6 text-rose-500" />
             <h1 className="text-xl font-bold">Zesty Dating</h1>
           </div>
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <Link href={`/${lang}/dating/profile`}>
               <Button variant="ghost" size="lg">
                 <Settings className="w-5 h-5" />
               </Button>
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* Main Swipe Area */}
       <div className="container mx-auto px-4 py-6 max-w-2xl">
-        <div className="relative h-[600px] md:h-[700px]">
+        <div className="relative h-[70vh]">
 
           {/* Rules Card - Shows before profiles */}
           {showRulesDialog && (
@@ -577,12 +577,12 @@ export default function Page() {
                     alt={currentProfile.title}
                     className={cn(
                       "w-full h-full object-cover transition-all",
-                      currentImage.NSFW && !unblurredImages.has(currentImage.url) && "blur-lg"
+                      (currentImage.NSFW && false) && !unblurredImages.has(currentImage.url) && "blur-lg"
                     )}
                   />
 
                   {/* NSFW Warning Badge - Clickable Overlay */}
-                  {currentImage.NSFW && !unblurredImages.has(currentImage.url) && (
+                  {(currentImage.NSFW && false) && !unblurredImages.has(currentImage.url) && (
                     <div
                       className="absolute inset-0 flex items-center justify-center cursor-pointer z-20"
                       onClick={(e) => {
