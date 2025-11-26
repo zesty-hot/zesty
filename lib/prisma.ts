@@ -16,6 +16,13 @@ const pool = new Pool({
     rejectUnauthorized: false
   }
 });
+
+// Log connection details for debugging (masking password)
+if (process.env.NODE_ENV === 'production') {
+  const maskedConnectionString = connectionString.replace(/:([^:@]+)@/, ':****@');
+  console.log('Initializing Prisma with connection string:', maskedConnectionString);
+}
+
 const adapter = new PrismaPg(pool);
 
 let prisma: PrismaClient;
