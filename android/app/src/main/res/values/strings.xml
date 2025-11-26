@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">zesty</string>
+    <string name="title_activity_main">zesty</string>
+    <string name="package_name">hot.zesty.app</string>
+    <string name="custom_url_scheme">hot.zesty.app</string>
+</resources>
