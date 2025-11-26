@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck, X } from "lucide-react";
 
 export default function AgeVerify() {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(true);
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     // Check if user has already verified their age in this session
     const ageVerified = sessionStorage.getItem("age_verified");
-    
+
     if (!ageVerified) {
       // Small delay to ensure page has loaded
       setTimeout(() => {
@@ -38,9 +38,8 @@ export default function AgeVerify() {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-300 ${
-        isClosing ? "opacity-0" : "opacity-100"
-      }`}
+      className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-300 ${isClosing ? "opacity-0" : "opacity-100"
+        }`}
     >
       {/* Backdrop with blur */}
       <div
@@ -50,9 +49,8 @@ export default function AgeVerify() {
 
       {/* Modal */}
       <div
-        className={`relative bg-card border rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 transform transition-all duration-300 ${
-          isClosing ? "scale-95 opacity-0" : "scale-100 opacity-100"
-        }`}
+        className={`relative bg-card border rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 transform transition-all duration-300 ${isClosing ? "scale-95 opacity-0" : "scale-100 opacity-100"
+          }`}
       >
         {/* Icon */}
         <div className="flex justify-center mb-6">
