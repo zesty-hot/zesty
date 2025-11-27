@@ -540,16 +540,16 @@ function FeedEventCard({ event, lang }: { event: Event; lang: string }) {
               {event.venue && (
                 <div className="flex items-center gap-1">
                   <MapPin className="w-4 h-4 shrink-0" />
-                  <span className="line-clamp-1">{event.venue}</span>
+                  <span className="line-clamp-1">{event.venue}, {event.suburb}</span>
                 </div>
               )}
               <div className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
                 <span>{event.attendeeCount} going</span>
               </div>
-              {event.suburb && (
-                <span className="text-xs">{event.suburb}</span>
-              )}
+              {/* {event.suburb && (
+                <span className="text-xs"></span>
+              )} */}
             </div>
           </div>
         </div>

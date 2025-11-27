@@ -352,12 +352,10 @@ export default function Page() {
                 <p className="text-sm text-muted-foreground mb-4">
                   Start your own channel and build your audience
                 </p>
-                <Link href={`/${lang}/dash/live`} className="shrink-0">
-                  <Button className="w-full">
+                  <Button className="w-full" onClick={() => document.getElementById('get-started-button')?.click()}>
                     Start Streaming
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
-                </Link>
               </div>
             )}
           </div>

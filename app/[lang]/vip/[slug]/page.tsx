@@ -277,19 +277,17 @@ export default function VIPProfilePage() {
           {/* Profile Info */}
           <div className="flex-1 space-y-2">
             <div>
-              <div className="flex items-center gap-3">
-                <Tooltip delay={100}>
-                  <TooltipTrigger className="cursor-text" render={<h1 className="text-3xl hidden md:block xl:hidden md:text-4xl font-bold text-foreground">
-                    {profile.title.slice(0, 30) + '...' || profile.user.slug}
-                  </h1>}>
-                  </TooltipTrigger>
-                  <TooltipContent className={profile.title.length > 30 ? '' : 'hidden'}>
-                    <p className="text-sm text-muted-foreground">
-                      {profile.title || profile.user.slug}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-                <h1 className="text-3xl md:hidden xl:block md:text-4xl font-bold text-foreground">
+              <div className="flex">
+                <h1 className="hidden xl:block text-3xl font-bold text-foreground">
+                  {(profile.title && (profile.title.length > 60 ? profile.title.slice(0, 60) + '...' : profile.title)) || (profile.user.slug ? (profile.user.slug.length > 60 ? profile.user.slug.slice(0, 60) + '...' : profile.user.slug) : '')}
+                </h1>
+                <h1 className="hidden lg:block xl:hidden text-3xl font-bold text-foreground">
+                  {(profile.title && (profile.title.length > 35 ? profile.title.slice(0, 35) + '...' : profile.title)) || (profile.user.slug ? (profile.user.slug.length > 35 ? profile.user.slug.slice(0, 35) + '...' : profile.user.slug) : '')}
+                </h1>
+                <h1 className="hidden md:block lg:hidden text-3xl font-bold text-foreground">
+                  {(profile.title && (profile.title.length > 45 ? profile.title.slice(0, 45) + '...' : profile.title)) || (profile.user.slug ? (profile.user.slug.length > 45 ? profile.user.slug.slice(0, 45) + '...' : profile.user.slug) : '')}
+                </h1>
+                <h1 className="block md:hidden text-3xl font-bold text-foreground">
                   {profile.title || profile.user.slug}
                 </h1>
               </div>
