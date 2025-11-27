@@ -1,0 +1,29 @@
+{
+  "title": "Verified Escorts Directory - Premium Companion Services",
+  "description": "Browse verified escorts and premium companions in your area. Professional, discreet, and safe adult services with reviews, photos, and instant booking.",
+  "keywords": [
+    "verified escorts",
+    "escort directory",
+    "companions",
+    "call girls",
+    "escort reviews",
+    "premium escorts"
+  ]
+  ,
+  "keyword_templates": {
+    "profile_escort": "{name} escort",
+    "by_location": "escort {location}",
+    "verified_escort": "verified escort",
+    "premium_companion": "premium companion",
+    "gender_escort": "{gender} escort",
+    "bodytype_escort": "{bodyType} escort"
+  },
+  "not_found_title": "Profile Not Found",
+  "not_found_description": "The escort profile you're looking for doesn't exist.",
+  "available_label": "Available",
+  "located_in_label": "Located in",
+  "booking_call_to_action": "Book now for premium escort services.",
+  "years_old_label": "Years Old",
+  "verified_escort_prefix": "Verified Escort -",
+  "default_description": "View verified escort profiles and services."
+}

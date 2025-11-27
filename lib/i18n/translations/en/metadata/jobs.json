@@ -1,0 +1,44 @@
+{
+  "title": "Adult Industry Jobs - Opportunities for Performers & Studios",
+  "description": "Find opportunities in the adult entertainment industry. Jobs for performers, models, content creators, and studio positions.",
+  "keywords": [
+    "adult industry jobs",
+    "performer opportunities",
+    "model jobs",
+    "studio positions",
+    "adult entertainment careers"
+  ]
+  ,
+  "not_found_title": "Job Not Found",
+  "not_found_description": "The job posting you're looking for doesn't exist.",
+  "flexible_label": "Flexible",
+  "located_in_label": "Located in",
+  "apply_now_label": "Apply now!",
+  "default_title": "Job Posting",
+  "default_description": "Explore opportunities in the adult entertainment industry.",
+  "default_keywords": [
+    "adult industry job",
+    "entertainment job",
+    "modeling opportunity"
+  ],
+  "studio_job_suffix": "job",
+  "fixed_pay_label": "fixed pay",
+  "hourly_pay_label": "hourly pay",
+  "type_keywords": {
+    "ACTOR": ["actor job", "acting work", "adult performer"],
+    "DIRECTOR": ["director job", "directing work", "film director"],
+    "CAMERA_OPERATOR": ["camera operator", "cinematography", "videographer"],
+    "EDITOR": ["editor job", "video editing", "post-production"],
+    "PRODUCTION_STAFF": ["production job", "film crew", "production staff"],
+    "MODEL": ["model job", "modeling work"],
+    "OTHER": ["adult industry job"]
+  }
+  ,
+  "not_found_title": "Job Not Found",
+  "not_found_description": "The job posting you're looking for doesn't exist.",
+  "flexible_label": "Flexible",
+  "located_in_label": "Located in",
+  "apply_now_label": "Apply now!",
+  "default_title": "Job Posting",
+  "default_description": "Explore opportunities in the adult entertainment industry."
+}

@@ -340,13 +340,8 @@ export default function EventPage() {
                     <div>
                       <p className="font-semibold">Attendees</p>
                       <p className="text-sm text-muted-foreground">
-                        {goingCount} going · {maybeCount} interested
+                        {goingCount} going {event.maxAttendees && (`(Capacity: ${event.maxAttendees})`)}
                       </p>
-                      {event.maxAttendees && (
-                        <p className="text-sm text-muted-foreground">
-                          Capacity: {event.maxAttendees}
-                        </p>
-                      )}
                     </div>
                   </div>
 

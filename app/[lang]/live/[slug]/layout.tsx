@@ -1,7 +1,9 @@
 import { Metadata } from "next";
 import { prisma, withRetry } from "@/lib/prisma";
-import { generateMetadata as genMeta, siteConfig } from "@/lib/metadata";
+import { generateMetadata as genMeta, getSiteConfig } from "@/lib/metadata";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { calculateAge } from "@/lib/calculate-age";
+import { Locale } from "@/lib/i18n/config";
 
 type Props = {
   params: Promise<{ slug: string; lang: string }>;
@@ -14,6 +16,9 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, lang } = await params;
   const decodedSlug = decodeURIComponent(slug);
+  const siteConfig = getSiteConfig({ lang: lang as Locale });
+  const dictionary = getDictionary(lang as Locale);
+  const liveDict = dictionary?.metadata?.live || {};
 
   try {
     // Fetch the live stream page data
@@ -63,11 +68,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       })
     );
 
-    // If stream page doesn't exist, return basic metadata
+    // If stream page doesn't exist, return basic metadata from translations or site defaults
     if (!streamPage) {
       return genMeta({
-        title: "Live Stream Not Found",
-        description: "The live stream channel you're looking for doesn't exist.",
+        title: liveDict.not_found_title ?? siteConfig.title,
+        description: liveDict.not_found_description ?? siteConfig.description,
         noIndex: true,
       });
     }
@@ -89,16 +94,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       `${siteConfig.url}/default-live.jpg`;
 
     // Truncate description
+    const liveNowLabel = liveDict.live_now_label ?? "";
+    const viewersText = liveDict.viewers_text ?? "";
     const liveStatus = isLive
-      ? `🔴 LIVE NOW - ${currentStream.viewerCount} viewers! ${currentStream.title ? `"${currentStream.title}"` : ""
-      }`
+      ? `${liveNowLabel ? `${liveNowLabel} ` : ""}${currentStream.viewerCount} ${viewersText ? `${viewersText}` : ""}${currentStream.title ? ` "${currentStream.title}"` : ""}`.trim()
       : "";
 
     const description = liveStatus
-      ? `${liveStatus} ${streamPage.description
-        ? streamPage.description.substring(0, 100)
-        : ""
-      }`
+      ? `${liveStatus} ${streamPage.description ? streamPage.description.substring(0, 100) : ""}`.trim()
       : streamPage.description
         ? streamPage.description.length > 155
           ? `${streamPage.description.substring(0, 152)}...`
@@ -107,13 +110,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           ? streamPage.user.bio.length > 155
             ? `${streamPage.user.bio.substring(0, 152)}...`
             : streamPage.user.bio
-          : `Live streams from ${streamPage.user.title || streamPage.user.slug}. ${streamPage._count.followers
-          } followers. Watch live adult entertainment now!`;
+          : (() => {
+              const channelFrom = liveDict.channel_from ?? "";
+              const followersLabel = liveDict.followers_label ?? "";
+              const callToAction = liveDict.call_to_action ?? "";
+              const subject = streamPage.user.title || streamPage.user.slug;
+              const parts: string[] = [];
+              parts.push(channelFrom ? `${channelFrom} ${subject}.` : `${subject}`);
+              if (typeof streamPage._count?.followers === 'number' && followersLabel) parts.push(`${streamPage._count.followers} ${followersLabel}`);
+              if (callToAction) parts.push(callToAction);
+              return parts.filter(Boolean).join(' ');
+            })();
 
     // Build title
     const titleParts = [];
     if (isLive) {
-      titleParts.push("🔴 LIVE");
+      titleParts.push(liveDict.live_prefix ?? "");
     }
     titleParts.push(streamPage.user.title || streamPage.user.slug);
     if (age) {
@@ -122,32 +134,32 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (location) {
       titleParts.push(`in ${location}`);
     }
-    titleParts.push("Live Stream");
+    titleParts.push(liveDict.stream_label ?? siteConfig.name);
 
     const title = titleParts.join(" - ");
 
-    // Generate rich metadata
+    // Build keywords from translations + dynamic pieces
+    const baseKeywords: string[] = liveDict.keywords ?? [];
+    const templates = liveDict.templates ?? {};
+    const dynamicKeywords = [
+      templates.slug_live ? templates.slug_live.replace('{slug}', streamPage.user.slug) : streamPage.user.slug,
+      templates.title_webcam ? templates.title_webcam.replace('{title}', streamPage.user.title || streamPage.user.slug) : (streamPage.user.title || streamPage.user.slug),
+      isLive ? (liveDict.live_now_keyword ?? '') : (liveDict.live_streaming_keyword ?? ''),
+      location && templates.location_webcam ? templates.location_webcam.replace('{location}', location) : location ? `${location}` : '',
+    ].filter(Boolean);
+
     return genMeta({
       title,
       description,
       image: imageUrl,
-      keywords: [
-        `${streamPage.user.slug} live stream`,
-        `${streamPage.user.title || streamPage.user.slug} webcam`,
-        isLive ? "live now" : "live streaming",
-        "adult live stream",
-        "webcam show",
-        "live entertainment",
-        location ? `${location} webcam` : "",
-        "real-time streaming",
-      ].filter(Boolean),
+      keywords: [...baseKeywords, ...dynamicKeywords].filter(Boolean),
       canonical: `${siteConfig.url}/${lang}/live/${slug}`,
     });
   } catch (error) {
     console.error("Error generating live stream metadata:", error);
     return genMeta({
-      title: "Live Stream Channel",
-      description: "Watch live adult entertainment and interact with performers.",
+      title: liveDict.default_title ?? siteConfig.title,
+      description: liveDict.default_description ?? siteConfig.description,
       noIndex: true,
     });
   }

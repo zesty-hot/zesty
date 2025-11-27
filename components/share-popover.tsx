@@ -2,13 +2,18 @@
 
 import {
   Code,
-  Facebook,
   Mail,
-  Twitter,
   Check,
   Copy,
   Share2,
 } from "lucide-react";
+import {
+  RiFacebookFill,
+  RiGoogleFill,
+  RiMicrosoftFill,
+  RiTwitterXFill,
+} from "@remixicon/react";
+
 import { useId, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -62,7 +67,7 @@ export function SharePopover({
 
     switch (platform) {
       case "twitter":
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
+        shareUrl = `https://x.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
         break;
       case "facebook":
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
@@ -103,7 +108,7 @@ export function SharePopover({
               variant="outline"
               onClick={() => handleShare("twitter")}
             >
-              <Twitter aria-hidden="true" size={16} />
+              <RiTwitterXFill aria-hidden="true" size={16} />
             </Button>
 
             <Button
@@ -112,7 +117,7 @@ export function SharePopover({
               variant="outline"
               onClick={() => handleShare("facebook")}
             >
-              <Facebook aria-hidden="true" size={16} />
+              <RiFacebookFill aria-hidden="true" size={16} />
             </Button>
 
             <Button

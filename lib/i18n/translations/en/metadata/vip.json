@@ -1,0 +1,31 @@
+{
+  "title": "VIP Premium Content - Exclusive Adult Entertainment",
+  "description": "Access exclusive VIP content, premium features, and elite experiences. Join our VIP community for the ultimate adult entertainment.",
+  "keywords": [
+    "VIP content",
+    "premium access",
+    "exclusive content",
+    "VIP membership",
+    "elite entertainment"
+  ]
+  ,
+  "not_found_title": "VIP Page Not Found",
+  "not_found_description": "The VIP creator page you're looking for doesn't exist.",
+  "exclusive_from_label": "Exclusive VIP content from",
+  "free_to_follow_label": "Free to follow!",
+  "subscribe_prefix": "Subscribe for",
+  "posts_available_suffix": "posts available.",
+  "vip_content_label": "VIP Content",
+  "from_label": "from",
+  "default_title": "VIP Creator Page",
+  "default_description": "Explore exclusive VIP content and premium experiences."
+
+  ,
+  "keyword_templates": {
+    "vip_by_name": "{name} VIP",
+    "exclusive_by_name": "{name} exclusive content",
+    "location_content_creator": "{location} content creator",
+    "free_content": "free content",
+    "subscription_content": "subscription content"
+  }
+}

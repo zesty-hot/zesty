@@ -1,0 +1,28 @@
+{
+  "title": "Adult Events & Parties - Exclusive Entertainment",
+  "description": "Discover exclusive adult events, parties, and social gatherings. Connect with the community at premium venues and special occasions.",
+  "keywords": [
+    "adult events",
+    "adult parties",
+    "swingers events",
+    "adult social",
+    "lifestyle events"
+  ]
+  ,
+  "status_keywords": {
+    "OPEN": ["open event", "public event"],
+    "INVITE_ONLY": ["private event", "exclusive event"],
+    "PAY_TO_JOIN": ["ticketed event", "paid event"],
+    "REQUEST_TO_JOIN": ["RSVP event", "request to join"]
+  },
+  "templates": {
+    "location_event": "{location} event"
+  },
+  "not_found_title": "Event Not Found",
+  "not_found_description": "The event you're looking for doesn't exist.",
+  "at_label": "At",
+  "free_entry_label": "Free entry.",
+  "attendees_label": "attending",
+  "default_title": "Event",
+  "default_description": "Discover exclusive adult events and parties."
+}

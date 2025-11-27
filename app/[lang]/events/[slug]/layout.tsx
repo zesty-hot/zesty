@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 import { prisma, withRetry } from "@/lib/prisma";
-import { generateMetadata as genMeta, siteConfig } from "@/lib/metadata";
+import { generateMetadata as genMeta, getSiteConfig } from "@/lib/metadata";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { Locale } from "@/lib/i18n/config";
 
 type Props = {
   params: Promise<{ slug: string; lang: string }>;
@@ -12,7 +14,10 @@ type Props = {
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, lang } = await params;
-  
+  const siteConfig = getSiteConfig({ lang: lang as Locale });
+  const dictionary = getDictionary(lang as Locale);
+  const eventsDict = dictionary?.metadata?.events || {};
+
   try {
     // Fetch the event data
     const event = await withRetry(() =>
@@ -50,17 +55,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       })
     );
 
-    // If event doesn't exist, return basic metadata
+    // If event doesn't exist, return basic metadata from translations or site defaults
     if (!event) {
       return genMeta({
-        title: "Event Not Found",
-        description: "The event you're looking for doesn't exist.",
+        title: eventsDict.not_found_title ?? siteConfig.title,
+        description: eventsDict.not_found_description ?? siteConfig.description,
         noIndex: true,
       });
     }
 
-    // Format date
-    const eventDate = new Date(event.startTime).toLocaleDateString("en-US", {
+    // Format date using site locale
+    const localeCode = (siteConfig.locale || "en-US").replace("_", "-");
+    const eventDate = new Date(event.startTime).toLocaleDateString(localeCode, {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -78,11 +84,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? event.description.length > 155
         ? `${event.description.substring(0, 152)}...`
         : event.description
-      : `${event.title} - ${eventDate}. ${location ? `At ${location}.` : ""} ${
-          event.price
-            ? `$${(event.price / 100).toFixed(2)} entry.`
-            : "Free entry."
-        } ${event._count.attendees} attending.`;
+      : (() => {
+          const atLabel = eventsDict.at_label ?? "";
+          const freeEntryLabel = eventsDict.free_entry_label ?? "";
+          const attendeesLabel = eventsDict.attendees_label ?? "";
+          const subject = `${event.title} - ${eventDate}.`;
+          const parts: string[] = [subject];
+          if (location && atLabel) parts.push(`${atLabel} ${location}.`);
+          if (event.price) parts.push(`$${(event.price / 100).toFixed(2)}`);
+          else if (freeEntryLabel) parts.push(freeEntryLabel);
+          if (typeof event._count?.attendees === 'number' && attendeesLabel) parts.push(`${event._count.attendees} ${attendeesLabel}`);
+          return parts.filter(Boolean).join(' ');
+        })();
 
     // Build title
     const titleParts = [event.title];
@@ -93,13 +106,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const title = titleParts.join(" - ");
 
-    // Determine event type keywords
-    const statusKeywords = {
-      OPEN: ["open event", "public event"],
-      INVITE_ONLY: ["private event", "exclusive event"],
-      PAY_TO_JOIN: ["ticketed event", "paid event"],
-      REQUEST_TO_JOIN: ["RSVP event", "request to join"],
-    };
+    // Determine event type keywords from translations
+    const baseKeywords: string[] = eventsDict.keywords ?? [];
+    const statusKeywords: string[] = (eventsDict.status_keywords && eventsDict.status_keywords[event.status]) || [];
+    const templates = eventsDict.templates ?? {};
+    const locationKeyword = location && templates.location_event ? templates.location_event.replace('{location}', location) : location ? `${location}` : "";
 
     // Generate rich metadata
     return genMeta({
@@ -108,22 +119,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       image: imageUrl,
       keywords: [
         event.title,
-        "adult event",
-        "entertainment event",
-        location ? `${location} event` : "",
+        ...baseKeywords,
+        locationKeyword,
         event.suburb || "",
-        ...statusKeywords[event.status],
-        event.price ? "paid event" : "free event",
-        "lifestyle event",
-        "adult party",
+        ...statusKeywords,
+        event.price ? (eventsDict.paid_event_label ?? '') : (eventsDict.free_entry_label ?? ''),
       ].filter(Boolean),
       canonical: `${siteConfig.url}/${lang}/events/${slug}`,
     });
   } catch (error) {
     console.error("Error generating event metadata:", error);
     return genMeta({
-      title: "Event",
-      description: "Discover exclusive adult events and parties.",
+      title: eventsDict.default_title ?? siteConfig.title,
+      description: eventsDict.default_description ?? siteConfig.description,
       noIndex: true,
     });
   }

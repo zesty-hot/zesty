@@ -4,12 +4,11 @@ type Dictionary = {
   [key: string]: string;
 };
 
-import en from "./translations/en.json";
-import es from "./translations/es.json";
+import en from "./translations/en";
 
-const dictionaries: Record<Locale, Dictionary> = {
+const dictionaries: Record<Locale, any> = {
   en,
-  es,
+  es: {},
   zh: {},
   hi: {},
   fr: {},
@@ -62,6 +61,6 @@ const dictionaries: Record<Locale, Dictionary> = {
   hb: {}
 };
 
-export const getDictionary = (locale: Locale): Dictionary => {
+export const getDictionary = (locale: Locale): any => {
   return dictionaries[locale] || dictionaries.en;
 };

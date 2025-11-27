@@ -1,0 +1,28 @@
+{
+  "title": "Live Adult Entertainment - Watch & Interact Now",
+  "description": "Watch live adult streams, interact with performers, and enjoy exclusive VIP content. Premium HD streaming with private shows and chat features.",
+  "keywords": [
+    "live adult streams",
+    "webcam shows",
+    "live entertainment",
+    "adult performers",
+    "private shows",
+    "cam shows"
+  ],
+  "channel_from": "Live streams from",
+  "followers_label": "followers",
+  "call_to_action": "Watch live adult entertainment now!",
+  "stream_label": "Live Stream",
+  "live_now_label": "🔴 LIVE NOW -",
+  "live_prefix": "🔴 LIVE",
+  "live_now_keyword": "live now",
+  "live_streaming_keyword": "live streaming",
+  "viewers_text": "viewers",
+  "not_found_title": "Live Stream Not Found",
+  "not_found_description": "The live stream channel you're looking for doesn't exist.",
+  "templates": {
+    "slug_live": "{slug} live stream",
+    "title_webcam": "{title} webcam",
+    "location_webcam": "{location} webcam"
+  }
+}

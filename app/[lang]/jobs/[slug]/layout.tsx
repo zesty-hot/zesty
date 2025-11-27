@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 import { prisma, withRetry } from "@/lib/prisma";
-import { generateMetadata as genMeta, siteConfig } from "@/lib/metadata";
+import { generateMetadata as genMeta, getSiteConfig } from "@/lib/metadata";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { Locale } from "@/lib/i18n/config";
 
 type Props = {
   params: Promise<{ slug: string; lang: string }>;
@@ -12,6 +14,9 @@ type Props = {
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, lang } = await params;
+  const siteConfig = getSiteConfig({ lang: lang as Locale });
+  const dictionary = getDictionary(lang as Locale);
+  const jobsDict = dictionary?.metadata?.jobs || {};
 
   try {
     // Fetch the job data
@@ -52,8 +57,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // If job doesn't exist, return basic metadata
     if (!job) {
       return genMeta({
-        title: "Job Not Found",
-        description: "The job posting you're looking for doesn't exist.",
+        title: jobsDict.not_found_title || "Job Not Found",
+        description: jobsDict.not_found_description || "The job posting you're looking for doesn't exist.",
         noIndex: true,
       });
     }
@@ -75,7 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? `${job.lengthDays} ${job.lengthDays === 1 ? "day" : "days"}`
       : job.lengthHours
         ? `${job.lengthHours} ${job.lengthHours === 1 ? "hour" : "hours"}`
-        : "Flexible";
+        : (jobsDict.flexible_label || "Flexible");
 
     // Build location string
     const location = [job.venue, job.suburb].filter(Boolean).join(", ");
@@ -88,8 +93,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? job.description.length > 155
         ? `${job.description.substring(0, 152)}...`
         : job.description
-      : `${jobType} position at ${job.studio.name}. ${payInfo}. ${duration} duration. ${location ? `Located in ${location}.` : ""
-      } Apply now!`;
+      : `${jobType} position at ${job.studio.name}. ${payInfo}. ${duration} duration. ${location ? `${jobsDict.located_in_label || 'Located in'} ${location}.` : ""}
+      } ${jobsDict.apply_now_label || 'Apply now!'}`;
 
     // Build title
     const titleParts = [job.title, jobType];
@@ -102,16 +107,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const title = titleParts.join(" - ");
 
-    // Job type keywords
-    const jobTypeKeywords: { [key: string]: string[] } = {
-      ACTOR: ["actor job", "acting work", "adult performer"],
-      DIRECTOR: ["director job", "directing work", "film director"],
-      CAMERA_OPERATOR: ["camera operator", "cinematography", "videographer"],
-      EDITOR: ["editor job", "video editing", "post-production"],
-      PRODUCTION_STAFF: ["production job", "film crew", "production staff"],
-      MODEL: ["model job", "modeling work"],
-      OTHER: ["adult industry job"],
-    };
+    // Keywords pulled from translations (type-specific + defaults)
+    const typeKeywords: string[] = (jobsDict.type_keywords && jobsDict.type_keywords[job.type]) || (jobsDict.type_keywords && jobsDict.type_keywords["OTHER"]) || [];
+    const defaultKeywords: string[] = jobsDict.default_keywords || [];
+
+    const studioKeyword = job.studio?.name ? `${job.studio.name} ${jobsDict.studio_job_suffix || 'job'}` : "";
+    const payKeyword = job.payType && job.payType.toLowerCase() === "fixed" ? (jobsDict.fixed_pay_label || "fixed pay") : (jobsDict.hourly_pay_label || "hourly pay");
 
     // Generate rich metadata
     return genMeta({
@@ -120,22 +121,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       image: imageUrl,
       keywords: [
         job.title,
-        "adult industry job",
-        ...(jobTypeKeywords[job.type] || []),
+        ...defaultKeywords,
+        ...typeKeywords,
         job.suburb || "",
         location || "",
-        `${job.studio.name} job`,
-        job.payType.toLowerCase() === "fixed" ? "fixed pay" : "hourly pay",
-        "entertainment job",
-        "modeling opportunity",
+        studioKeyword,
+        payKeyword,
       ].filter(Boolean),
       canonical: `${siteConfig.url}/${lang}/jobs/${slug}`,
     });
   } catch (error) {
     console.error("Error generating job metadata:", error);
     return genMeta({
-      title: "Job Posting",
-      description: "Explore opportunities in the adult entertainment industry.",
+      title: jobsDict.default_title || "Job Posting",
+      description: jobsDict.default_description || "Explore opportunities in the adult entertainment industry.",
       noIndex: true,
     });
   }

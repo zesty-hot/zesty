@@ -19,11 +19,7 @@ export async function GET(
     const supaBase = await serverSupabase();
     const { data: session } = await supaBase.auth.getUser();
     
-    const user = await withRetry(() => prisma.user.findUnique({
-      where: { supabaseId: session.user?.id },
-      select: { zesty_id: true },
-    }));
-
+    
     // Fetch event with all related data
     const event = await withRetry(() => prisma.event.findUnique({
       where: { slug },
@@ -133,6 +129,22 @@ export async function GET(
         { status: 404 }
       );
     }
+
+    if (session.user == null) {
+      // If no user is logged in, return event data without user-specific info
+      return NextResponse.json({
+        ...event,
+        isOrganizer: false,
+        userAttendanceStatus: null,
+        posts: [],
+      });
+    }
+
+    const user = await withRetry(() => prisma.user.findUnique({
+      where: { supabaseId: session.user?.id },
+      select: { zesty_id: true },
+    }));
+
 
     // Check if user is the organizer
     const isOrganizer = user?.zesty_id === event.organizerId;

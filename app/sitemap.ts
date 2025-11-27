@@ -1,72 +1,14 @@
 import { MetadataRoute } from "next";
-import { siteConfig } from "@/lib/metadata";
+import { getSiteConfig } from "@/lib/metadata";
 import { prisma, withRetry } from "@/lib/prisma";
 import { locales } from '@/lib/i18n/config';
-import { JobStatus, EventStatus } from "@prisma/client";
+import { EventStatus } from "@prisma/client";
 
 // Revalidate sitemap every 24 hours (86400 seconds)
 export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = siteConfig.url;
-
-  // Static pages
-  const staticPages: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/en`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/en/escorts`,
-      lastModified: new Date(),
-      changeFrequency: "hourly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/en/dating`,
-      lastModified: new Date(),
-      changeFrequency: "hourly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/en/live`,
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/en/events`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/en/jobs`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/en/vip`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/en/about`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-  ];
+  const baseUrl = getSiteConfig({ lang: "en" }).url;
 
   // Add other language versions
   const languagePages: MetadataRoute.Sitemap = locales.flatMap((lang) => [
@@ -83,13 +25,49 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/${lang}/jobs`,
+      lastModified: new Date(),
+      changeFrequency: "hourly",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/${lang}/events`,
+      lastModified: new Date(),
+      changeFrequency: "hourly",
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/${lang}/dating`,
       lastModified: new Date(),
       changeFrequency: "hourly",
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/${lang}/vip`,
+      lastModified: new Date(),
+      changeFrequency: "hourly",
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/${lang}/live`,
+      lastModified: new Date(),
+      changeFrequency: "always",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/${lang}/about`,
+      lastModified: new Date(),
+      changeFrequency: "always",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/${lang}/tos`,
+      lastModified: new Date(),
+      changeFrequency: "always",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/${lang}/privacy`,
       lastModified: new Date(),
       changeFrequency: "always",
       priority: 0.8,
@@ -254,7 +232,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
 
     return [
-      ...staticPages,
       ...languagePages,
       ...escortPages,
       ...vipPageEntries,
@@ -265,6 +242,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch (error) {
     console.error("Error generating sitemap:", error);
     // Return static pages if database fetch fails
-    return [...staticPages, ...languagePages];
+    return [...languagePages];
   }
 }

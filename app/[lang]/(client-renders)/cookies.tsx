@@ -181,14 +181,14 @@ export default function CookieBanner() {
         }}>
   <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center mx-10 pb-2">
           <p className="text-sm mx-2">
-            {dict.cookieMessage}
+            {dict.footer.cookies.cookieMessage}
           </p>
           <div className="flex gap-2 max-md:flex-wrap">
             <Button onClick={handleCookieAccept} className="bg-neutral-700 hover:bg-neutral-600 text-white px-4 text-sm rounded transition cursor-pointer">
-              {dict.accept}
+              {dict.footer.cookies.accept}
             </Button>
             <Button onClick={handleCookieReject} className="bg-red-800 hover:bg-red-600 text-white px-4 text-sm rounded transition cursor-pointer">
-              {dict.reject}
+              {dict.footer.cookies.reject}
             </Button>
           </div>
         </div>

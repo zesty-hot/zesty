@@ -88,9 +88,20 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
   const [sending, setSending] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [profileOpen, setProfileOpen] = useState(false);
-  const [showOfferCard, setShowOfferCard] = useState(true);
+  const [showOfferCard, setShowOfferCard] = useState<boolean | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      localStorage.setItem(`chat-${chatId}-show-offer-card`, showOfferCard === true ? '1' : '0');
+    }
+  }, [showOfferCard, status]);
+
+  useEffect(() => {
+    const storedPreference = localStorage.getItem(`chat-${chatId}-show-offer-card`);
+    setShowOfferCard(storedPreference === '1' ? true : false);
+  }, []);
 
 
   useEffect(() => {
@@ -358,8 +369,8 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
           <ProfileModal slug={chat.otherUser?.slug} open={profileOpen} onOpenChange={setProfileOpen} />
         </div>
         <div className="flex justify-end items-center gap-2">
-          {!showOfferCard && chat.otherUserAd && chat.otherUserAd.active && (
-            <Button variant="ghost" size="lg" onClick={() => setShowOfferCard(true)}>
+          {(showOfferCard === false) && chat.otherUserAd && chat.otherUserAd.active && (
+            <Button variant="outline" size="lg" onClick={() => setShowOfferCard(true)}>
               Show Ad
             </Button>
           )}

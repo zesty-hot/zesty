@@ -1,8 +1,10 @@
 import { Metadata } from "next";
 import { prisma, withRetry } from "@/lib/prisma";
-import { generateMetadata as genMeta, siteConfig } from "@/lib/metadata";
+import { generateMetadata as genMeta, getSiteConfig } from "@/lib/metadata";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { notFound } from "next/navigation";
 import { calculateAge } from "@/lib/calculate-age";
+import { Locale } from "@/lib/i18n/config";
 
 type Props = {
   params: Promise<{ slug: string; lang: string }>;
@@ -15,6 +17,9 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, lang } = await params;
   const decodedSlug = decodeURIComponent(slug);
+  const siteConfig = getSiteConfig({ lang: lang as Locale });
+  const dictionary = getDictionary(lang as Locale);
+  const escortsDict = dictionary?.metadata?.escorts || {};
 
   try {
     // Fetch the escort profile data
@@ -66,8 +71,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // If profile doesn't exist or has no active ads, return basic metadata
     if (!profile || profile.privateAds.length === 0) {
       return genMeta({
-        title: "Profile Not Found",
-        description: "The escort profile you're looking for doesn't exist.",
+        title: escortsDict.not_found_title || "Profile Not Found",
+        description: escortsDict.not_found_description || "The escort profile you're looking for doesn't exist.",
         noIndex: true,
       });
     }
@@ -75,7 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const ad = profile.privateAds[0];
 
     // Build location string
-    const location = profile.suburb || "Available";
+    const location = profile.suburb || escortsDict.available_label || "Available";
 
     // Get services for keywords
     const services = ad.services.map((s) =>
@@ -102,8 +107,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ad.description.length > 155
         ? `${ad.description.substring(0, 152)}...`
         : ad.description
-      : `${ad.title}. ${location ? `Located in ${location}.` : ""} ${startingPrice ? `From $${startingPrice}.` : ""
-      } Book now for premium escort services.`;
+      : `${ad.title}. ${location ? `${escortsDict.located_in_label || 'Located in'} ${location}.` : ""} ${startingPrice ? `From $${startingPrice}.` : ""
+      } ${escortsDict.booking_call_to_action || 'Book now for premium escort services.'}`;
 
     // Build title
     const titleParts = [];
@@ -111,7 +116,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       titleParts.push(profile.title || ad.title);
     }
     if (age) {
-      titleParts.push(`${age} Years Old`);
+      titleParts.push(`${age} ${escortsDict.years_old_label || 'Years Old'}`);
     }
     if (profile.gender) {
       titleParts.push(
@@ -123,32 +128,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     const title =
-      titleParts.join(" - ") || `Verified Escort - ${location || "Available Now"}`;
+      titleParts.join(" - ") || `${escortsDict.verified_escort_prefix || 'Verified Escort -'} ${location || "Available Now"}`;
 
-    // Generate rich metadata
+    // Build keywords from translations + dynamic pieces
+    const baseKeywords: string[] = escortsDict.keywords || [];
+    const templates = escortsDict.keyword_templates || {};
+    const dynamicKeywords = [
+      templates.profile_escort ? templates.profile_escort.replace('{name}', profile.title || profile.slug) : `${profile.title || profile.slug} escort`,
+      templates.by_location ? templates.by_location.replace('{location}', location) : `escort ${location}`,
+      ...services,
+      location || "",
+      templates.verified_escort || 'verified escort',
+      templates.premium_companion || 'premium companion',
+      profile.gender ? (templates.gender_escort ? templates.gender_escort.replace('{gender}', profile.gender.toLowerCase()) : `${profile.gender.toLowerCase()} escort`) : '',
+      profile.bodyType ? (templates.bodytype_escort ? templates.bodytype_escort.replace('{bodyType}', profile.bodyType.toLowerCase()) : `${profile.bodyType.toLowerCase()} escort`) : '',
+    ].filter(Boolean);
+
     return genMeta({
       title,
       description,
       image: imageUrl,
-      keywords: [
-        `escort ${location}`,
-        `${profile.title || profile.slug} escort`,
-        ...services,
-        location,
-        "verified escort",
-        "premium companion",
-        profile.gender ? `${profile.gender.toLowerCase()} escort` : "",
-        profile.bodyType
-          ? `${profile.bodyType.toLowerCase()} escort`
-          : "",
-      ].filter(Boolean),
+      keywords: [...baseKeywords, ...dynamicKeywords].filter(Boolean),
       canonical: `${siteConfig.url}/${lang}/escorts/${slug}`,
     });
   } catch (error) {
     console.error("Error generating escort metadata:", error);
     return genMeta({
-      title: "Escort Profile",
-      description: "View verified escort profiles and services.",
+      title: escortsDict.default_title || "Escort Profile",
+      description: escortsDict.default_description || "View verified escort profiles and services.",
       noIndex: true,
     });
   }

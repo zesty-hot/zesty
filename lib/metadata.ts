@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { getDictionary } from '@/lib/i18n/dictionaries';
+import { defaultLocale, Locale, locales } from "./i18n/config";
 
 /**
  * Site configuration for SEO and metadata
@@ -7,38 +9,30 @@ import type { Metadata } from "next";
  * - Skokka, EscortsAndBabes, Escortify, Tryst (escort directories)
  */
 
-export const siteConfig = {
-  name: "Zesty",
-  title: "Zesty - Adult Dating, Escorts & Entertainment Services",
-  description:
-    "Connect with verified escorts, dating partners, and adult entertainment. Premium adult services directory featuring live streams, events, VIP experiences, and professional opportunities.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://zesty.hot",
-  ogImage: "/og-image.png",
-  keywords: [
-    "adult dating",
-    "escort services",
-    "verified escorts",
-    "adult entertainment",
-    "hookup sites",
-    "casual dating",
-    "adult personals",
-    "companion services",
-    "live adult streams",
-    "adult events",
-    "VIP experiences",
-    "premium escorts",
-    "adult classifieds",
-    "dating hookups",
-    "adult meet ups",
-  ],
-  locale: "en_US",
-  type: "website",
-  // Social media handles (update with your actual handles)
-  social: {
-    twitter: process.env.TWITTER_HANDLE || "@zesty_hot",
-    instagram: process.env.INSTAGRAM_HANDLE || "@zesty_hot",
-  },
-};
+export const getSiteConfig = ({ lang }: { lang: Locale }) => {
+  const dictionary = getDictionary(lang);
+  return {
+    name: dictionary.metadata.site.name,
+    title: dictionary.metadata.site.title,
+    description: dictionary.metadata.site.description,
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://zesty.hot",
+    ogImage: "/og-image.png",
+    keywords: dictionary.metadata.site.keywords,
+    locale: dictionary.metadata.site.locale,
+    type: "website",
+    social: {
+      twitter: dictionary.metadata.site.social.twitter,
+      instagram: dictionary.metadata.site.social.instagram,
+    },
+    openGraph: {
+      images: {
+        alt: dictionary.metadata.openGraph.images.alt,
+      },
+    },
+  };
+}
+
+const siteConfig = getSiteConfig({ lang: defaultLocale }); // English default
 
 /**
  * Default metadata configuration
@@ -73,7 +67,7 @@ export const defaultMetadata: Metadata = {
         url: siteConfig.ogImage,
         width: 1200,
         height: 630,
-        alt: `${siteConfig.name} - Adult Dating & Entertainment`,
+        alt: `${siteConfig.name} - ${siteConfig.openGraph.images.alt}`,
       },
     ],
   },
@@ -109,12 +103,9 @@ export const defaultMetadata: Metadata = {
   // Alternate languages (expand based on your i18n setup)
   alternates: {
     canonical: siteConfig.url,
-    languages: {
-      "en-US": `${siteConfig.url}/en`,
-      "es-ES": `${siteConfig.url}/es`,
-      "fr-FR": `${siteConfig.url}/fr`,
-      "de-DE": `${siteConfig.url}/de`,
-    },
+    // Build alternates.languages from the supported locales so keys match our locale codes
+    // and values point at the locale root path (e.g. https://example.com/en)
+    languages: Object.fromEntries(locales.map((l) => [l, `${siteConfig.url}/${l}`])) as Record<string, string>,
   },
   // App-specific metadata for mobile
   appleWebApp: {
@@ -215,101 +206,74 @@ export function generateMetadata(config: {
 /**
  * Escort directory page metadata
  */
-export const escortsMetadata: Metadata = generateMetadata({
-  title: "Verified Escorts Directory - Premium Companion Services",
-  description:
-    "Browse verified escorts and premium companions in your area. Professional, discreet, and safe adult services with reviews, photos, and instant booking.",
-  keywords: [
-    "verified escorts",
-    "escort directory",
-    "companions",
-    "call girls",
-    "escort reviews",
-    "premium escorts",
-  ],
-});
+export const getEscortsMetadata = ({ lang }: { lang: Locale }): Metadata => {
+  const dictionary = getDictionary(lang);
+  return {
+    title: dictionary.metadata.escorts.title,
+    description: dictionary.metadata.escorts.description,
+    keywords: dictionary.metadata.escorts.keywords,
+  }
+}
 
 /**
  * Dating page metadata
  */
-export const datingMetadata: Metadata = generateMetadata({
-  title: "Adult Dating & Hookups - Meet Singles Near You",
-  description:
-    "Join thousands of singles for casual dating, hookups, and adult encounters. Create your profile, browse matches, and connect with like-minded people tonight.",
-  keywords: [
-    "adult dating",
-    "casual hookups",
-    "meet singles",
-    "dating app",
-    "adult personals",
-    "hookup site",
-  ],
-});
+export const getDatingMetadata = ({ lang }: { lang: Locale }): Metadata => {
+  const dictionary = getDictionary(lang);
+  return {
+    title: dictionary.metadata.dating.title,
+    description: dictionary.metadata.dating.description,
+    keywords: dictionary.metadata.dating.keywords,
+  }
+}
 
 /**
  * Live streaming page metadata
  */
-export const liveMetadata: Metadata = generateMetadata({
-  title: "Live Adult Entertainment - Watch & Interact Now",
-  description:
-    "Watch live adult streams, interact with performers, and enjoy exclusive VIP content. Premium HD streaming with private shows and chat features.",
-  keywords: [
-    "live adult streams",
-    "webcam shows",
-    "live entertainment",
-    "adult performers",
-    "private shows",
-    "cam shows",
-  ],
-});
+export const getLiveMetadata = ({ lang }: { lang: Locale }): Metadata => {
+  const dictionary = getDictionary(lang);
+  return {
+    title: dictionary.metadata.live.title,
+    description: dictionary.metadata.live.description,
+    keywords: dictionary.metadata.live.keywords,
+  }
+}
 
 /**
  * Events page metadata
  */
-export const eventsMetadata: Metadata = generateMetadata({
-  title: "Adult Events & Parties - Exclusive Entertainment",
-  description:
-    "Discover exclusive adult events, parties, and social gatherings. Connect with the community at premium venues and special occasions.",
-  keywords: [
-    "adult events",
-    "adult parties",
-    "swingers events",
-    "adult social",
-    "lifestyle events",
-  ],
-});
+export const getEventsMetadata = ({ lang }: { lang: Locale }): Metadata => {
+  const dictionary = getDictionary(lang);
+  return {
+    title: dictionary.metadata.events.title,
+    description: dictionary.metadata.events.description,
+    keywords: dictionary.metadata.events.keywords,
+  }
+}
 
 /**
  * VIP page metadata
  */
-export const vipMetadata: Metadata = generateMetadata({
-  title: "VIP Premium Content - Exclusive Adult Entertainment",
-  description:
-    "Access exclusive VIP content, premium features, and elite experiences. Join our VIP community for the ultimate adult entertainment.",
-  keywords: [
-    "VIP content",
-    "premium access",
-    "exclusive content",
-    "VIP membership",
-    "elite entertainment",
-  ],
-});
+export const getVipMetadata = ({ lang }: { lang: Locale }): Metadata => {
+  const dictionary = getDictionary(lang);
+  return {
+    title: dictionary.metadata.vip.title,
+    description: dictionary.metadata.vip.description,
+    keywords: dictionary.metadata.vip.keywords,
+  }
+}
 
 /**
  * Jobs page metadata
  */
-export const jobsMetadata: Metadata = generateMetadata({
-  title: "Adult Industry Jobs - Opportunities for Performers & Studios",
-  description:
-    "Find opportunities in the adult entertainment industry. Jobs for performers, models, content creators, and studio positions.",
-  keywords: [
-    "adult industry jobs",
-    "performer opportunities",
-    "model jobs",
-    "studio positions",
-    "adult entertainment careers",
-  ],
-});
+export const getJobsMetadata = ({ lang }: { lang: Locale }): Metadata => {
+  const dictionary = getDictionary(lang);
+  return {
+    title: dictionary.metadata.jobs.title,
+    description: dictionary.metadata.jobs.description,
+    keywords: dictionary.metadata.jobs.keywords,
+  }
+}
 
 /**
  * Generate structured data for SEO (JSON-LD)
@@ -343,7 +307,7 @@ export function generateStructuredData(type: "WebSite" | "Organization") {
       logo: `${siteConfig.url}/logo.png`,
       description: siteConfig.description,
       sameAs: [
-        `https://twitter.com/${siteConfig.social.twitter.replace("@", "")}`,
+        `https://x.com/${siteConfig.social.twitter.replace("@", "")}`,
         `https://instagram.com/${siteConfig.social.instagram.replace("@", "")}`,
       ],
     };
