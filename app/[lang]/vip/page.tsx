@@ -24,6 +24,7 @@ import {
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { CommentSheet } from "@/components/vip/comment-sheet";
 
 interface FeedContentItem {
   id: string;
@@ -91,6 +92,7 @@ export default function Page() {
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [activeCommentContentId, setActiveCommentContentId] = useState<string | null>(null);
   const hasLoadedRef = useRef(false);
 
   useEffect(() => {
@@ -176,6 +178,14 @@ export default function Page() {
     } catch (error) {
       console.error('Error liking content:', error);
     }
+  };
+
+  const handleCommentAdded = (contentId: string) => {
+    setFeedContent(prev => prev.map(item =>
+      item.id === contentId
+        ? { ...item, commentsCount: item.commentsCount + 1 }
+        : item
+    ));
   };
 
   const handleUsernameSearch = async (username: string, filters: FilterData) => {
@@ -387,6 +397,7 @@ export default function Page() {
                     key={item.id}
                     item={item}
                     onLike={() => handleLike(item.id)}
+                    onCommentClick={() => setActiveCommentContentId(item.id)}
                     lang={lang as string}
                   />
                 ))}
@@ -438,6 +449,13 @@ export default function Page() {
             </div>
           )}
         </div>
+
+        <CommentSheet
+          contentId={activeCommentContentId}
+          isOpen={!!activeCommentContentId}
+          onOpenChange={(open) => !open && setActiveCommentContentId(null)}
+          onCommentAdded={handleCommentAdded}
+        />
       </div>
     );
   }
@@ -626,10 +644,12 @@ export default function Page() {
 function FeedCard({
   item,
   onLike,
+  onCommentClick,
   lang
 }: {
   item: FeedContentItem;
   onLike: () => void;
+  onCommentClick: () => void;
   lang: string;
 }) {
   const [isBlurred, setIsBlurred] = useState(item.NSFW);
@@ -763,7 +783,10 @@ function FeedCard({
             />
             <span className="font-medium">{item.likesCount}</span>
           </button>
-          <button className="flex items-center gap-2 text-sm hover:text-blue-500 transition-colors">
+          <button
+            onClick={onCommentClick}
+            className="flex items-center gap-2 text-sm hover:text-blue-500 transition-colors"
+          >
             <MessageCircle className="w-5 h-5" />
             <span className="font-medium">{item.commentsCount}</span>
           </button>
@@ -800,63 +823,42 @@ function CreatorCard({ creator, lang }: { creator: FeaturedCreator; lang: string
                 )}
               />
               {(creator.image.NSFW && false) && (
-                <div className="absolute top-4 right-4">
-                  <Badge variant="destructive">NSFW</Badge>
+                <div className="absolute top-2 right-2 z-10">
+                  <Badge variant="destructive" className="shadow-sm">NSFW</Badge>
                 </div>
               )}
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-muted-foreground">
-              {creator.slug[0]?.toUpperCase()}
-            </div>
-          )}
-
-          {/* Free Badge */}
-          {creator.isFree && (
-            <div className="absolute top-3 left-3">
-              <Badge className="bg-green-500 hover:bg-green-600">
-                FREE
-              </Badge>
+            <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-muted-foreground/50">
+              {creator.slug[0].toUpperCase()}
             </div>
           )}
         </div>
 
-        {/* Creator Info */}
-        <div className="p-4 space-y-3">
-          <div>
-            <h3 className="font-semibold text-lg mb-1 group-hover:text-purple-500 transition-colors">
-              {creator.title}
-            </h3>
-            <p className="text-sm text-muted-foreground">@{creator.slug}</p>
+        {/* Info */}
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="font-semibold truncate">{creator.title || creator.slug}</h3>
+            {creator.isFree ? (
+              <Badge variant="secondary" className="bg-green-500/10 text-green-600 hover:bg-green-500/20">Free</Badge>
+            ) : (
+              <Badge variant="secondary" className="bg-purple-500/10 text-purple-600 hover:bg-purple-500/20">
+                ${(creator.price / 100).toFixed(2)} / month
+              </Badge>
+            )}
           </div>
-
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {creator.description}
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-3 h-10">
+            {creator.description || `Check out ${creator.slug}'s exclusive content!`}
           </p>
-
-          {/* Stats */}
-          <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <Users className="w-3 h-3" />
-              <span>{creator.subscribersCount} subscribers</span>
+              <span>{creator.subscribersCount}</span>
             </div>
             <div className="flex items-center gap-1">
               <ImageIcon className="w-3 h-3" />
-              <span>{creator.contentCount} posts</span>
+              <span>{creator.contentCount}</span>
             </div>
-          </div>
-
-          {/* Price */}
-          <div className="pt-2">
-            {creator.isFree ? (
-              <Button className="w-full" size="sm">
-                Follow for Free
-              </Button>
-            ) : (
-              <Button className="w-full" size="sm" variant="outline">
-                ${(creator.price / 100).toFixed(2)}/month
-              </Button>
-            )}
           </div>
         </div>
       </div>

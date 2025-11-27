@@ -40,6 +40,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { StartChatButton } from "@/components/start-chat-button";
 import { Spinner } from "@/components/ui/spinner";
 import { VIPFollowButton } from "@/components/vip/vip-follow-button";
+import { CommentSheet } from "@/components/vip/comment-sheet";
+import ProfileModal from "@/components/profile-modal";
 
 interface VIPProfileData {
   liveStreamPage: boolean;
@@ -104,6 +106,8 @@ export default function VIPProfilePage() {
   const [viewMode, setViewMode] = useState<'feed' | 'grid'>('feed');
   const [cursor, setCursor] = useState<string | null>(null);
   const [isHoveringSubscribed, setIsHoveringSubscribed] = useState(false);
+  const [activeCommentContentId, setActiveCommentContentId] = useState<string | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
   const hasLoadedRef = useRef(false);
 
   useEffect(() => {
@@ -181,6 +185,18 @@ export default function VIPProfilePage() {
     }
   };
 
+  const handleCommentAdded = (contentId: string) => {
+    if (!profile) return;
+    setProfile({
+      ...profile,
+      content: profile.content.map(item =>
+        item.id === contentId
+          ? { ...item, commentsCount: item.commentsCount + 1 }
+          : item
+      ),
+    });
+  };
+
   const handleReport = () => {
     // Stub function for reporting
     console.log('Report feature coming soon');
@@ -238,7 +254,7 @@ export default function VIPProfilePage() {
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start md:items-end">
           {/* Avatar */}
           <div className="relative">
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-background overflow-hidden bg-muted shadow-xl">
+            <div onClick={() => setProfileOpen(true)} className="cursor-pointer w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-background overflow-hidden bg-muted shadow-xl">
               {profile.user.image ? (
                 <img
                   src={profile.user.image}
@@ -276,7 +292,7 @@ export default function VIPProfilePage() {
 
           {/* Profile Info */}
           <div className="flex-1 space-y-2">
-            <div>
+            <div className="cursor-pointer hover:underline" onClick={() => setProfileOpen(true)}>
               <div className="flex">
                 <h1 className="hidden xl:block text-3xl font-bold text-foreground">
                   {(profile.title && (profile.title.length > 60 ? profile.title.slice(0, 60) + '...' : profile.title)) || (profile.user.slug ? (profile.user.slug.length > 60 ? profile.user.slug.slice(0, 60) + '...' : profile.user.slug) : '')}
@@ -295,6 +311,7 @@ export default function VIPProfilePage() {
                 <p className="text-muted-foreground">@{profile.user.slug}</p>
               )}
             </div>
+            <ProfileModal slug={profile.user.slug} open={profileOpen} onOpenChange={setProfileOpen} />
 
             {/* Stats */}
             <div className="flex flex-wrap gap-6 text-sm md:-mb-2">
@@ -319,45 +336,10 @@ export default function VIPProfilePage() {
 
           {/* Action Buttons */}
           {!profile.isOwnPage && (
-            <div className="w-full md:w-auto flex flex-col gap-2 md:-mb-14 lg:-mb-20">
-              {/* Other Pages Dropdown */}
-              {(profile.hasActiveEscort || profile.liveStreamPage) && (
-                <Menu>
-                  <MenuTrigger render={
-                    <Button variant="outline" size="lg" className="w-full">
-                      <span>Other Pages</span>
-                      <ChevronDown className="w-4 h-4 ml-2" />
-                    </Button>
-                  } />
-                  <MenuPopup>
-                    {profile.hasActiveEscort ? (
-                      <Link href={`/${lang}/escorts/${profile.user.slug}`} className="cursor-pointer w-full">
-                        <MenuItem className="flex items-center gap-2 cursor-pointer w-full">
-                          <Coffee className="w-4 h-4" />
-                          Escort Profile
-                        </MenuItem>
-                      </Link>
-                    ) : (
-                      <MenuItem className="flex items-center gap-2 opacity-40 pointer-events-none">
-                        <Coffee className="w-4 h-4" />
-                        Escort Profile
-                      </MenuItem>
-                    )}
-                    {profile.liveStreamPage ? (
-                      <Link href={`/${lang}/live/${profile.user.slug}`} className="cursor-pointer">
-                        <MenuItem className="flex items-center gap-2 cursor-pointer w-full">
-                          <Webcam className="w-4 h-4" />
-                          Live Streams
-                        </MenuItem>
-                      </Link>
-                    ) : (
-                      <MenuItem className="flex items-center gap-2 opacity-40 pointer-events-none">
-                        <Webcam className="w-4 h-4" />
-                        Live Streams
-                      </MenuItem>
-                    )}
-                  </MenuPopup>
-                </Menu>
+            // <div className="w-full md:w-auto flex flex-col gap-2 md:-mb-14 lg:-mb-20">
+            <div className="w-full md:w-auto flex flex-col gap-2 md:-mb-14">
+              {(profile.user && profile.user.slug && profile.hasActiveSubscription) && (
+                <StartChatButton className="text-base" otherUserSlug={profile.user.slug} lang={lang as string} />
               )}
 
               {/* Subscription Buttons */}
@@ -429,6 +411,7 @@ export default function VIPProfilePage() {
                 item={item}
                 canViewContent={canViewContent}
                 onLike={() => handleLike(item.id)}
+                onCommentClick={() => setActiveCommentContentId(item.id)}
                 user={profile.user}
               />
             ))}
@@ -442,6 +425,7 @@ export default function VIPProfilePage() {
                 item={item}
                 canViewContent={canViewContent}
                 onLike={() => handleLike(item.id)}
+                onCommentClick={() => setActiveCommentContentId(item.id)}
               />
             ))}
           </div>
@@ -469,6 +453,13 @@ export default function VIPProfilePage() {
           </div>
         )}
       </div>
+
+      <CommentSheet
+        contentId={activeCommentContentId}
+        isOpen={!!activeCommentContentId}
+        onOpenChange={(open) => !open && setActiveCommentContentId(null)}
+        onCommentAdded={handleCommentAdded}
+      />
     </div>
   );
 }
@@ -477,11 +468,13 @@ function FeedCard({
   item,
   canViewContent,
   onLike,
+  onCommentClick,
   user
 }: {
   item: ContentItem;
   canViewContent: boolean;
   onLike: () => void;
+  onCommentClick: () => void;
   user: VIPProfileData['user'];
 }) {
   const [isBlurred, setIsBlurred] = useState(item.NSFW);
@@ -629,7 +622,10 @@ function FeedCard({
               />
               <span className="font-medium">{item.likesCount}</span>
             </button>
-            <button className="flex items-center gap-2 text-sm hover:text-blue-500 transition-colors">
+            <button
+              onClick={onCommentClick}
+              className="flex items-center gap-2 text-sm hover:text-blue-500 transition-colors"
+            >
               <MessageCircle className="w-5 h-5" />
               <span className="font-medium">{item.commentsCount}</span>
             </button>
@@ -649,11 +645,13 @@ function FeedCard({
 function ContentCard({
   item,
   canViewContent,
-  onLike
+  onLike,
+  onCommentClick
 }: {
   item: ContentItem;
   canViewContent: boolean;
   onLike: () => void;
+  onCommentClick: () => void;
 }) {
   const [showDetails, setShowDetails] = useState(false);
   const [isBlurred, setIsBlurred] = useState(item.NSFW);
@@ -730,7 +728,13 @@ function ContentCard({
               <Heart className={cn("w-5 h-5", item.isLiked && "fill-red-500 text-red-500")} />
               <span className="font-semibold">{item.likesCount}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div
+              className="flex items-center gap-2 cursor-pointer hover:text-blue-400"
+              onClick={(e) => {
+                e.stopPropagation();
+                onCommentClick();
+              }}
+            >
               <MessageCircle className="w-5 h-5" />
               <span className="font-semibold">{item.commentsCount}</span>
             </div>

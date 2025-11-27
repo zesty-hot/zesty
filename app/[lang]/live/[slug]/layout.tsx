@@ -111,16 +111,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             ? `${streamPage.user.bio.substring(0, 152)}...`
             : streamPage.user.bio
           : (() => {
-              const channelFrom = liveDict.channel_from ?? "";
-              const followersLabel = liveDict.followers_label ?? "";
-              const callToAction = liveDict.call_to_action ?? "";
-              const subject = streamPage.user.title || streamPage.user.slug;
-              const parts: string[] = [];
-              parts.push(channelFrom ? `${channelFrom} ${subject}.` : `${subject}`);
-              if (typeof streamPage._count?.followers === 'number' && followersLabel) parts.push(`${streamPage._count.followers} ${followersLabel}`);
-              if (callToAction) parts.push(callToAction);
-              return parts.filter(Boolean).join(' ');
-            })();
+            const channelFrom = liveDict.channel_from ?? "";
+            const followersLabel = liveDict.followers_label ?? "";
+            const callToAction = liveDict.call_to_action ?? "";
+            const subject = streamPage.user.title || streamPage.user.slug;
+            const parts: string[] = [];
+            parts.push(channelFrom ? `${channelFrom} ${subject}.` : `${subject}`);
+            if (typeof streamPage._count?.followers === 'number' && followersLabel) parts.push(`${streamPage._count.followers} ${followersLabel}`);
+            if (callToAction) parts.push(callToAction);
+            return parts.filter(Boolean).join(' ');
+          })();
 
     // Build title
     const titleParts = [];

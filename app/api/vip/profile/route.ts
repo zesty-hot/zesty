@@ -21,11 +21,6 @@ export async function POST(req: NextRequest) {
     const supaBase = await serverSupabase();
     const { data: session } = await supaBase.auth.getUser();
 
-    const user = await withRetry(() => prisma.user.findUnique({
-      where: { supabaseId: session?.user?.id },
-      select: { zesty_id: true },
-    }));
-
     // Step 4: fetch VIP page
     let vipPage = await withRetry(() => prisma.vIPPage.findFirst({
       where: {
@@ -77,9 +72,20 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 6: check subscription
-    let hasActiveSubscription = false;
-    const isOwnPage = user?.zesty_id === vipPage.zesty_id;
+    let user: { zesty_id: string } | null = null;
+    if (session.user) {
+      user = await withRetry(() => prisma.user.findUnique({
+        where: { supabaseId: session?.user?.id },
+        select: { zesty_id: true },
+      }));
+    }
 
+    let isOwnPage: boolean = false;
+    if (user?.zesty_id) {
+      isOwnPage = user?.zesty_id === vipPage.zesty_id;
+    }
+
+    let hasActiveSubscription = false;
     if (user?.zesty_id && !isOwnPage) {
       try {
         const subscription = await withRetry(() => prisma.vIPSubscription.findUnique({

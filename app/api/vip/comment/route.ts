@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const contentId = searchParams.get('contentId');
-    
+
     if (!contentId) {
       return NextResponse.json(
         { error: 'Content ID is required' },
@@ -25,6 +25,11 @@ export async function GET(req: NextRequest) {
             zesty_id: true,
             slug: true,
             verified: true,
+            images: {
+              where: { default: true },
+              select: { url: true },
+              take: 1,
+            },
           },
         },
       },
@@ -55,7 +60,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { contentId, text } = await req.json();
-    
+
     if (!contentId || !text) {
       return NextResponse.json(
         { error: 'Content ID and text are required' },
@@ -76,7 +81,7 @@ export async function POST(req: NextRequest) {
     const user = await withRetry(() => prisma.user.findUnique({
       where: { supabaseId: (session?.user as any)?.id },
     }));
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'User not found' },
