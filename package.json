@@ -23,7 +23,7 @@
     "@origin-space/image-cropper": "^0.1.9",
     "@prisma/adapter-pg": "^7.0.1",
     "@prisma/client": "^7.0.0",
-    "@prisma/extension-accelerate": "^2.0.2",
+    "@prisma/extension-accelerate": "^3.0.0",
     "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@remixicon/react": "^4.7.0",
