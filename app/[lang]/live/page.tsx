@@ -352,10 +352,10 @@ export default function Page() {
                 <p className="text-sm text-muted-foreground mb-4">
                   Start your own channel and build your audience
                 </p>
-                  <Button className="w-full" onClick={() => document.getElementById('get-started-button')?.click()}>
-                    Start Streaming
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
+                <Button className="w-full" onClick={() => document.getElementById('get-started-button')?.click()}>
+                  Start Streaming
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
               </div>
             )}
           </div>
@@ -441,12 +441,12 @@ export default function Page() {
                       Start your own channel and connect with your audience in real-time
                     </p>
                   </div>
-                  <Link href={`/${lang}/dash/live`} className="shrink-0">
-                    <Button size="lg" className="w-full">
+                  <div className="shrink-0">
+                    <Button size="lg" className="w-full" onClick={() => document.getElementById('get-started-button')?.click()}>
                       Start Streaming
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
-                  </Link>
+                  </div>
                 </div>
               </div>
             )}

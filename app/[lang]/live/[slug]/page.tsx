@@ -309,11 +309,6 @@ export default function LiveStreamPage() {
 
                 {/* Streamer Info */}
                 <div className="flex flex-col md:flex-row lg:flex-col xl:flex-row md:items-center lg:items-baseline xl:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
-
-                  {/* <button
-                    className="flex items-center gap-3 pb-4 md:pb-0 lg:pb-4 xl:pb-0"
-                    aria-label={`Open profile for ${channel.user.slug || 'user'}`}
-                  > */}
                   <div className="flex md:pb-0 lg:pb-4 xl:pb-0 gap-3">
                     <div onClick={() => setProfileOpen(true)} className="w-12 h-12 rounded-full overflow-hidden bg-muted  cursor-pointer">
                       {channel.user.images[0]?.url ? (
@@ -341,78 +336,9 @@ export default function LiveStreamPage() {
                   {/* </button> */}
                   <ProfileModal slug={channel.user.slug} open={profileOpen} onOpenChange={setProfileOpen} />
 
-
-
-                  {/* <Link href={`/${lang}/vip/${channel.user.slug}`} className="flex items-center gap-3 pb-4 md:pb-0 lg:pb-4 xl:pb-0">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
-                      {channel.user.images[0]?.url ? (
-                        <img
-                          src={channel.user.images[0].url}
-                          alt={channel.user.slug || 'Streamer'}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center font-bold">
-                          {channel.user.slug?.[0]?.toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-semibold">{channel.user.slug}</p>
-                      {channel.user.suburb && (
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {channel.user.suburb}
-                        </p>
-                      )}
-                    </div>
-                  </Link> */}
-
                   {!channel.isOwner && (
                     <div className="flex gap-2 flex-wrap w-full md:w-auto lg:w-full xl:w-auto"
                     >
-                      {/* <div className="flex gap-2 flex-col w-full md:w-auto lg:w-full xl:w-auto">
-                        {(channel.user.vipPage || channel.user.privateAds.length > 0) && (
-                          <Menu>
-                            <MenuTrigger render={
-                              <Button variant="outline" size="lg" className="w-full md:w-auto lg:w-full xl:w-auto">
-                                <span className="inline">Other Pages</span>
-                                <ChevronDown className="w-4 h-4 ml-2" />
-                              </Button>
-                            } />
-                            <MenuPopup>
-                              {channel.user.privateAds.length > 0 ? (
-                                <Link href={`/${lang}/escorts/${channel.user.slug}`} className="cursor-pointer w-full">
-                                  <MenuItem className="flex items-center gap-2 cursor-pointer w-full">
-                                    <Coffee className="w-4 h-4" />
-                                    Escort Profile
-                                  </MenuItem>
-                                </Link>
-                              ) : (
-                                <MenuItem className="flex items-center gap-2 opacity-40 pointer-events-none">
-                                  <Coffee className="w-4 h-4" />
-                                  Escort Profile
-                                </MenuItem>
-                              )}
-                              {channel.user.vipPage ? (
-                                <Link href={`/${lang}/vip/${channel.user.slug}`} className="cursor-pointer">
-                                  <MenuItem className="flex items-center gap-2 cursor-pointer w-full">
-                                    <Camera className="w-4 h-4" />
-                                    VIP Content
-                                  </MenuItem>
-                                </Link>
-                              ) : (
-                                <MenuItem className="flex items-center gap-2 opacity-40 pointer-events-none">
-                                  <Camera className="w-4 h-4" />
-                                  VIP Content
-                                </MenuItem>
-                              )}
-                            </MenuPopup>
-                          </Menu>
-                        )}
-                      </div> */}
-
-
                       <Button onClick={toggleFollow} className="px-4 sm:px-6 flex-1 md:flex-initial lg:flex-1 xl:flex-initial" variant={isFollowing ? "outline" : "default"}>
                         {isFollowing ? 'Unfollow' : 'Follow'}
                       </Button>
@@ -493,7 +419,7 @@ export default function LiveStreamPage() {
             <div className="space-y-6">
               {/* Header */}
               <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-muted shrink-0">
+                <div onClick={() => { setProfileOpen(true) }} className="cursor-pointer w-24 h-24 rounded-full overflow-hidden bg-muted shrink-0">
                   {channel.user.images[0]?.url ? (
                     <img
                       src={channel.user.images[0].url}
@@ -508,8 +434,10 @@ export default function LiveStreamPage() {
                 </div>
 
                 <div className="flex-1">
-                  <h1 className="text-2xl sm:text-3xl font-bold mb-2">{channel.user.slug}'s Channel</h1>
-                  <p className="text-base sm:text-lg text-muted-foreground mb-2">@{channel.user.slug}</p>
+                  <span onClick={() => { setProfileOpen(true) }} className="cursor-pointer hover:underline">
+                    <h1 className="text-2xl sm:text-3xl font-bold mb-1">{channel.user.slug}'s Channel</h1>
+                    <p className="text-base sm:text-lg text-muted-foreground mb-1">@{channel.user.slug}</p>
+                  </span>
                   {channel.user.suburb && (
                     <p className="text-muted-foreground flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
@@ -521,10 +449,12 @@ export default function LiveStreamPage() {
                   </p>
                 </div>
 
+                <ProfileModal slug={channel.user.slug} open={profileOpen} onOpenChange={setProfileOpen} />
+
                 <div className="flex gap-2 flex-col w-full sm:w-auto">
                   {!channel.isOwner && (
                     <>
-                      {(channel.user.vipPage || channel.user.privateAds.length > 0) && (
+                      {/* {(channel.user.vipPage || channel.user.privateAds.length > 0) && (
                         <Menu>
                           <MenuTrigger render={
                             <Button variant="outline" size="lg" className="w-full sm:w-auto">
@@ -562,7 +492,7 @@ export default function LiveStreamPage() {
                             )}
                           </MenuPopup>
                         </Menu>
-                      )}
+                      )} */}
                       <Button onClick={toggleFollow} variant={isFollowing ? "outline" : "default"} size="lg">
                         {isFollowing ? 'Unfollow' : 'Follow'}
                       </Button>

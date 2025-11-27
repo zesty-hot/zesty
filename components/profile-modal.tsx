@@ -292,7 +292,7 @@ export function ProfileModal({
                               <Heart className="h-4 w-4" />
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-sm font-semibold text-rose-900 dark:text-rose-100">Escort Profile</span>
+                              <span className="text-sm font-semibold text-rose-900 dark:text-rose-100">Companion Profile</span>
                               <span className="text-xs text-rose-700 dark:text-rose-300/70">View full booking details</span>
                             </div>
                           </div>

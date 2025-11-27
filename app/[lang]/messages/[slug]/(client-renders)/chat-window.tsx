@@ -200,7 +200,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
 
   // Try to find the current user's default image URL from existing chat data
   function getCurrentUserImageUrl(fromChat?: ChatData | null) {
-    const myId = session?.user.id;
+    const myId = user?.zesty_id;
     if (!myId || !fromChat) return undefined;
 
     // Look for any message sent by the current user that already includes sender.images
@@ -250,6 +250,9 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
   }
 
   async function sendMessage(e: React.FormEvent) {
+    if (!user || status === "unauthenticated") {
+      return;
+    }
     e.preventDefault();
 
     if (!newMessage.trim() || sending) return;
@@ -264,10 +267,10 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
       id: tempId,
       content: messageContent,
       createdAt: new Date(),
-      senderId: (session?.user as any)?.id,
+      senderId: user?.zesty_id,
       sender: {
-        id: (session?.user as any)?.id,
-        slug: (session?.user as any)?.slug || null,
+        id: user?.zesty_id,
+        slug: user?.slug || null,
         images: [{ url: getCurrentUserImageUrl(chat) || '' }], // Use existing image URL if available
       },
     };
