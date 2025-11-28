@@ -384,11 +384,11 @@ export default function Page() {
                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                   Start following creators to see their exclusive content here
                 </p>
-                <Link href={`/${lang}/vip/discover`}>
+                {/* <Link href={`/${lang}/vip/discover`}>
                   <Button>
                     Discover Creators
                   </Button>
-                </Link>
+                </Link> */}
               </div>
             ) : (
               <div className="space-y-6">
@@ -435,11 +435,11 @@ export default function Page() {
                   <Sparkles className="w-5 h-5 text-purple-500" />
                   <h2 className="text-xl font-bold">Featured Creators</h2>
                 </div>
-                <Link href={`/${lang}/vip/discover`}>
+                {/* <Link href={`/${lang}/vip/discover`}>
                   <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                     View All <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
-                </Link>
+                </Link> */}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {featuredCreators.slice(0, 4).map((creator) => (

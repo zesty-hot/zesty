@@ -18,6 +18,7 @@ import {
   MoreHorizontal,
   Send,
   DollarSign,
+  AlertTriangle,
 } from "lucide-react";
 import { StartChatButton } from "@/components/start-chat-button";
 import { useSupabaseSession } from "@/lib/supabase/client";
@@ -143,7 +144,6 @@ export default function EventPage() {
         title: "Please sign in to join the event.",
         type: "warning",
       });
-      router.push(`/${lang}/auth/signin`);
       return;
     }
 
@@ -253,13 +253,16 @@ export default function EventPage() {
       <div className="min-h-screen bg-background">
         {/* Header */}
         <div className="border-b">
-          <div className="container mx-auto px-4 py-4">
-            <Link href={`/${lang}/events`}>
+          <div className="container mx-auto px-4 py-4 flex">
+            <Link href={`/${lang}/events`} className="flex-1">
               <Button variant="ghost" size="lg">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
             </Link>
+            <Button variant="ghost" className="flex">
+              <AlertTriangle className="w-4 h-4" />
+            </Button>
           </div>
         </div>
 
@@ -367,13 +370,6 @@ export default function EventPage() {
                         </div>
                       </button>
                       <ProfileModal slug={event.organizer.slug} open={profileOpen} onOpenChange={setProfileOpen} />
-
-
-                      {/* 
-                      <StartChatButton variant="ghost" otherUserSlug={event.organizer.slug as string}>
-                        {event.organizer.slug}
-                        {event.organizer.verified && " ✓"}
-                      </StartChatButton> */}
                     </div>
                   </div>
                 </div>
@@ -428,15 +424,16 @@ export default function EventPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href={`/${lang}/events`}>
-              <Button variant="ghost" size="lg">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-            </Link>
-          </div>
+        <div className="container mx-auto px-4 py-4 flex">
+          <Link href={`/${lang}/events`} className="flex-1">
+            <Button variant="ghost" size="lg">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+          </Link>
+          <Button variant="ghost" className="flex">
+            <AlertTriangle className="w-4 h-4" />
+          </Button>
         </div>
       </div>
 
@@ -534,7 +531,7 @@ export default function EventPage() {
                     </div>
 
                     {/* Post Content */}
-                    <p className="mb-3 whitespace-pre-line">{post.content}</p>
+                    <p className="mb-3 whitespace-pre-line font-light">{post.content}</p>
 
                     {/* Comments */}
                     {post.comments && post.comments.length > 0 && (

@@ -59,7 +59,14 @@ export async function GET() {
               select: { active: true }
             },
             liveStreamPage: {
-              select: { active: true }
+              select: {
+                active: true,
+                streams: {
+                  where: { isLive: true },
+                  select: { id: true, isLive: true },
+                  take: 1
+                }
+              }
             },
             images: {
               select: { url: true, default: true, NSFW: true },
@@ -121,6 +128,7 @@ export async function GET() {
     const profile = {
       ad: ad,
       liveStreamPage: ad.worker.liveStreamPage?.active || false,
+      isLive: (ad.worker.liveStreamPage?.streams && ad.worker.liveStreamPage.streams.length > 0 && ad.worker.liveStreamPage.streams[0].isLive) || false,
       vip: ad.worker.vipPage?.active || false,
       slug: ad.worker.slug || ad.title || 'Featured Profile',
       location: ad.worker.suburb || 'Unknown location',

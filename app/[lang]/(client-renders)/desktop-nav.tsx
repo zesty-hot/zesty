@@ -3,7 +3,7 @@
 import ThemeToggle from "./theme";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/origin_ui_old/button";
-import { BookMarked, ScanFace } from "lucide-react";
+import { Bell, BookMarked, ScanFace } from "lucide-react";
 import {
   RiFacebookFill,
   RiGoogleFill
@@ -12,6 +12,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { UnreadMessagesBadge } from "@/app/[lang]/(client-renders)/unread-messages-badge";
 import { useSupabaseSession } from "@/lib/supabase/client";
+import { NotificationsSheet } from "@/components/notifications-sheet";
 
 export default function DesktopNav() {
   const { data: session, status, supabase } = useSupabaseSession();
@@ -35,7 +36,6 @@ export default function DesktopNav() {
           <Link href={`/${lang}/events`} className="hover:text-foreground">Events</Link>
           <Link href={`/${lang}/dating`} className="hover:text-foreground">Meet</Link>
         </div>
-
 
         {/* Animated authenticated row: collapse horizontally when unauthenticated to avoid empty gap */}
         <section
@@ -80,10 +80,16 @@ export default function DesktopNav() {
           </div>
         </section>
 
+        {/* // TODO: Fix too many icons */}
         {status === "authenticated" && (
           <Link href={`/${lang}/favourites`} className="relative focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:shrink-0 [&amp;_svg:not([class*='size-'])]:size-4 bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 border shadow-xs size-9">
             <BookMarked />
           </Link>
+        )}
+        {status === "authenticated" && (
+          <NotificationsSheet className="relative focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 border shadow-xs size-9 cursor-pointer">
+            <Bell />
+          </NotificationsSheet>
         )}
         {/* Get Started Button - redirect to dashboard if logged in, or show dialog */}
         {status === "authenticated" && (
@@ -150,7 +156,7 @@ export default function DesktopNav() {
             </DialogContent>
           </Dialog>
         )}
-        <ThemeToggle />
+        <ThemeToggle className="min-[1023px]:max-[1080px]:hidden" />
       </div>
     </nav>
   );

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Stepper, Step, StepperIndicator, useStepper } from "@/components/ui/stepper";
+import { Stepper, Step, StepperIndicator, StepperProgress, useStepper } from "@/components/ui/stepper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,7 +39,7 @@ function StepContent() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  
+
   // For suburb/city search
   const [searchQuery, setSearchQuery] = useState("");
   const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
@@ -158,17 +158,17 @@ function StepContent() {
         const error = await response.json();
         throw new Error(error.message || "Failed to complete onboarding");
       }
-      
+
 
       // TODO check if update() session is needed
-      
+
       toastManager.add({ title: "Welcome! Your profile is ready 🎉", type: "success" });
       router.push("/");
       router.refresh();
     } catch (error) {
       console.error("Onboarding error:", error);
-      toastManager.add({ 
-        title: "Error", 
+      toastManager.add({
+        title: "Error",
         description: error instanceof Error ? error.message : "Failed to complete onboarding",
         type: "error"
       });
@@ -481,12 +481,11 @@ function StepContent() {
           </p>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="suburb">Suburb/City</Label>
           <Combobox
             value={locationSuggestions.find(l => l.label === data.suburb)?.value || null}
             onValueChange={handleLocationSelect}
           >
-            <div className="relative w-full">
+            <div className="relative w-full mx-auto">
               <ComboboxInput
                 id="suburb"
                 placeholder="Search for your suburb or city"
@@ -497,7 +496,7 @@ function StepContent() {
             </div>
 
             {searchQuery.length > 1 && (
-              <ComboboxPopup>
+              <ComboboxPopup className="w-(--anchor-width)">
                 <ComboboxList>
                   {isLoadingSuggestions ? (
                     <div className="p-2 text-center text-sm text-muted-foreground">
@@ -522,9 +521,9 @@ function StepContent() {
             )}
           </Combobox>
         </div>
-        <Button 
-          onClick={handleComplete} 
-          className="w-full" 
+        <Button
+          onClick={handleComplete}
+          className="w-full"
           size="lg"
           disabled={isSubmitting}
         >
@@ -549,9 +548,9 @@ export default function OnboardingPage() {
 
   if (status === "loading") {
     return (
-    <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
-      <Spinner className="size-8 text-muted-foreground"/>
-    </div>
+      <div className="flex items-center justify-center h-[calc(100vh-16rem)] min-h-52">
+        <Spinner className="size-8 text-muted-foreground" />
+      </div>
     );
   }
 
@@ -566,7 +565,7 @@ export default function OnboardingPage() {
         </CardHeader>
         <CardContent>
           <Stepper totalSteps={7}>
-            <StepperIndicator className="mb-8" />
+            <StepperProgress className="mb-8" />
             <StepContent />
           </Stepper>
         </CardContent>

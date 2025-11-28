@@ -137,7 +137,15 @@ export default function SettingsPage() {
                     Sign out of your account on this device
                   </p>
                 </div>
-                <Button onClick={() => supabase.auth.signOut()} variant="outline" size="lg" className="whitespace-nowrap">
+                <Button onClick={() => {
+                  supabase.auth.signOut();
+                  toastManager.add({
+                    title: "Goodbye",
+                    description: "Signed out succesfully.",
+                    type: "success",
+                  });
+                  router.push(`/${lang}`);
+                }} variant="outline" size="lg" className="whitespace-nowrap">
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
                 </Button>

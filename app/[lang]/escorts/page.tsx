@@ -167,6 +167,7 @@ export default function Page() {
     const loadFeaturedProfile = async () => {
       setIsLoadingFeatured(true);
       const profile = await fetchFeaturedProfile();
+      console.log(profile);
       setFeaturedProfile(profile);
       setIsLoadingFeatured(false);
     };

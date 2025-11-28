@@ -92,6 +92,7 @@ export default function EscortSlugPage() {
       if (response.ok) {
         const data = await response.json();
         setProfile(data);
+        console.log(data);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);

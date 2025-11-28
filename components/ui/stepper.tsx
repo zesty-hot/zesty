@@ -104,6 +104,36 @@ function StepperIndicator({ className }: StepperIndicatorProps) {
   );
 }
 
+interface StepperProgressProps {
+  className?: string;
+}
+
+function StepperProgress({ className }: StepperProgressProps) {
+  const { currentStep, totalSteps } = useStepper();
+
+  return (
+    <div className={cn("flex w-full gap-2", className)}>
+      {Array.from({ length: totalSteps }).map((_, index) => {
+        const isCompleted = index < currentStep;
+        const isCurrent = index === currentStep;
+
+        return (
+          <div
+            key={index}
+            className={cn(
+              "h-2 w-full rounded-full transition-all",
+              {
+                "bg-primary": isCompleted || isCurrent,
+                "bg-muted": !isCompleted && !isCurrent,
+              }
+            )}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 interface StepProps {
   children: React.ReactNode;
   className?: string;
@@ -113,4 +143,4 @@ function Step({ children, className }: StepProps) {
   return <div className={cn("w-full", className)}>{children}</div>;
 }
 
-export { Stepper, Step, StepperIndicator, useStepper };
+export { Stepper, Step, StepperIndicator, StepperProgress, useStepper };

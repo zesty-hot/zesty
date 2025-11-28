@@ -40,6 +40,7 @@ type UserWithDistance = {
   averageRating: number;
   vip: boolean;
   liveStreamPage: boolean;
+  isLive: boolean;
 };
 
 export async function POST(request: NextRequest) {
@@ -137,7 +138,14 @@ export async function POST(request: NextRequest) {
               select: { active: true }
             },
             liveStreamPage: {
-              select: { active: true }
+              select: {
+                active: true,
+                streams: {
+                  where: { isLive: true },
+                  select: { id: true, isLive: true },
+                  take: 1
+                }
+              }
             },
             images: {
               select: { url: true, default: true, NSFW: true },
@@ -210,6 +218,7 @@ export async function POST(request: NextRequest) {
           race: user.race,
           images: user.images,
           vip: user.vipPage?.active || false,
+          isLive: (user.liveStreamPage?.streams && user.liveStreamPage.streams.length > 0 && user.liveStreamPage.streams[0].isLive) || false,
           liveStreamPage: user.liveStreamPage?.active || false,
           minPrice,
           maxPrice,
@@ -268,6 +277,7 @@ export async function POST(request: NextRequest) {
         slug: user.slug,
         location: user.suburb,
         vip: user.vip,
+        isLive: user.isLive,
         liveStreamPage: user.liveStreamPage,
         distance: isSlugSearch ? 'N/A' : `${user.distance.toFixed(1)}km away`,
         price: user.minPrice && user.maxPrice
