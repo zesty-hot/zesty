@@ -19,9 +19,13 @@
 
 The initial problem was that there was no safe and secure way to pay for adult entertainment services. This led to a lot of scams and fraud, which made it difficult for content creators to earn a living and for users to find safe and reliable services.
 
-Exhibit A:
+### Exhibit A:
+
+<div align="center">
 
 ![Exhibit A](https://raw.githubusercontent.com/zesty-hot/zesty/refs/heads/main/.github/images/exhibit-a.jpg)
+
+</div>
 
 ## 📖 Overview
 
