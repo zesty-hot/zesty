@@ -21,11 +21,7 @@ The initial problem was that there was no safe and secure way to pay for adult e
 
 ### Exhibit A:
 
-<div align="center">
-
-![Exhibit A](https://raw.githubusercontent.com/zesty-hot/zesty/refs/heads/main/.github/images/exhibit-a.jpg)
-
-</div>
+<img src="https://raw.githubusercontent.com/zesty-hot/zesty/refs/heads/main/.github/images/exhibit-a.jpg" alt="Exhibit A" height="500"/>
 
 ## 📖 Overview
 
