@@ -15,9 +15,17 @@
 
 </div>
 
+## The initial problem 
+
+The initial problem was that there was no safe and secure way to pay for adult entertainment services. This led to a lot of scams and fraud, which made it difficult for content creators to earn a living and for users to find safe and reliable services.
+
+Exhibit A:
+
+![Exhibit A](https://raw.githubusercontent.com/zesty-hot/zesty/refs/heads/main/.github/images/exhibit-a.png)
+
 ## 📖 Overview
 
-Zesty is a comprehensive adult entertainment application designed to provide a safe and engaging environment for both content creators and users. It integrates advanced features like escrow payments, ID verification, and a reputation system to ensure security and trust within the community.
+Zesty is a comprehensive adult entertainment application designed to provide a safe and engaging environment for both content creators and users. It integrates advanced features like safe escrow payments, ID verification, and a reputation system to ensure security and trust within the community.
 
 Zesty offers a seamless experience across web and mobile platforms via **Capacitor**.
 
@@ -129,3 +137,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📄 License
 
 Distributed under the ZNSL V1.0 License. See [LICENSE.md](LICENSE.md) for more information.
+
