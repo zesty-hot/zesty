@@ -2,7 +2,7 @@
 
 > The next-generation adult entertainment platform built for safety, connection, and community.
 
-![Zesty Banner](https://via.placeholder.com/1200x400?text=Zesty+Platform)
+![Zesty Banner](https://raw.githubusercontent.com/zesty-hot/zesty/refs/heads/main/public/og-image.png)
 
 <div align="center">
 
