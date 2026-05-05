@@ -616,7 +616,7 @@ export default function EscortSlugPage() {
                       className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
                     >
                       <span className="text-sm font-medium">
-                        {extra.name.split('_').map(word =>
+                        {extra.name.split('_').map((word: string) =>
                           word.charAt(0) + word.slice(1).toLowerCase()
                         ).join(' ')}
                       </span>
