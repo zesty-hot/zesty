@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma, withRetry } from "@/lib/prisma";
-import { PrivateAdServiceCategory, PrivateAdDaysAvailable, PrivateOfferStatus } from "@prisma/client";
+import { PrivateAdServiceCategory, PrivateAdDaysAvailable, PrivateOfferStatus } from "@/prisma/generated/enums";
 import { sendNewOfferNotification, sendNewMessageNotification } from "@/lib/push-notifications";
 import { serverSupabase } from "@/lib/supabase/server";
 

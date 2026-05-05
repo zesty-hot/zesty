@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import FilterComponent, { type FilterData } from '@/app/[lang]/escorts/(client-renders)/filter';
 import { useParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BodyType, PrivateAdDaysAvailable, PrivateAdCustomerCategory, PrivateAdExtraType, PrivateAdServiceCategory, Race } from "@prisma/client";
+import { BodyType, PrivateAdDaysAvailable, PrivateAdCustomerCategory, PrivateAdExtraType, PrivateAdServiceCategory, Race } from "@/prisma/generated/enums";
 import { type LocationSuggestion } from '@/lib/geocoding';
 
 export interface EscortProfileData {
