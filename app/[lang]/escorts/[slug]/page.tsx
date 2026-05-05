@@ -572,7 +572,7 @@ export default function EscortSlugPage() {
                 {/* Service Category Header */}
                 <div className="flex items-center gap-2 pb-2 border-b">
                   <h3 className="text-lg font-semibold">
-                    {service.category.split('_').map(word =>
+                    {service.category.split('_').map((word: string) =>
                       word.charAt(0) + word.slice(1).toLowerCase()
                     ).join(' ')}
                   </h3>
