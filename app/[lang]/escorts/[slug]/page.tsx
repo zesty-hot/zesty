@@ -22,6 +22,7 @@ import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { EscortProfileData } from "../page";
 import { cn } from "@/lib/utils";
+import { formatEnum } from "@/lib/format-enum";
 import { RiStarFill } from "@remixicon/react";
 import { StartChatButton } from "@/components/start-chat-button";
 import { toastManager } from "@/components/ui/toast";
@@ -572,9 +573,7 @@ export default function EscortSlugPage() {
                 {/* Service Category Header */}
                 <div className="flex items-center gap-2 pb-2 border-b">
                   <h3 className="text-lg font-semibold">
-                    {service.category.split('_').map((word: string) =>
-                      word.charAt(0) + word.slice(1).toLowerCase()
-                    ).join(' ')}
+                    {formatEnum(service.category)}
                   </h3>
                   {service.label && (
                     <span className="text-sm text-muted-foreground">({service.label})</span>
@@ -616,9 +615,7 @@ export default function EscortSlugPage() {
                       className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
                     >
                       <span className="text-sm font-medium">
-                        {extra.name.split('_').map((word: string) =>
-                          word.charAt(0) + word.slice(1).toLowerCase()
-                        ).join(' ')}
+                        {formatEnum(extra.name)}
                       </span>
                       <span className="text-sm font-semibold">
                         ${extra.price}
