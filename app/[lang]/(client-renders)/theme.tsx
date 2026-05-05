@@ -10,7 +10,6 @@ import { SunMoon } from "lucide-react";
 
 export default function ThemeToggle({ className }: { className?: string }) {
 
-
   const setTheme = () => {
     const theme = getCookie("zesty-theme");
     if (theme === "dark") {

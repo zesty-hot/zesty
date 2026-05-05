@@ -115,7 +115,7 @@ export default function MobileNav() {
         <Calendar className={`h-6 w-6`} />
         <span className="text-xs">Events</span>
       </Link>
-      <Link
+      {/* <Link
         href={`/${lang}/dating`}
         className={getLinkClassName("/dating") + ` mr-3`}
         prefetch={false}
@@ -124,7 +124,7 @@ export default function MobileNav() {
       >
         <Flame className={`h-6 w-6`} />
         <span className="text-xs">Meet</span>
-      </Link>
+      </Link> */}
     </nav>
 
   );

@@ -34,7 +34,7 @@ export default function DesktopNav() {
           <Link href={`/${lang}/vip`} className="hover:text-foreground">Creators</Link>
           <Link href={`/${lang}/live`} className="hover:text-foreground">Live</Link>
           <Link href={`/${lang}/events`} className="hover:text-foreground">Events</Link>
-          <Link href={`/${lang}/dating`} className="hover:text-foreground">Meet</Link>
+          {/* <Link href={`/${lang}/dating`} className="hover:text-foreground">Meet</Link> */}
         </div>
 
         {/* Animated authenticated row: collapse horizontally when unauthenticated to avoid empty gap */}
