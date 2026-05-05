@@ -165,7 +165,7 @@ export type VIPCommentGroupByOutputType = {
   _max: VIPCommentMaxAggregateOutputType | null
 }
 
-type GetVIPCommentGroupByPayload<T extends VIPCommentGroupByArgs> = Prisma.PrismaPromise<
+export type GetVIPCommentGroupByPayload<T extends VIPCommentGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<VIPCommentGroupByOutputType, T['by']> &
       {
@@ -1283,6 +1283,11 @@ export type VIPCommentFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Skip the first `n` VIPComments.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of VIPComments.
+   */
   distinct?: Prisma.VIPCommentScalarFieldEnum | Prisma.VIPCommentScalarFieldEnum[]
 }
 

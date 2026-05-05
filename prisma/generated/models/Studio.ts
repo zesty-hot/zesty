@@ -228,7 +228,7 @@ export type StudioGroupByOutputType = {
   _max: StudioMaxAggregateOutputType | null
 }
 
-type GetStudioGroupByPayload<T extends StudioGroupByArgs> = Prisma.PrismaPromise<
+export type GetStudioGroupByPayload<T extends StudioGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<StudioGroupByOutputType, T['by']> &
       {
@@ -1901,6 +1901,11 @@ export type StudioFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Skip the first `n` Studios.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Studios.
+   */
   distinct?: Prisma.StudioScalarFieldEnum | Prisma.StudioScalarFieldEnum[]
 }
 

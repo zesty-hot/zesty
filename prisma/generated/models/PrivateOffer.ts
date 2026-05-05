@@ -343,7 +343,7 @@ export type PrivateOfferGroupByOutputType = {
   _max: PrivateOfferMaxAggregateOutputType | null
 }
 
-type GetPrivateOfferGroupByPayload<T extends PrivateOfferGroupByArgs> = Prisma.PrismaPromise<
+export type GetPrivateOfferGroupByPayload<T extends PrivateOfferGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PrivateOfferGroupByOutputType, T['by']> &
       {
@@ -2620,6 +2620,11 @@ export type PrivateOfferFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Skip the first `n` PrivateOffers.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of PrivateOffers.
+   */
   distinct?: Prisma.PrivateOfferScalarFieldEnum | Prisma.PrivateOfferScalarFieldEnum[]
 }
 

@@ -217,7 +217,7 @@ export type VIPDiscountOfferGroupByOutputType = {
   _max: VIPDiscountOfferMaxAggregateOutputType | null
 }
 
-type GetVIPDiscountOfferGroupByPayload<T extends VIPDiscountOfferGroupByArgs> = Prisma.PrismaPromise<
+export type GetVIPDiscountOfferGroupByPayload<T extends VIPDiscountOfferGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<VIPDiscountOfferGroupByOutputType, T['by']> &
       {
@@ -1277,6 +1277,11 @@ export type VIPDiscountOfferFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Skip the first `n` VIPDiscountOffers.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of VIPDiscountOffers.
+   */
   distinct?: Prisma.VIPDiscountOfferScalarFieldEnum | Prisma.VIPDiscountOfferScalarFieldEnum[]
 }
 

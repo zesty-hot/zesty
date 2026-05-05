@@ -186,7 +186,7 @@ export type LiveStreamPageGroupByOutputType = {
   _max: LiveStreamPageMaxAggregateOutputType | null
 }
 
-type GetLiveStreamPageGroupByPayload<T extends LiveStreamPageGroupByArgs> = Prisma.PrismaPromise<
+export type GetLiveStreamPageGroupByPayload<T extends LiveStreamPageGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<LiveStreamPageGroupByOutputType, T['by']> &
       {
@@ -1439,6 +1439,11 @@ export type LiveStreamPageFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Skip the first `n` LiveStreamPages.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of LiveStreamPages.
+   */
   distinct?: Prisma.LiveStreamPageScalarFieldEnum | Prisma.LiveStreamPageScalarFieldEnum[]
 }
 

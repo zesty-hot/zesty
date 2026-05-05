@@ -213,7 +213,7 @@ export type StudioReviewGroupByOutputType = {
   _max: StudioReviewMaxAggregateOutputType | null
 }
 
-type GetStudioReviewGroupByPayload<T extends StudioReviewGroupByArgs> = Prisma.PrismaPromise<
+export type GetStudioReviewGroupByPayload<T extends StudioReviewGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<StudioReviewGroupByOutputType, T['by']> &
       {
@@ -1409,6 +1409,11 @@ export type StudioReviewFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Skip the first `n` StudioReviews.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of StudioReviews.
+   */
   distinct?: Prisma.StudioReviewScalarFieldEnum | Prisma.StudioReviewScalarFieldEnum[]
 }
 

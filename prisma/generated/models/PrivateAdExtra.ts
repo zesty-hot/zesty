@@ -192,7 +192,7 @@ export type PrivateAdExtraGroupByOutputType = {
   _max: PrivateAdExtraMaxAggregateOutputType | null
 }
 
-type GetPrivateAdExtraGroupByPayload<T extends PrivateAdExtraGroupByArgs> = Prisma.PrismaPromise<
+export type GetPrivateAdExtraGroupByPayload<T extends PrivateAdExtraGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PrivateAdExtraGroupByOutputType, T['by']> &
       {
@@ -1170,6 +1170,11 @@ export type PrivateAdExtraFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Skip the first `n` PrivateAdExtras.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of PrivateAdExtras.
+   */
   distinct?: Prisma.PrivateAdExtraScalarFieldEnum | Prisma.PrivateAdExtraScalarFieldEnum[]
 }
 

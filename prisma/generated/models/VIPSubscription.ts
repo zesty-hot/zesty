@@ -220,7 +220,7 @@ export type VIPSubscriptionGroupByOutputType = {
   _max: VIPSubscriptionMaxAggregateOutputType | null
 }
 
-type GetVIPSubscriptionGroupByPayload<T extends VIPSubscriptionGroupByArgs> = Prisma.PrismaPromise<
+export type GetVIPSubscriptionGroupByPayload<T extends VIPSubscriptionGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<VIPSubscriptionGroupByOutputType, T['by']> &
       {
@@ -1456,6 +1456,11 @@ export type VIPSubscriptionFindManyArgs<ExtArgs extends runtime.Types.Extensions
    * Skip the first `n` VIPSubscriptions.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of VIPSubscriptions.
+   */
   distinct?: Prisma.VIPSubscriptionScalarFieldEnum | Prisma.VIPSubscriptionScalarFieldEnum[]
 }
 

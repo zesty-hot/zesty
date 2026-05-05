@@ -172,7 +172,7 @@ export type StudioAdminGroupByOutputType = {
   _max: StudioAdminMaxAggregateOutputType | null
 }
 
-type GetStudioAdminGroupByPayload<T extends StudioAdminGroupByArgs> = Prisma.PrismaPromise<
+export type GetStudioAdminGroupByPayload<T extends StudioAdminGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<StudioAdminGroupByOutputType, T['by']> &
       {
@@ -1330,6 +1330,11 @@ export type StudioAdminFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Skip the first `n` StudioAdmins.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of StudioAdmins.
+   */
   distinct?: Prisma.StudioAdminScalarFieldEnum | Prisma.StudioAdminScalarFieldEnum[]
 }
 

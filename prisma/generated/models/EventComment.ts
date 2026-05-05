@@ -165,7 +165,7 @@ export type EventCommentGroupByOutputType = {
   _max: EventCommentMaxAggregateOutputType | null
 }
 
-type GetEventCommentGroupByPayload<T extends EventCommentGroupByArgs> = Prisma.PrismaPromise<
+export type GetEventCommentGroupByPayload<T extends EventCommentGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<EventCommentGroupByOutputType, T['by']> &
       {
@@ -1283,6 +1283,11 @@ export type EventCommentFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Skip the first `n` EventComments.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of EventComments.
+   */
   distinct?: Prisma.EventCommentScalarFieldEnum | Prisma.EventCommentScalarFieldEnum[]
 }
 

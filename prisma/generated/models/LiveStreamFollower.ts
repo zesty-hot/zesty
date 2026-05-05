@@ -151,7 +151,7 @@ export type LiveStreamFollowerGroupByOutputType = {
   _max: LiveStreamFollowerMaxAggregateOutputType | null
 }
 
-type GetLiveStreamFollowerGroupByPayload<T extends LiveStreamFollowerGroupByArgs> = Prisma.PrismaPromise<
+export type GetLiveStreamFollowerGroupByPayload<T extends LiveStreamFollowerGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<LiveStreamFollowerGroupByOutputType, T['by']> &
       {
@@ -1207,6 +1207,11 @@ export type LiveStreamFollowerFindManyArgs<ExtArgs extends runtime.Types.Extensi
    * Skip the first `n` LiveStreamFollowers.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of LiveStreamFollowers.
+   */
   distinct?: Prisma.LiveStreamFollowerScalarFieldEnum | Prisma.LiveStreamFollowerScalarFieldEnum[]
 }
 

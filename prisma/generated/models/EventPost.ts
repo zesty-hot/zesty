@@ -165,7 +165,7 @@ export type EventPostGroupByOutputType = {
   _max: EventPostMaxAggregateOutputType | null
 }
 
-type GetEventPostGroupByPayload<T extends EventPostGroupByArgs> = Prisma.PrismaPromise<
+export type GetEventPostGroupByPayload<T extends EventPostGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<EventPostGroupByOutputType, T['by']> &
       {
@@ -1404,6 +1404,11 @@ export type EventPostFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Skip the first `n` EventPosts.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of EventPosts.
+   */
   distinct?: Prisma.EventPostScalarFieldEnum | Prisma.EventPostScalarFieldEnum[]
 }
 

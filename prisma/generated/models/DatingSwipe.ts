@@ -165,7 +165,7 @@ export type DatingSwipeGroupByOutputType = {
   _max: DatingSwipeMaxAggregateOutputType | null
 }
 
-type GetDatingSwipeGroupByPayload<T extends DatingSwipeGroupByArgs> = Prisma.PrismaPromise<
+export type GetDatingSwipeGroupByPayload<T extends DatingSwipeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<DatingSwipeGroupByOutputType, T['by']> &
       {
@@ -1293,6 +1293,11 @@ export type DatingSwipeFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Skip the first `n` DatingSwipes.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of DatingSwipes.
+   */
   distinct?: Prisma.DatingSwipeScalarFieldEnum | Prisma.DatingSwipeScalarFieldEnum[]
 }
 

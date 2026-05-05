@@ -185,7 +185,7 @@ export type MessageReadGroupByOutputType = {
   _max: MessageReadMaxAggregateOutputType | null
 }
 
-type GetMessageReadGroupByPayload<T extends MessageReadGroupByArgs> = Prisma.PrismaPromise<
+export type GetMessageReadGroupByPayload<T extends MessageReadGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MessageReadGroupByOutputType, T['by']> &
       {
@@ -1251,6 +1251,11 @@ export type MessageReadFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Skip the first `n` MessageReads.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of MessageReads.
+   */
   distinct?: Prisma.MessageReadScalarFieldEnum | Prisma.MessageReadScalarFieldEnum[]
 }
 

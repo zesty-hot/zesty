@@ -199,7 +199,7 @@ export type LiveStreamDonationGroupByOutputType = {
   _max: LiveStreamDonationMaxAggregateOutputType | null
 }
 
-type GetLiveStreamDonationGroupByPayload<T extends LiveStreamDonationGroupByArgs> = Prisma.PrismaPromise<
+export type GetLiveStreamDonationGroupByPayload<T extends LiveStreamDonationGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<LiveStreamDonationGroupByOutputType, T['by']> &
       {
@@ -1327,6 +1327,11 @@ export type LiveStreamDonationFindManyArgs<ExtArgs extends runtime.Types.Extensi
    * Skip the first `n` LiveStreamDonations.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of LiveStreamDonations.
+   */
   distinct?: Prisma.LiveStreamDonationScalarFieldEnum | Prisma.LiveStreamDonationScalarFieldEnum[]
 }
 

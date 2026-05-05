@@ -151,7 +151,7 @@ export type VIPLikeGroupByOutputType = {
   _max: VIPLikeMaxAggregateOutputType | null
 }
 
-type GetVIPLikeGroupByPayload<T extends VIPLikeGroupByArgs> = Prisma.PrismaPromise<
+export type GetVIPLikeGroupByPayload<T extends VIPLikeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<VIPLikeGroupByOutputType, T['by']> &
       {
@@ -1207,6 +1207,11 @@ export type VIPLikeFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Skip the first `n` VIPLikes.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of VIPLikes.
+   */
   distinct?: Prisma.VIPLikeScalarFieldEnum | Prisma.VIPLikeScalarFieldEnum[]
 }
 

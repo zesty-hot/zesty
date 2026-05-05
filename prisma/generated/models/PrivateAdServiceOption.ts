@@ -189,7 +189,7 @@ export type PrivateAdServiceOptionGroupByOutputType = {
   _max: PrivateAdServiceOptionMaxAggregateOutputType | null
 }
 
-type GetPrivateAdServiceOptionGroupByPayload<T extends PrivateAdServiceOptionGroupByArgs> = Prisma.PrismaPromise<
+export type GetPrivateAdServiceOptionGroupByPayload<T extends PrivateAdServiceOptionGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PrivateAdServiceOptionGroupByOutputType, T['by']> &
       {
@@ -1137,6 +1137,11 @@ export type PrivateAdServiceOptionFindManyArgs<ExtArgs extends runtime.Types.Ext
    * Skip the first `n` PrivateAdServiceOptions.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of PrivateAdServiceOptions.
+   */
   distinct?: Prisma.PrivateAdServiceOptionScalarFieldEnum | Prisma.PrivateAdServiceOptionScalarFieldEnum[]
 }
 
