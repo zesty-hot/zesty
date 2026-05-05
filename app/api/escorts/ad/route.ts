@@ -7,7 +7,7 @@ import {
   Race,
   BodyType,
   PrivateAdCustomerCategory,
-} from "@prisma/client";
+} from "@/prisma/generated/enums";
 import { serverSupabase } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {

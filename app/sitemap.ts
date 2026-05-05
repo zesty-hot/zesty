@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { getSiteConfig } from "@/lib/metadata";
 import { prisma, withRetry } from "@/lib/prisma";
 import { locales } from '@/lib/i18n/config';
-import { EventStatus } from "@prisma/client";
+import { EventStatus } from "@/prisma/generated/enums";
 
 // Revalidate sitemap every 24 hours (86400 seconds)
 export const revalidate = 86400;
